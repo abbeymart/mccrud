@@ -1,3 +1,7 @@
 github.com/abbeymart/mcresponsego v0.2.2 h1:RuVLRTaCejaCwyli353GWxEBRjSBCAnZ9/fbruQIB2U=
 github.com/abbeymart/mcresponsego v0.2.2/go.mod h1:6twtms15Y8A1ngqY1jgRADvZdqCkPHl5Q//WqlhWLSk=
+github.com/abbeymart/mcresponsego v0.3.0 h1:ZFLCAo1DxG4RNcCiwVKUTcCa8X3ACjPJTfSVo6A+A40=
+github.com/abbeymart/mcresponsego v0.3.0/go.mod h1:6twtms15Y8A1ngqY1jgRADvZdqCkPHl5Q//WqlhWLSk=
 github.com/abbeymart/mctestgo v0.5.0/go.mod h1:6z87w/tScZc/s/EbNT8Uj9+1MEGIPvYgphiLxji7hq0=
+github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef h1:46PFijGLmAjMPwCCCo7Jf0W6f9slllCkkv7vyc1yOSg=
+github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
