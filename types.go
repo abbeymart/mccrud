@@ -199,7 +199,7 @@ type ModelOptionsType struct {
 	TimeStamp    bool // auto-add: createdAt and updatedAt | default: true
 	ActorStamp   bool // auto-add: createdBy and updatedBy | default: true
 	ActiveStamp  bool // auto-add isActive, if not already set | default: true
-	DocValueDesc DocDescType
+	DocValueDesc RecordDescType
 	DocValue     ValueParamType
 }
 
@@ -409,12 +409,12 @@ type OkResponse struct {
 }
 
 // ORM types
-type DocValueType map[string]ValueParamType
-type DocDescType map[string]FieldDescType
+type RecordValueType map[string]ValueParamType
+type RecordDescType map[string]FieldDescType
 
 type GetValueType func() interface{}
 type SetValueType func(val interface{}) interface{}
-type DefaultValueType func(val interface{}) interface{}
+type DefaultValueType func() interface{}
 type ValidateMethodType func(val interface{}) bool
 type ValidateMethodResponseType func(val interface{}) ValidateResponseType
 type ComputedValueType func(val interface{}) interface{}
@@ -433,7 +433,7 @@ type FieldDescType struct {
 	MinValue        uint
 	MaxValue        uint
 	SetValue        SetValueType       // set/transform fieldValue prior to save(create/insert), T=>fieldType
-	DefaultValue    interface{}        // result/T must be of fieldType
+	DefaultValue    DefaultValueType   // result/T must be of fieldType
 	Validate        ValidateMethodType // T=>fieldType, returns a bool (valid=true/invalid=false)
 	ValidateMessage string
 }
@@ -455,7 +455,7 @@ type ModelRelationType struct {
 
 type ModelType struct {
 	TableName       string
-	DocDesc         DocDescType
+	RecordDesc      RecordDescType
 	TimeStamp       bool // auto-add: createdAt and updatedAt | default: true
 	ActorStamp      bool // auto-add: createdBy and updatedBy | default: true
 	ActiveStamp     bool // record active status, isActive (true | false) | default: true
