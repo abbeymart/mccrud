@@ -1,23 +1,24 @@
-// @Author: abbeymart | Abi Akindele | @Created: 2020-12-01 | @Updated: 2020-12-01
+// @Author: abbeymart | Abi Akindele | @Created: 2020-12-05 | @Updated: 2020-12-05
 // @Company: mConnect.biz | @License: MIT
-// @Description: Base type/function CRUD operations for PgDB
+// @Description: mongoDB CRUD base type / behaviours
 
-package mccrud
+package mongo
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/abbeymart/mccrudgo"
 )
 
-type Crud struct {
-	CrudTaskType
-	CrudOptionsType
+type CrudMongo struct {
+	mccrud.MongoCrudTaskType
+	mccrud.MongoCrudOptionsType
 	HashKey string // Unique for exactly the same query
 }
 
 // constructor
-func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
-	result := Crud{}
+func NewCrudMongo(params mccrud.MongoCrudTaskType, options mccrud.MongoCrudOptionsType) CrudMongo {
+	result := CrudMongo{}
 	// compute crud params
 	result.AppDb = params.AppDb
 	result.TableName = params.TableName
@@ -64,7 +65,7 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 // methods => separate go-files
 
 // String() function implementation
-func (crud Crud) String() string {
+func (crud CrudMongo) String() string {
 	//appDb := fmt.Sprintf("Application DB: %v", crud.AppDb)
 	return fmt.Sprintf(`
 	Application DB: %v \n Table Name: %v \n

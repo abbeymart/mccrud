@@ -12,18 +12,33 @@ import (
 import "github.com/abbeymart/mcresponsego"
 import "github.com/asaskevich/govalidator"
 
+type CrudMethods interface {
+	Save()
+	Get()
+	Delete()
+}
+type CrudSave interface {
+	Save()
+}
+type CrudGet interface {
+	Get()
+}
+type CrudDelete interface {
+	Delete()
+}
+
 type Model struct {
-	modelParams ModelType
-	options     ModelOptionsType
+	ModelType
+	ModelOptionsType
 }
 
 // Methods
 func (model Model) GetParentRelations() []ModelRelationType {
 	// extract relations/collections where targetTable == model-TableName
 	var parentRelations []ModelRelationType
-	modelRelations := model.modelParams.Relations
+	modelRelations := model.Relations
 	for _, item := range modelRelations {
-		if item.TargetTable == model.modelParams.TableName {
+		if item.TargetTable == model.TableName {
 			parentRelations = append(parentRelations, item)
 		}
 	}
@@ -33,9 +48,9 @@ func (model Model) GetParentRelations() []ModelRelationType {
 func (model Model) GetChildRelations() []ModelRelationType {
 	// extract relations/collections where sourceTable == model-TableName
 	var childRelations []ModelRelationType
-	modelRelations := model.modelParams.Relations
+	modelRelations := model.Relations
 	for _, item := range modelRelations {
-		if item.SourceTable == model.modelParams.TableName {
+		if item.SourceTable == model.TableName {
 			childRelations = append(childRelations, item)
 		}
 	}
@@ -176,6 +191,30 @@ func (model Model) UpdateDefaultValue(docValue ValueParamType) ValueParamType {
 	// set base docValue
 	setDocValue := docValue
 	// perform update of default/set-values for the doc-values => modelDocValue
+	for key, _ := range docValue {
+		// defaultValue setting applies to FieldDescType only | otherwise, the value is required (not null)
+		var docFieldDesc interface{} = model.DocDesc[key]
+		docFieldValue := docValue[key]
+		// set default values
+		if docFieldValue != nil {
+			switch docFieldDesc.(type) {
+			case FieldDescType:
+				// type of defaultValue and docFieldValue must be equivalent (re: validateMethod)
+				fieldDesc := model.DocDesc[key]
+				if fieldDesc.DefaultValue != nil {
+					defaultValue := fieldDesc.DefaultValue
+					switch defaultValue.(type) {
+					case DefaultValueType:
+						// TODO: if defaultValue is a func
+						//setDocValue[key] = defaultValue(docValue)
+					case FieldValueType:
+						setDocValue[key] = defaultValue
+					}
+				}
+
+			}
+		}
+	}
 
 	return setDocValue
 }

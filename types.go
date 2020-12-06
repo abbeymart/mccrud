@@ -6,6 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TaskType struct {
@@ -65,29 +66,40 @@ func RelationActions() RelationActionType {
 }
 
 const (
-	// CRUD Tasks "create"
-	CREATE = "create"
-	INSERT = "insert"
-	UPDATE = "update"
-	READ   = "read"
-	DELETE = "delete"
-	REMOVE = "remove"
+	// TaskType CRUD Tasks
+	CreateTask = "create"
+	InsertTask = "insert"
+	UpdateTask = "update"
+	ReadTask   = "read"
+	DeleteTask = "delete"
+	RemoveTask = "remove"
+	// Model Relations
+	OneToOneRelation   = "onetoone"
+	OneToManyRelation  = "onetomany"
+	ManyToManyRelation = "manytomany"
+	ManyToOneRelation  = "manytoone"
+	// Model Relation Actions
+	RestrictAction = "restrict" // must remove target-record(s), prior to removing source-record
+	CascadeAction  = "cascade"  // default for ON UPDATE | update foreignKey value or delete foreignKey record/value
+	NoAction       = "noaction" // leave the foreignKey value, as-is
+	DefaultAction  = "default"  // set foreignKey to specified default value
+	NullAction     = "null"     // set foreignKey value to null or ""
 	// DataTypes
 	STRING = "string"
 	// STRINGALPHA = "stringalpha"
 	// STRINGALPHANUMERIC = "stringalphanumeric"
-	POSTALCODE = "postalcode"
-	MONGODBID   = "objectid"
-	UUID        = "uuid"
-	UUID3       = "uuid3"
-	UUID4       = "uuid4"
-	UUID5       = "uuid5"
-	MD4         = "md4"
-	MD5         = "md5"
-	SHA1        = "sha1"
-	SHA256      = "sha256"
-	SHA384      = "sha384"
-	SHA512      = "sha512"
+	POSTALCODE     = "postalcode"
+	MONGODBID      = "objectid"
+	UUID           = "uuid"
+	UUID3          = "uuid3"
+	UUID4          = "uuid4"
+	UUID5          = "uuid5"
+	MD4            = "md4"
+	MD5            = "md5"
+	SHA1           = "sha1"
+	SHA256         = "sha256"
+	SHA384         = "sha384"
+	SHA512         = "sha512"
 	NUMBER         = "number"
 	INTEGER        = "integer"
 	DECIMAL        = "decimal"
@@ -183,6 +195,14 @@ type ExistParamsType []ExistParamType
 type SortParamType map[string]int     // 1 for "asc", -1 for "desc"
 type ProjectParamType map[string]bool // 1 or true for inclusion, 0 or false for exclusion
 
+type ModelOptionsType struct {
+	TimeStamp    bool // auto-add: createdAt and updatedAt | default: true
+	ActorStamp   bool // auto-add: createdBy and updatedBy | default: true
+	ActiveStamp  bool // auto-add isActive, if not already set | default: true
+	DocValueDesc DocDescType
+	DocValue     ValueParamType
+}
+
 type CrudTaskType struct {
 	AppDb         *sql.DB
 	TableName     string
@@ -196,14 +216,6 @@ type CrudTaskType struct {
 	Token         string
 	Options       CrudOptionsType
 	TaskName      string
-}
-
-type ModelOptionsType struct {
-	TimeStamp    bool // auto-add: createdAt and updatedAt | default: true
-	ActorStamp   bool // auto-add: createdBy and updatedBy | default: true
-	ActiveStamp  bool // auto-add isActive, if not already set | default: true
-	DocValueDesc DocDescType
-	DocValue     ValueParamType
 }
 
 type CrudOptionsType struct {
@@ -240,7 +252,7 @@ type CrudOptionsType struct {
 	MsgFrom               string
 }
 
-type CrudParamTYpe struct {
+type CrudParamType struct {
 	appDb           *sql.DB
 	tableName       string
 	token           string
@@ -289,6 +301,104 @@ type CrudParamTYpe struct {
 	params              CrudTaskType
 }
 
+type MongoCrudTaskType struct {
+	AppDb         *mongo.Client
+	TableName     string
+	UserInfo      UserInfoType
+	ActionParams  ActionParamsType
+	ExistParams   ExistParamsType
+	QueryParams   QueryParamType
+	DocIds        []string
+	ProjectParams ProjectParamType
+	SortParams    SortParamType
+	Token         string
+	Options       MongoCrudOptionsType
+	TaskName      string
+}
+
+type MongoCrudOptionsType struct {
+	Skip                  uint
+	Limit                 uint
+	ParentTables          []string
+	ChildTables           []string
+	RecursiveDelete       bool
+	CheckAccess           bool
+	AccessDb              *mongo.Client
+	AuditDb               *mongo.Client
+	ServiceDb             *mongo.Client
+	AuditTable            string
+	ServiceTable          string
+	UserTable             string
+	RoleTable             string
+	AccessTable           string
+	VerifyTable           string
+	MaxQueryLimit         uint
+	LogAll                bool
+	LogCreate             bool
+	LogUpdate             bool
+	LogRead               bool
+	LogDelete             bool
+	LogLogin              bool
+	LogLogout             bool
+	UnAuthorizedMessage   string
+	RecExistMessage       string
+	CacheExpire           uint
+	ModelOptions          ModelOptionsType
+	LoginTimeout          uint
+	UsernameExistsMessage string
+	EmailExistsMessage    string
+	MsgFrom               string
+}
+
+type MongoCrudParamType struct {
+	appDb           *mongo.Client
+	tableName       string
+	token           string
+	userInfo        UserInfoType
+	userId          string
+	group           string
+	groups          []string
+	docIds          []string
+	actionParams    ActionParamsType
+	queryParams     QueryParamType
+	existParams     ExistParamsType
+	projectParams   ProjectParamType
+	sortParams      SortParamType
+	skip            uint
+	limit           uint
+	parentTables    []string
+	childTables     []string
+	recursiveDelete bool
+	checkAccess     bool
+	accessDb        *mongo.Client
+	auditDb         *mongo.Client
+	auditTable      string
+	serviceTable    string
+	userTable       string
+	roleTable       string
+	accessTable     string
+	maxQueryLimit   uint
+	logAll          bool
+	logCreate       bool
+	logUpdate       bool
+	logRead         bool
+	logDelete       bool
+	//transLog AuditLog
+	hashKey             string
+	isRecExist          bool
+	actionAuthorized    bool
+	unAuthorizedMessage string
+	recExistMessage     string
+	isAdmin             bool
+	createItems         ActionParamsType
+	updateItems         ActionParamsType
+	currentRecs         ActionParamsType
+	roleServices        []RoleServiceType
+	subItems            []bool
+	cacheExpire         uint
+	params              MongoCrudTaskType
+}
+
 type ErrorType map[string]string
 type ValidateResponseType struct {
 	Ok     bool      `json:"ok"`
@@ -300,7 +410,7 @@ type OkResponse struct {
 
 // ORM types
 type DocValueType map[string]ValueParamType
-type DocDescType map[string]interface{}
+type DocDescType map[string]FieldDescType
 
 type GetValueType func() interface{}
 type SetValueType func(val interface{}) interface{}
