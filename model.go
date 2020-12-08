@@ -83,23 +83,23 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 		//if govalidator.IsType(val, "string") {}
 		switch fmt.Sprintf("%T", val) {
 		case "[]string":
-			computedType[key] = ARRAYOFSTRING
+			computedType[key] = DataTypes().ArrayOfString
 		case "[]int":
-			computedType[key] = ARRAYOFNUMBER
+			computedType[key] = DataTypes().ArrayOfNumber
 		case "[]float64":
-			computedType[key] = ARRAYOFNUMBER
+			computedType[key] = DataTypes().ArrayOfNumber
 		case "[]bool":
-			computedType[key] = ARRAYOFBOOLEAN
+			computedType[key] = DataTypes().ArrayOfBoolean
 		case "[]map":
-			computedType[key] = ARRAYOFOBJECT
+			computedType[key] = DataTypes().ArrayOfObject
 		case "[]struct":
-			computedType[key] = ARRAYOFOBJECT
+			computedType[key] = DataTypes().ArrayOfObject
 		case "[]":
-			computedType[key] = ARRAY
+			computedType[key] = DataTypes().Array
 		case "map":
-			computedType[key] = MAP
+			computedType[key] = DataTypes().Map
 		case "struct":
-			computedType[key] = OBJECT
+			computedType[key] = DataTypes().Object
 		case "string":
 			// compute string value
 			jsonStr, _ := json.Marshal(val)
@@ -111,76 +111,76 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 			// check all string-based formats
 			// TODO: ISO2, ISO3, Currency, Mime, JWT, PostalCode
 			if govalidator.IsEmail(strVal) {
-				computedType[key] = EMAIL
+				computedType[key] = DataTypes().Email
 			} else if govalidator.IsUnixTime(strVal) {
-				computedType[key] = DATETIME
+				computedType[key] = DataTypes().DateTime
 			} else if govalidator.IsTime(strVal, "HH:MM:SS") {
-				computedType[key] = TIME
+				computedType[key] = DataTypes().Time
 			} else if govalidator.IsMongoID(strVal) {
-				computedType[key] = MONGODBID
+				computedType[key] = DataTypes().MongoDBId
 			} else if govalidator.IsUUID(strVal) {
-				computedType[key] = UUID
+				computedType[key] = DataTypes().UUID
 			} else if govalidator.IsUUIDv3(strVal) {
 				computedType[key] = UUID3
 			} else if govalidator.IsUUIDv4(strVal) {
-				computedType[key] = UUID4
+				computedType[key] = DataTypes().UUID4
 			} else if govalidator.IsUUIDv5(strVal) {
-				computedType[key] = UUID5
+				computedType[key] = DataTypes().UUID5
 			} else if govalidator.IsMD4(strVal) {
-				computedType[key] = MD4
+				computedType[key] = DataTypes().MD4
 			} else if govalidator.IsMD5(strVal) {
-				computedType[key] = MD5
+				computedType[key] = DataTypes().MD5
 			} else if govalidator.IsSHA1(strVal) {
-				computedType[key] = SHA1
+				computedType[key] = DataTypes().SHA1
 			} else if govalidator.IsSHA256(strVal) {
-				computedType[key] = SHA256
+				computedType[key] = DataTypes().SHA256
 			} else if govalidator.IsSHA384(strVal) {
-				computedType[key] = SHA384
+				computedType[key] = DataTypes().SHA384
 			} else if govalidator.IsSHA512(strVal) {
-				computedType[key] = SHA512
+				computedType[key] = DataTypes().SHA512
 			} else if govalidator.IsJSON(strVal) {
-				computedType[key] = JSON
+				computedType[key] = DataTypes().JSON
 			} else if govalidator.IsCreditCard(strVal) {
-				computedType[key] = CREDITCARD
+				computedType[key] = DataTypes().CreditCard
 			} else if govalidator.IsURL(strVal) {
-				computedType[key] = URL
+				computedType[key] = DataTypes().URL
 			} else if govalidator.IsDNSName(strVal) {
-				computedType[key] = DOMAINNAME
+				computedType[key] = DataTypes().DomainName
 			} else if govalidator.IsPort(strVal) {
-				computedType[key] = PORT
+				computedType[key] = DataTypes().Port
 			} else if govalidator.IsIP(strVal) {
-				computedType[key] = IP
+				computedType[key] = DataTypes().IP
 			} else if govalidator.IsIPv4(strVal) {
-				computedType[key] = IP4
+				computedType[key] = DataTypes().IP4
 			} else if govalidator.IsIPv6(strVal) {
-				computedType[key] = IP6
+				computedType[key] = DataTypes().IP6
 			} else if govalidator.IsIMEI(strVal) {
-				computedType[key] = IMEI
+				computedType[key] = DataTypes().IMEI
 			} else if govalidator.IsLatitude(strVal) {
-				computedType[key] = LATITUDE
+				computedType[key] = DataTypes().Latitude
 			} else if govalidator.IsLongitude(strVal) {
-				computedType[key] = LONGITUDE
+				computedType[key] = DataTypes().Longitude
 			} else if govalidator.IsMAC(strVal) {
-				computedType[key] = MACADDRESS
+				computedType[key] = DataTypes().MACAddress
 			} else if govalidator.IsInt(strVal) {
-				computedType[key] = INTEGER
+				computedType[key] = DataTypes().Integer
 			} else if govalidator.IsPositive(strToNum) {
-				computedType[key] = POSITIVE
+				computedType[key] = DataTypes().Positive
 			} else if govalidator.IsNegative(strToNum) {
-				computedType[key] = NEGATIVE
+				computedType[key] = DataTypes().Negative
 			} else if govalidator.IsNatural(strToNum) {
-				computedType[key] = NATURAL
+				computedType[key] = DataTypes().Natural
 			} else {
-				computedType[key] = STRING
+				computedType[key] = DataTypes().String
 			}
 		case "int":
-			computedType[key] = INTEGER
-		case "float64":
-			computedType[key] = FLOAT
+			computedType[key] = DataTypes().Integer
+		case "float64", "float32":
+			computedType[key] = DataTypes().Float
 		case "bool":
-			computedType[key] = BOOLEAN
+			computedType[key] = DataTypes().Boolean
 		default:
-			computedType[key] = UNDEFINED
+			computedType[key] = DataTypes().Undefined
 		}
 	}
 	return computedType
@@ -241,7 +241,9 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 			switch recordFieldDescType.(type) {
 			case FieldDescType:
 				// validate fieldValue and fieldDesc (model) types
-				if recordValueTypes[key] != recordFieldDesc.FieldType {
+				// exception for fieldTypes: Text...
+				typePermitted := recordValueTypes[key] == DataTypes().String && recordFieldDesc.FieldType == DataTypes().Text
+				if recordValueTypes[key] != recordFieldDesc.FieldType && !typePermitted {
 					errMsg := fmt.Sprintf("Invalid Type for:  %v. Expected %v, Got %v", key, recordFieldDesc.FieldType, recordValueTypes[key])
 					if recordFieldDesc.ValidateMessage != "" {
 						validateErrorMessage[key] = recordFieldDesc.ValidateMessage + " :: " + errMsg
@@ -249,6 +251,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 						validateErrorMessage[key] = errMsg
 					}
 				}
+
 				// validate allowNull, fieldLength, min/maxValues...| user-defined-validation-methods
 				// use values from transform docValue, including default/set-values
 				// nullCheck, if recordField value is not specified

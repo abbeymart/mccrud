@@ -7,11 +7,13 @@ package mccrud
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/abbeymart/mcauditlog"
 )
 
 type Crud struct {
 	CrudTaskType
 	CrudOptionsType
+	TransLog mcauditlog.LogParam
 	HashKey string // Unique for exactly the same query
 }
 
@@ -56,7 +58,7 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	result.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
 
 	// TODO: TransLog instance
-	//result.TransLog = newLog(result.AuditDb, result.AuditTable)
+	result.TransLog = mcauditlog.NewAuditLog(result.AuditDb, result.AuditTable)
 
 	return result
 }

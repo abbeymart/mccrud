@@ -33,6 +33,69 @@ type RelationActionType struct {
 	Null     string // set foreignKey value to null or ""
 }
 
+type DataType struct {
+	String             string
+	Text               string
+	StringAlpha        string
+	StringAlphaNumeric string
+	PostCode           string
+	MongoDBId          string
+	UUID               string
+	UUID3              string
+	UUID4              string
+	UUID5              string
+	MD4                string
+	MD5                string
+	SHA1               string
+	SHA256             string
+	SHA384             string
+	SHA512             string
+	Number             string
+	Integer            string
+	Decimal            string
+	Float              string
+	Float32            string
+	Float64            string
+	BigInt             string
+	BigFloat           string
+	Object             string
+	Array              string
+	ArrayOfString      string
+	ArrayOfNumber      string
+	ArrayOfBoolean     string
+	ArrayOfObject      string
+	Boolean            string
+	JSON               string
+	DateTime           string
+	Date               string
+	Time               string
+	TimeStamp          string
+	TimeStampZ         string
+	Positive           string
+	Natural            string
+	Negative           string
+	Email              string
+	URL                string
+	DomainName         string
+	Port               string
+	IP                 string
+	IP4                string
+	IP6                string
+	JWT                string
+	Latitude           string
+	Longitude          string
+	ISO2               string
+	ISO3               string
+	MACAddress         string
+	Mime               string
+	CreditCard         string
+	Currency           string
+	IMEI               string
+	Set                string
+	Map                string
+	Undefined          string
+}
+
 // constants | enum
 func CrudTasks() TaskType {
 	return TaskType{
@@ -65,6 +128,70 @@ func RelationActions() RelationActionType {
 	}
 }
 
+func DataTypes() DataType {
+	return DataType{
+		String:             "string",
+		Text:               "text",
+		StringAlpha:        "stringalpha",
+		StringAlphaNumeric: "stringalphanumeric",
+		PostCode:           "postalcode",
+		MongoDBId:          "mongodbid",
+		UUID:               "uuid",
+		UUID3:              "uuid3",
+		UUID4:              "uuid4",
+		UUID5:              "uuid5",
+		MD4:                "md4",
+		MD5:                "md5",
+		SHA1:               "sha1",
+		SHA256:             "sha2",
+		SHA384:             "sha3",
+		SHA512:             "sha5",
+		Number:             "number",
+		Integer:            "integer",
+		Decimal:            "decimal",
+		Float:              "float",
+		Float32:            "float32",
+		Float64:            "float64",
+		BigInt:             "bigint",
+		BigFloat:           "bigfloat",
+		Object:             "object",
+		Array:              "array",
+		ArrayOfString:      "arrayofstring",
+		ArrayOfNumber:      "arrayofnumber",
+		ArrayOfBoolean:     "arrayofboolean",
+		Boolean:            "boolean",
+		JSON:               "json",
+		DateTime:           "datetime",
+		Date:               "date",
+		Time:               "time",
+		TimeStamp:          "timestamp",
+		TimeStampZ:         "timestampz",
+		Positive:           "positive",
+		Natural:            "natural",
+		Negative:           "negative",
+		Email:              "email",
+		URL:                "url",
+		DomainName:         "domainname",
+		Port:               "port",
+		IP:                 "ip",
+		IP4:                "ip4",
+		IP6:                "ip6",
+		JWT:                "jwt",
+		Latitude:           "latitude",
+		Longitude:          "longitude",
+		ISO2:               "iso2",
+		ISO3:               "iso3",
+		MACAddress:         "macaddress",
+		Mime:               "mime",
+		CreditCard:         "creditcard",
+		Currency:           "currency",
+		IMEI:               "imei",
+		Set:                "set",
+		Map:                "map",
+		Undefined:          "undefined",
+	}
+}
+
 const (
 	// TaskType CRUD Tasks
 	CreateTask = "create"
@@ -84,7 +211,7 @@ const (
 	NoAction       = "noaction" // leave the foreignKey value, as-is
 	DefaultAction  = "default"  // set foreignKey to specified default value
 	NullAction     = "null"     // set foreignKey value to null or ""
-	// DataTypes
+	// DataType
 	STRING = "string"
 	// STRINGALPHA = "stringalpha"
 	// STRINGALPHANUMERIC = "stringalphanumeric"
@@ -424,7 +551,7 @@ type ComputedMethodsType map[string]ComputedValueType
 
 type FieldDescType struct {
 	FieldType       string
-	FieldLength     uint   // default: 255 for DataTypes.STRING
+	FieldLength     uint   // default: 255 for DataType.STRING
 	FieldPattern    string // "/^[0-9]{10}$/" => includes 10 digits, 0 to 9 | "/^[0-9]{6}.[0-9]{2}$/ => max 16 digits and 2 decimal places
 	AllowNull       bool   // default: true
 	Unique          bool

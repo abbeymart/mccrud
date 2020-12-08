@@ -2,6 +2,5 @@
 
 ## Version 0.1.0
 
-- Release date: TBD
-- CRUD operations package for RDBMS in Go - PostgreSQL, MySQL, SQLite etc.
-
+- Release date: Dec 12, 2020
+- CRUD operations package for RDBMS in Go - PostgreSQL and SQLite
