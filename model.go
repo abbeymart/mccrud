@@ -34,6 +34,7 @@ type Model struct {
 }
 
 // Methods
+// GetParentRelations method computes the parent-relations for the current model table
 func (model Model) GetParentRelations() []ModelRelationType {
 	// extract relations/collections where targetTable == model-TableName
 	var parentRelations []ModelRelationType
@@ -46,6 +47,7 @@ func (model Model) GetParentRelations() []ModelRelationType {
 	return parentRelations
 }
 
+// GetChildRelations method computes the child-relations for the current model table
 func (model Model) GetChildRelations() []ModelRelationType {
 	// extract relations/collections where sourceTable == model-TableName
 	var childRelations []ModelRelationType
@@ -58,6 +60,7 @@ func (model Model) GetChildRelations() []ModelRelationType {
 	return childRelations
 }
 
+// GetParentTables method compose the parent-tables from GetParentRelations method response
 func (model Model) GetParentTables() []string {
 	var parentTables []string
 	parentRelations := model.GetParentRelations()
@@ -67,6 +70,7 @@ func (model Model) GetParentTables() []string {
 	return parentTables
 }
 
+// GetChildTables method compose the child-tables from GetParentRelations method response
 func (model Model) GetChildTables() []string {
 	var childTables []string
 	childRelations := model.GetChildRelations()
@@ -76,6 +80,7 @@ func (model Model) GetChildTables() []string {
 	return childTables
 }
 
+//  ComputeRecordValueType computes the corresponding standard/define types based on the record-fields types
 func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDataType {
 	computedType := ValueToDataType{}
 	// perform computation of doc-value-types
@@ -187,6 +192,8 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 	return computedType
 }
 
+// UpdateDefaultValue method update default-value for non-null field with no specified value
+// and pre-set value, prior to save (create/update) using setValueMethod
 func (model Model) UpdateDefaultValue(recordValue ValueParamType) ValueParamType {
 	// set default values, for null fields | then setValue (pre-set/transform), if specified
 	// set base recordValue
@@ -224,6 +231,7 @@ func (model Model) UpdateDefaultValue(recordValue ValueParamType) ValueParamType
 	return setRecordValue
 }
 
+// ValidateRecordValue method validate record-field-values based on model constraints and validation method
 func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName string) ValidateResponseType {
 	// perform validation of model-record-value
 	// recommendation: use updated recordValue, defaultValues and setValues, prior to validation
@@ -448,6 +456,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 	return ValidateResponseType{Ok: true, Errors: errMsg}
 }
 
+// Save method performs create (new records) or update (for current/existing records) task
 func (model Model) Save(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
@@ -495,6 +504,8 @@ func (model Model) Save(params CrudTaskType, options CrudOptionsType) mcresponse
 	return crud.Save()
 }
 
+// Get method query the DB by record-id, defined query-parameter or all records, constrained
+// by skip, limit and projected-field-parameters
 func (model Model) Get(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
@@ -505,6 +516,8 @@ func (model Model) Get(params CrudTaskType, options CrudOptionsType) mcresponse.
 	return crud.Save()
 }
 
+// GetStream method query the DB by record-ids, defined query-parameter or all records, constrained
+// by skip, limit and projected-field-parameters, and stream the result
 func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
@@ -515,6 +528,7 @@ func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcres
 	return crud.Save()
 }
 
+// Delete method delete record(s) by record-ids, defined query-parameter
 func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName

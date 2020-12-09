@@ -57,7 +57,7 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	dIds, _ := json.Marshal(params.DocIds)
 	result.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
 
-	// TODO: TransLog instance
+	// Audit/TransLog instance
 	result.TransLog = mcauditlog.NewAuditLog(result.AuditDb, result.AuditTable)
 
 	return result
