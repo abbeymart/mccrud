@@ -6,6 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
+	mcutils "github.com/abbeymart/mcutilsgo"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -528,8 +529,8 @@ type MongoCrudParamType struct {
 
 type ErrorType map[string]string
 type ValidateResponseType struct {
-	Ok     bool      `json:"ok"`
-	Errors ErrorType `json:"errors"`
+	Ok     bool                  `json:"ok"`
+	Errors mcutils.MessageObject `json:"errors"`
 }
 type OkResponse struct {
 	Ok bool `json:"ok"`

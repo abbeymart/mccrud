@@ -11,6 +11,7 @@ import (
 )
 import "github.com/abbeymart/mcresponsego"
 import "github.com/asaskevich/govalidator"
+import "github.com/abbeymart/mcutilsgo"
 
 type CrudMethods interface {
 	Save()
@@ -28,8 +29,8 @@ type CrudDelete interface {
 }
 
 type Model struct {
+	TaskName string
 	ModelType
-	ModelOptionsType
 }
 
 // Methods
@@ -430,7 +431,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 					modelErrorMsg = msg
 				}
 			}
-			validateErrorMessage[model.TableName + "-validationError"] = modelErrorMsg
+			validateErrorMessage[model.TableName+"-validationError"] = modelErrorMsg
 		}
 	}
 
@@ -443,26 +444,83 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 	}
 
 	// return success, if validation process has been completed without errors
-	var errMsg = ErrorType{}
+	var errMsg = mcutils.MessageObject{}
 	return ValidateResponseType{Ok: true, Errors: errMsg}
 }
 
 func (model Model) Save(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
-
-	return mcresponse.ResponseMessage{}
+	// model specific params
+	params.TableName = model.TableName
+	model.TaskName = params.TaskName
+	if model.TaskName == "" {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: "taskName is required.",
+			Value:   nil,
+		})
+	}
+	// validate task/actionParams (recordValue), prior to saving, via model.ValidateRecordValue
+	var actParams ActionParamsType
+	if params.ActionParams != nil && len(params.ActionParams) > 0 {
+		for _, recordValue := range params.ActionParams {
+			// update defaultValues and setValues, before/prior to save
+			modelRecordValue := model.UpdateDefaultValue(recordValue)
+			// validate actionParam-item (recordValue) field-value
+			validateRes := model.ValidateRecordValue(modelRecordValue, model.TaskName)
+			if !validateRes.Ok || len(validateRes.Errors) > 0 {
+				return mcutils.GetParamsMessage(validateRes.Errors)
+			}
+			// update actParams
+			actParams = append(actParams, recordValue)
+		}
+	} else {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: "action-params is required to perform save operation.",
+			Value:   nil,
+		})
+	}
+	// TODO: update CRUD params and options
+	params.ActionParams = actParams
+	if !model.ActiveStamp {
+		model.ActiveStamp = true
+	}
+	if !model.ActorStamp {
+		model.ActorStamp = true
+	}
+	if !model.TimeStamp {
+		model.TimeStamp = true
+	}
+	// instantiate Crud action
+	crud := NewCrud(params, options)
+	// perform save-task
+	return crud.Save()
 }
 
 func (model Model) Get(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+	// model specific params
+	params.TableName = model.TableName
 
-	return mcresponse.ResponseMessage{}
+	// instantiate Crud action
+	crud := NewCrud(params, options)
+	// perform get-task
+	return crud.Save()
 }
 
 func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+	// model specific params
+	params.TableName = model.TableName
 
-	return mcresponse.ResponseMessage{}
+	// instantiate Crud action
+	crud := NewCrud(params, options)
+	// perform get-stream-task
+	return crud.Save()
 }
 
 func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+	// model specific params
+	params.TableName = model.TableName
 
-	return mcresponse.ResponseMessage{}
+	// instantiate Crud action
+	crud := NewCrud(params, options)
+	// perform delete-task
+	return crud.Save()
 }

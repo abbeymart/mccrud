@@ -3,3 +3,13 @@
 // @Description: get / query record(s)
 
 package mccrud
+
+import "github.com/abbeymart/mcresponsego"
+
+func (crud Crud) Get() mcresponse.ResponseMessage {
+
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "success",
+		Value:   nil,
+	})
+}
