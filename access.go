@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcresponsego"
 	mcutils "github.com/abbeymart/mcutilsgo"
+	"time"
 )
 
 func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
@@ -96,7 +97,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	// validate roleServices permission, for non-admin users
 	if !isActive && len(roleServices) < 1 {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: "AYou are not authorized to perform the requested action/task",
+			Message: "You are not authorized to perform the requested action/task",
 			Value:   nil,
 		})
 	}
@@ -264,19 +265,19 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	}
 	// const value = {...ok, ...{isAdmin, isActive, userId, group, groups}};
 	value := struct {
-		Ok bool
-		IsAdmin bool
+		Ok       bool
+		IsAdmin  bool
 		IsActive bool
-		UserId string
-		Group string
-		Groups []string
+		UserId   string
+		Group    string
+		Groups   []string
 	}{
-		Ok: taskPermitted,
-		IsAdmin: isAdmin,
+		Ok:       taskPermitted,
+		IsAdmin:  isAdmin,
 		IsActive: isActive,
-		UserId: userId,
-		Group: group,
-		Groups: groups,
+		UserId:   userId,
+		Group:    group,
+		Groups:   groups,
 	}
 	// if all went well
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
@@ -288,9 +289,47 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 func (crud Crud) CheckTaskAccess(params CheckAccessParamsType) mcresponse.ResponseMessage {
 	// validate current user active status: by token (API) and user/loggedIn-status
 
-	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-		Message: "action-params is required to perform save operation.",
-		Value:   nil,
+	// get the accessKey information for the user
+	accessScript := fmt.Sprintf("SELECT expire from %v where user_id=$1 token=$2 login_name=$3", params.accessTable)
+	rowAccess := crud.AppDb.QueryRow(accessScript, params.userInfo.UserId, params.userInfo.Token, params.userInfo.LoginName)
+	// check login-status/expiration
+	var accessExpire int64
+	if err := rowAccess.Scan(&accessExpire); err != nil {
+		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+			Message: "Unauthorized: please ensure that you are logged-in",
+			Value:   nil,
+		})
+	} else {
+		if time.Now().Unix() > accessExpire {
+			return mcresponse.GetResMessage("tokenExpired", mcresponse.ResponseMessageOptions{
+				Message: "Access expired: please login to continue",
+				Value:   nil,
+			})
+		}
+	}
+	// TODO: check current-user status/info
+	var (
+		id string
+		group string
+	)
+	userScript := fmt.Sprintf("SELECT id, group from %v where id=$1 is_active=$2", params.userTable)
+	rowUser := crud.AppDb.QueryRow(userScript, params.userInfo.UserId, true)
+	// check login-status/expiration
+	if err := rowUser.Scan(&id, &group); err != nil {
+		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+			Message: "Unauthorized: user information not found or inactive",
+			Value:   nil,
+		})
+	}
+
+	// TODO: if all the above checks passed, check for role-services access by taskType
+	// obtain table/collName/collId (_id) from serviceColl (repo for all resources)
+
+
+	// if all went well
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "Action authorised / permitted.",
+		Value:   "TBD",
 	})
 }
 
