@@ -13,7 +13,7 @@ import "github.com/abbeymart/mcresponsego"
 import "github.com/asaskevich/govalidator"
 import "github.com/abbeymart/mcutilsgo"
 
-type CrudMethods interface {
+type CrudOperations interface {
 	Save()
 	Get()
 	Delete()
@@ -28,6 +28,7 @@ type CrudDelete interface {
 	Delete()
 }
 
+// Model description
 type Model struct {
 	TaskName string
 	ModelType
@@ -528,7 +529,7 @@ func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcres
 	return crud.Save()
 }
 
-// Delete method delete record(s) by record-ids, defined query-parameter
+// Delete method delete record(s) by record-ids or defined query-parameter
 func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName

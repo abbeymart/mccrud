@@ -312,6 +312,17 @@ type CheckAccessType struct {
 	TableId      string            `json:"tableId"`
 }
 
+type CheckAccessParamsType struct {
+	accessDb *sql.DB
+	userInfo UserInfoType
+	tableName string
+	docIds []string   // for update, delete and read tasks
+	accessTable string
+	userTable string
+	roleTable string
+	serviceTable string
+}
+
 type RoleFuncType func(it1 string, it2 RoleServiceType) bool
 type FieldValueType interface{}
 type ValueParamType map[string]interface{}

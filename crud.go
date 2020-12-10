@@ -14,7 +14,7 @@ type Crud struct {
 	CrudTaskType
 	CrudOptionsType
 	TransLog mcauditlog.LogParam
-	HashKey string // Unique for exactly the same query
+	HashKey  string // Unique for exactly the same query
 }
 
 // constructor
@@ -33,10 +33,10 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	result.Token = params.Token
 	result.TaskName = params.TaskName
 
-	// Options
+	// crud options
 	result.Skip = options.Skip
 	result.Limit = options.Limit
-	//result.DefaultLimit = defaultLimit
+	result.MaxQueryLimit = options.MaxQueryLimit
 
 	result.AuditTable = options.AuditTable
 	result.AccessTable = options.AccessTable
@@ -49,7 +49,7 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	result.LogCreate = options.LogCreate
 	result.LogUpdate = options.LogUpdate
 	result.LogDelete = options.LogDelete
-	result.CheckAccess = options.CheckAccess
+	result.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
 	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and DocIds
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
@@ -60,10 +60,39 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	// Audit/TransLog instance
 	result.TransLog = mcauditlog.NewAuditLog(result.AuditDb, result.AuditTable)
 
+	// Default values
+	if result.AuditTable == "" {
+		result.AuditTable = "audits"
+	}
+	if result.AccessTable == "" {
+		result.AccessTable = "accesskeys"
+	}
+	if result.RoleTable == "" {
+		result.RoleTable = "roles"
+	}
+	if result.UserTable == "" {
+		result.UserTable = "users"
+	}
+	if result.ServiceTable == "" {
+		result.AuditTable = "services"
+	}
+	if result.AuditDb == nil {
+		result.AuditDb = result.AppDb
+	}
+	if result.AccessDb == nil {
+		result.AccessDb = result.AppDb
+	}
+	if result.Skip < 0 {
+		result.Skip = 0
+	}
+	if result.Limit > result.MaxQueryLimit && result.MaxQueryLimit != 0 {
+		result.Limit = result.MaxQueryLimit
+	} else if result.Limit > 10000 {
+		result.Limit = 10000
+	}
+
 	return result
 }
-
-// methods => separate go-files
 
 // String() function implementation
 func (crud Crud) String() string {
@@ -74,3 +103,5 @@ func (crud Crud) String() string {
 		crud.AppDb,
 		crud.TableName)
 }
+
+// Methods => separate go-files: auth.go...
