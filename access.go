@@ -8,7 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/abbeymart/mcresponsego"
-	mcutils "github.com/abbeymart/mcutilsgo"
+	"github.com/abbeymart/mcutilsgo"
 	"strings"
 	"time"
 )
@@ -403,8 +403,16 @@ func (crud Crud) GetRoleServices(accessDb *sql.DB, roleTable string, group strin
 	return roleServices
 }
 
-func (crud Crud) GetCurrentRecord() mcresponse.ResponseMessage {
-	fmt.Println(crud)
+func (crud Crud) GetCurrentRecord(recordType interface{}) mcresponse.ResponseMessage {
+	//var currentRecords []interface{}
+	roleScript := fmt.Sprintf("SELECT * from %v WHERE id IN $1", crud.TableName)
+	rows, err := crud.AppDb.Query(roleScript, crud.DocIds)
+	if err != nil {
+		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+		return mcresponse.ResponseMessage{}
+	}
+	defer rows.Close()
+
 
 	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 		Message: "action-params is required to perform save operation.",

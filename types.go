@@ -6,7 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
-	mcutils "github.com/abbeymart/mcutilsgo"
+	"github.com/abbeymart/mcutilsgo"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -32,6 +32,28 @@ type RelationActionType struct {
 	NoAction string // leave the foreignKey value, as-is
 	Default  string // set foreignKey to specified default value
 	Null     string // set foreignKey value to null or ""
+}
+
+type FieldOperatorType struct {
+	Equals              string
+	GreaterThan         string
+	LessThan            string
+	GreaterThanOrEquals string
+	LessThanOrEquals    string
+	NotEquals           string
+	True                string
+	False               string
+	Includes            string
+	NotIncludes         string
+	StartsWith          string
+	EndsWith            string
+	NotStartsWith       string
+	NotEndsWith         string
+}
+
+type GroupOperatorType struct {
+	AND string
+	OR  string
 }
 
 type DataType struct {
@@ -126,6 +148,32 @@ func RelationActions() RelationActionType {
 		NoAction: "NoAction", // leave the foreignKey value, as-is
 		Default:  "Default",  // set foreignKey to specified default value
 		Null:     "Null",     // set foreignKey value to null or ""
+	}
+}
+
+func FieldOperators() FieldOperatorType {
+	return FieldOperatorType{
+		Equals:              "Equals",
+		GreaterThan:         "GreaterThan",
+		LessThan:            "LessThan",
+		GreaterThanOrEquals: "GreaterThanOrEquals",
+		LessThanOrEquals:    "LessThanOrEquals",
+		NotEquals:           "NotEquals",
+		True:                "True",
+		False:               "False",
+		Includes:            "Includes",
+		NotIncludes:         "NotIncludes",
+		StartsWith:          "StartsWith",
+		EndsWith:            "EndsWith",
+		NotStartsWith:       "NotStartsWith",
+		NotEndsWith:         "NotEndsWith",
+	}
+}
+
+func GroupOperators() GroupOperatorType {
+	return GroupOperatorType{
+		AND: "And",
+		OR:  "Or",
 	}
 }
 
@@ -280,11 +328,11 @@ const (
 )
 
 type UserInfoType struct {
-	UserId    string `json:"userId"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	UserId    string `json:"user_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 	Language  string `json:"language"`
-	LoginName string `json:"loginName"`
+	LoginName string `json:"login_name"`
 	Token     string `json:"token"`
 	Expire    uint   `json:"expire"`
 	Group     string `json:"group"`
@@ -292,34 +340,34 @@ type UserInfoType struct {
 }
 
 type RoleServiceType struct {
-	ServiceId            string `json:"serviceId"`
-	RoleId               string `json:"roleId"`
-	ServiceCategory      string `json:"serviceCategory"`
-	CanRead              bool   `json:"canRead"`
-	CanCreate            bool   `json:"canCreate"`
-	CanUpdate            bool   `json:"canUpdate"`
-	CanDelete            bool   `json:"canDelete"`
-	TableAccessPermitted bool   `json:"tableAccessPermitted"`
+	ServiceId            string `json:"service_id"`
+	RoleId               string `json:"role_id"`
+	ServiceCategory      string `json:"service_category"`
+	CanRead              bool   `json:"can_read"`
+	CanCreate            bool   `json:"can_create"`
+	CanUpdate            bool   `json:"can_update"`
+	CanDelete            bool   `json:"can_delete"`
+	TableAccessPermitted bool   `json:"table_access_permitted"`
 }
 
 type CheckAccessType struct {
-	UserId       string            `json:"userId"`
+	UserId       string            `json:"user_id"`
 	Group        string            `json:"group"`
 	Groups       []string          `json:"groups"`
-	IsActive     bool              `json:"isActive"`
-	IsAdmin      bool              `json:"isAdmin"`
-	RoleServices []RoleServiceType `json:"roleServices"`
-	TableId      string            `json:"tableId"`
+	IsActive     bool              `json:"is_active"`
+	IsAdmin      bool              `json:"is_admin"`
+	RoleServices []RoleServiceType `json:"role_services"`
+	TableId      string            `json:"table_id"`
 }
 
 type CheckAccessParamsType struct {
-	accessDb *sql.DB
-	userInfo UserInfoType
-	tableName string
-	docIds []string   // for update, delete and read tasks
-	accessTable string
-	userTable string
-	roleTable string
+	accessDb     *sql.DB
+	userInfo     UserInfoType
+	tableName    string
+	docIds       []string // for update, delete and read tasks
+	accessTable  string
+	userTable    string
+	roleTable    string
 	serviceTable string
 }
 
@@ -328,11 +376,25 @@ type FieldValueType interface{}
 type ValueParamType map[string]interface{}
 type ValueToDataType map[string]interface{}
 type ActionParamsType []ValueParamType
-type QueryParamType map[string]interface{}
 type ExistParamType map[string]interface{}
 type ExistParamsType []ExistParamType
 type SortParamType map[string]int     // 1 for "asc", -1 for "desc"
 type ProjectParamType map[string]bool // 1 or true for inclusion, 0 or false for exclusion
+
+type GroupItemType struct {
+	GroupItem      map[string]map[string]interface{} // key1 => fieldName, key2 => fieldOperator, interface{}=> value(s)
+	GroupItemOrder uint		// item/field order within the group
+}
+
+type GroupParamType struct {
+	GroupName   string          // for group-items(fields) categorization
+	GroupItems  []GroupItemType // group items to be composed by category
+	GroupOrder  uint             // group order
+	GroupLinkOp string          // group relationship to the next group (AND, OR), the last group groupLinkOp should be "" or will be ignored
+}
+
+type QueryParamType []GroupParamType
+type WhereParamType []GroupParamType
 
 type ModelOptionsType struct {
 	TimeStamp    bool // auto-add: createdAt and updatedAt | default: true

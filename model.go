@@ -128,7 +128,7 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 			} else if govalidator.IsUUID(strVal) {
 				computedType[key] = DataTypes().UUID
 			} else if govalidator.IsUUIDv3(strVal) {
-				computedType[key] = UUID3
+				computedType[key] = DataTypes().UUID3
 			} else if govalidator.IsUUIDv4(strVal) {
 				computedType[key] = DataTypes().UUID4
 			} else if govalidator.IsUUIDv5(strVal) {
@@ -514,7 +514,7 @@ func (model Model) Get(params CrudTaskType, options CrudOptionsType) mcresponse.
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform get-task
-	return crud.Save()
+	return crud.Get()
 }
 
 // GetStream method query the DB by record-ids, defined query-parameter or all records, constrained
@@ -526,7 +526,7 @@ func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcres
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform get-stream-task
-	return crud.Save()
+	return crud.GetStream()
 }
 
 // Delete method delete record(s) by record-ids or defined query-parameter
@@ -537,5 +537,5 @@ func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcrespon
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform delete-task
-	return crud.Save()
+	return crud.Delete()
 }
