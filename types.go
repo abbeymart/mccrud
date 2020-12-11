@@ -7,6 +7,7 @@ package mccrud
 import (
 	"database/sql"
 	"github.com/abbeymart/mcutilsgo"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -383,13 +384,13 @@ type ProjectParamType map[string]bool // 1 or true for inclusion, 0 or false for
 
 type GroupItemType struct {
 	GroupItem      map[string]map[string]interface{} // key1 => fieldName, key2 => fieldOperator, interface{}=> value(s)
-	GroupItemOrder uint		// item/field order within the group
+	GroupItemOrder uint                              // item/field order within the group
 }
 
 type GroupParamType struct {
 	GroupName   string          // for group-items(fields) categorization
 	GroupItems  []GroupItemType // group items to be composed by category
-	GroupOrder  uint             // group order
+	GroupOrder  uint            // group order
 	GroupLinkOp string          // group relationship to the next group (AND, OR), the last group groupLinkOp should be "" or will be ignored
 }
 
@@ -502,6 +503,118 @@ type CrudParamType struct {
 	params              CrudTaskType
 }
 
+// Pgx specific types
+
+type PgxCheckAccessParamsType struct {
+	accessDb     *pgxpool.Pool
+	userInfo     UserInfoType
+	tableName    string
+	docIds       []string // for update, delete and read tasks
+	accessTable  string
+	userTable    string
+	roleTable    string
+	serviceTable string
+}
+
+type PgxCrudTaskType struct {
+	AppDb         *pgxpool.Pool // use *pgxpool.Pool, preferred || *pgx.Conn
+	TableName     string
+	UserInfo      UserInfoType
+	ActionParams  ActionParamsType
+	ExistParams   ExistParamsType
+	QueryParams   QueryParamType
+	DocIds        []string
+	ProjectParams ProjectParamType
+	SortParams    SortParamType
+	Token         string
+	Options       CrudOptionsType
+	TaskName      string
+}
+
+type PgxCrudOptionsType struct {
+	Skip                  uint
+	Limit                 uint
+	ParentTables          []string
+	ChildTables           []string
+	RecursiveDelete       bool
+	CheckAccess           bool
+	AccessDb              *pgxpool.Pool
+	AuditDb               *pgxpool.Pool
+	ServiceDb             *pgxpool.Pool
+	AuditTable            string
+	ServiceTable          string
+	UserTable             string
+	RoleTable             string
+	AccessTable           string
+	VerifyTable           string
+	MaxQueryLimit         uint
+	LogAll                bool
+	LogCreate             bool
+	LogUpdate             bool
+	LogRead               bool
+	LogDelete             bool
+	LogLogin              bool
+	LogLogout             bool
+	UnAuthorizedMessage   string
+	RecExistMessage       string
+	CacheExpire           uint
+	ModelOptions          ModelOptionsType
+	LoginTimeout          uint
+	UsernameExistsMessage string
+	EmailExistsMessage    string
+	MsgFrom               string
+}
+
+type PgxCrudParamType struct {
+	appDb           *pgxpool.Pool
+	tableName       string
+	token           string
+	userInfo        UserInfoType
+	userId          string
+	group           string
+	groups          []string
+	docIds          []string
+	actionParams    ActionParamsType
+	queryParams     QueryParamType
+	existParams     ExistParamsType
+	projectParams   ProjectParamType
+	sortParams      SortParamType
+	skip            uint
+	limit           uint
+	parentTables    []string
+	childTables     []string
+	recursiveDelete bool
+	checkAccess     bool
+	accessDb        *pgxpool.Pool
+	auditDb         *pgxpool.Pool
+	auditTable      string
+	serviceTable    string
+	userTable       string
+	roleTable       string
+	accessTable     string
+	maxQueryLimit   uint
+	logAll          bool
+	logCreate       bool
+	logUpdate       bool
+	logRead         bool
+	logDelete       bool
+	//transLog AuditLog
+	hashKey             string
+	isRecExist          bool
+	actionAuthorized    bool
+	unAuthorizedMessage string
+	recExistMessage     string
+	isAdmin             bool
+	createItems         ActionParamsType
+	updateItems         ActionParamsType
+	currentRecs         ActionParamsType
+	roleServices        []RoleServiceType
+	subItems            []bool
+	cacheExpire         uint
+	params              CrudTaskType
+}
+
+// MongoDB specific types
 type MongoCrudTaskType struct {
 	AppDb         *mongo.Client
 	TableName     string
@@ -665,4 +778,12 @@ type ModelType struct {
 	ValidateMethods ValidateMethodsType
 	AlterSyncTable  bool // create / alter table/collection and sync existing data, if there was a change to the table structure | default: true
 	// if alterSyncTable: false it will create/re-create the table, with no data sync
+}
+
+// CRUD operations
+
+type CreateScriptResponseType struct {
+	CreateScript []string
+	FieldNames   []string
+	FieldValues  [][]interface{}
 }

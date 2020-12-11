@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -88,29 +87,29 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 	for key, val := range recordValue {
 		// array check
 		//if govalidator.IsType(val, "string") {}
-		switch fmt.Sprintf("%T", val) {
-		case "[]string":
+		// switch fmt.Sprintf("%T", val)
+		switch val.(type) {
+		case []string:
 			computedType[key] = DataTypes().ArrayOfString
-		case "[]int":
+		case []int:
 			computedType[key] = DataTypes().ArrayOfNumber
-		case "[]float64":
+		case []float32, []float64:
 			computedType[key] = DataTypes().ArrayOfNumber
-		case "[]bool":
+		case []bool:
 			computedType[key] = DataTypes().ArrayOfBoolean
-		case "[]map":
+		//case []map:
+		//	computedType[key] = DataTypes().ArrayOfObject
+		case []struct{}:
 			computedType[key] = DataTypes().ArrayOfObject
-		case "[]struct":
-			computedType[key] = DataTypes().ArrayOfObject
-		case "[]":
-			computedType[key] = DataTypes().Array
-		case "map":
-			computedType[key] = DataTypes().Map
-		case "struct":
+		//case map:
+		//	computedType[key] = DataTypes().Map
+		case struct{}:
 			computedType[key] = DataTypes().Object
-		case "string":
+		case string:
 			// compute string value
-			jsonStr, _ := json.Marshal(val)
-			strVal := string(jsonStr)
+			strVal := val.(string)
+			//jsonStr, _ := json.Marshal(val)
+			//strVal := string(jsonStr)
 			var strToNum float64
 			if val, err := strconv.Atoi(strVal); err == nil {
 				strToNum = float64(val)
@@ -180,11 +179,13 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 			} else {
 				computedType[key] = DataTypes().String
 			}
-		case "int":
+		case int, int8, int16, int32, int64:
 			computedType[key] = DataTypes().Integer
-		case "float64", "float32":
+		case uint, uint8, uint16, uint32, uint64:
+			computedType[key] = DataTypes().Positive
+		case float32, float64:
 			computedType[key] = DataTypes().Float
-		case "bool":
+		case bool:
 			computedType[key] = DataTypes().Boolean
 		default:
 			computedType[key] = DataTypes().Undefined
@@ -457,6 +458,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 	return ValidateResponseType{Ok: true, Errors: errMsg}
 }
 
+// sql.DB CRUD methods [pg, sqlite3...]
 // Save method performs create (new records) or update (for current/existing records) task
 func (model Model) Save(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
@@ -539,3 +541,5 @@ func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcrespon
 	// perform delete-task
 	return crud.Delete()
 }
+
+// TODO: add pgxpool CRUD methods
