@@ -4,14 +4,17 @@
 
 package helper
 
-import mccrud "github.com/abbeymart/mccrudgo"
+import (
+	"errors"
+	mccrud "github.com/abbeymart/mccrudgo"
+)
 
-func ComputeSelectQueryById(tableName string, docIds []string) (mccrud.CreateScriptResponseType, error) {
+func ComputeSelectQueryById(tableName string, docIds []string, fields []string) (mccrud.SelectScriptResponseType, error) {
 
-	return errMessage("development")
+	return mccrud.SelectScriptResponseType{}, errors.New("development")
 }
 
-func ComputeSelectQuery(tableName string, docIds []string) (mccrud.CreateScriptResponseType, error) {
+func ComputeSelectQuery(tableName string, where mccrud.WhereParamType, fields []string, queryType mccrud.TaskType) (mccrud.SelectScriptResponseType, error) {
 
-	return errMessage("development")
+	return mccrud.SelectScriptResponseType{}, errors.New("development")
 }

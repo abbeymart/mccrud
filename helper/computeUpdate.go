@@ -4,9 +4,12 @@
 
 package helper
 
-import mccrud "github.com/abbeymart/mccrudgo"
+import (
+	"errors"
+	mccrud "github.com/abbeymart/mccrudgo"
+)
 
-func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType , docIds []string) (mccrud.CreateScriptResponseType, error) {
+func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType , docIds []string) (mccrud.UpdateScriptResponseType, error) {
 
-	return errMessage("development")
+	return mccrud.UpdateScriptResponseType{}, errors.New("development")
 }

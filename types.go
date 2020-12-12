@@ -798,3 +798,15 @@ type DeleteScriptResponseType struct {
 	WhereScript string
 	FieldValues []interface{}
 }
+
+type SelectScriptResponseType struct {
+	SelectScript string
+	WhereScript string
+	FieldValues []interface{}
+}
+
+type UpdateScriptResponseType struct {
+	UpdateScript string
+	WhereScript string
+	FieldValues []interface{}
+}
