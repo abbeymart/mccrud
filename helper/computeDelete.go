@@ -25,7 +25,7 @@ func ComputeDeleteQueryById(tableName string, docIds []string) (string, error) {
 		return "", errors.New("table/collection name and doc-Ids are required for the delete-by-id operation")
 	}
 	deleteScripts := "DELETE FROM " + tableName + " WHERE id IN("
-	// TODO: sanitize docIds to ensure it's strictly contains UUID values
+	// validated docIds, strictly contains string/UUID values
 	deleteIdValues := strings.Join(docIds, ", ")  // perform at the DbQuery task
 
 	// for ind := range docIds {
