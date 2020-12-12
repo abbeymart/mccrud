@@ -19,13 +19,12 @@ func errMessage(errMsg string) (mccrud.CreateScriptResponseType, error) {
 }
 
 // ComputeCreateScript computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
-func ComputeCreateScript(tableName string, actionParams mccrud.ActionParamsType) (mccrud.CreateScriptResponseType, error) {
+func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType) (mccrud.CreateScriptResponseType, error) {
 	var insertScripts []string
 	var fNames []string         // fieldNames array of strings in order of SQL statement
 	var fValues [][]interface{} // fieldValues array of ValueParamType
 
 	if tableName == "" || len(actionParams) < 1 {
-		//return nil, nil, errors.New("table/collection name and action-params are required for the create operation")
 		return errMessage("table/collection name and action-params are required for the create operation")
 	}
 	// compute fieldNames, from one of the actionParams items/records

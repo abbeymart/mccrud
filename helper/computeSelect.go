@@ -3,3 +3,15 @@
 // @Description: compute select-SQL script
 
 package helper
+
+import mccrud "github.com/abbeymart/mccrudgo"
+
+func ComputeSelectQueryById(tableName string, docIds []string) (mccrud.CreateScriptResponseType, error) {
+
+	return errMessage("development")
+}
+
+func ComputeSelectQuery(tableName string, docIds []string) (mccrud.CreateScriptResponseType, error) {
+
+	return errMessage("development")
+}

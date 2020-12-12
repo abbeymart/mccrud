@@ -787,3 +787,14 @@ type CreateScriptResponseType struct {
 	FieldNames   []string
 	FieldValues  [][]interface{}
 }
+
+type WhereScriptResponseType struct {
+	WhereScript string
+	FieldValues []interface{}
+}
+
+type DeleteScriptResponseType struct {
+	DeleteScript string
+	WhereScript string
+	FieldValues []interface{}
+}
