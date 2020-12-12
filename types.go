@@ -44,6 +44,8 @@ type FieldOperatorType struct {
 	NotEquals           string
 	True                string
 	False               string
+	In                  string
+	NotIn               string
 	Includes            string
 	NotIncludes         string
 	StartsWith          string
@@ -162,6 +164,8 @@ func FieldOperators() FieldOperatorType {
 		NotEquals:           "NotEquals",
 		True:                "True",
 		False:               "False",
+		In:                  "In",
+		NotIn:               "NotIn",
 		Includes:            "Includes",
 		NotIncludes:         "NotIncludes",
 		StartsWith:          "StartsWith",
@@ -385,6 +389,7 @@ type ProjectParamType map[string]bool // 1 or true for inclusion, 0 or false for
 type GroupItemType struct {
 	GroupItem      map[string]map[string]interface{} // key1 => fieldName, key2 => fieldOperator, interface{}=> value(s)
 	GroupItemOrder uint                              // item/field order within the group
+	GroupItemOp    string                            // group-item relationship to the next item (AND, OR), the last item groupItemOp should be "" or will be ignored
 }
 
 type GroupParamType struct {
@@ -783,9 +788,15 @@ type ModelType struct {
 // CRUD operations
 
 type CreateScriptResponseType struct {
-	CreateScript []string
+	CreateScript string
 	FieldNames   []string
 	FieldValues  [][]interface{}
+}
+
+type UpdateScriptResponseType struct {
+	UpdateScript string
+	WhereScript  string
+	FieldValues  []interface{}
 }
 
 type WhereScriptResponseType struct {
@@ -795,18 +806,12 @@ type WhereScriptResponseType struct {
 
 type DeleteScriptResponseType struct {
 	DeleteScript string
-	WhereScript string
-	FieldValues []interface{}
+	WhereScript  string
+	FieldValues  []interface{}
 }
 
 type SelectScriptResponseType struct {
 	SelectScript string
-	WhereScript string
-	FieldValues []interface{}
-}
-
-type UpdateScriptResponseType struct {
-	UpdateScript string
-	WhereScript string
-	FieldValues []interface{}
+	WhereScript  string
+	FieldValues  []interface{}
 }

@@ -6,6 +6,7 @@ package helper
 
 import (
 	"errors"
+	"fmt"
 	mccrud "github.com/abbeymart/mccrudgo"
 	"strings"
 )
@@ -20,37 +21,24 @@ func deleteScriptErr(errMsg string) (mccrud.DeleteScriptResponseType, error) {
 
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
 func ComputeDeleteQueryById(tableName string, docIds []string) (string, error) {
-	docIdsLen := len(docIds)
-	if tableName == "" || docIdsLen < 1 {
+	if tableName == "" || len(docIds) < 1 {
 		return "", errors.New("table/collection name and doc-Ids are required for the delete-by-id operation")
 	}
 	deleteScripts := "DELETE FROM " + tableName + " WHERE id IN("
-	// validated docIds, strictly contains string/UUID values
-	deleteIdValues := strings.Join(docIds, ", ")  // perform at the DbQuery task
-
-	// for ind := range docIds {
-	//	if docIdsLen > 1 && ind < docIdsLen-1 {
-	//		deleteScripts += ", $" + fmt.Sprintf("%v", ind+1)
-	//	} else {
-	//		deleteScripts += " $" + fmt.Sprintf("%v", ind+1)
-	//	}
-	//}
-
+	// validated docIds, strictly contains string/UUID values, to avoid SQL-injection
+	deleteIdValues := strings.Join(docIds, ", ")
 	deleteScripts += deleteIdValues + " )"
-
 	return deleteScripts, nil
 }
 
-func ComputeDeleteQueryByParam(tableName string, where mccrud.WhereParamType) (mccrud.DeleteScriptResponseType, error) {
+func ComputeDeleteQueryByParam(tableName string, where mccrud.WhereParamType, tableFields []string) (string, error) {
 	if tableName == "" || len(where) < 1 {
-		return deleteScriptErr("table/collection name and where/query-condition are required for the delete-by-param operation")
+		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}
-	whereParam, _ := ComputeWhereQuery(where)
-	deleteScripts := "DELETE FROM " + tableName + " " + whereParam.WhereScript
-
-	return mccrud.DeleteScriptResponseType{
-		DeleteScript: deleteScripts,
-		WhereScript:  whereParam.WhereScript,
-		FieldValues:  whereParam.FieldValues,
-	}, nil
+	if whereParam, err := ComputeWhereQuery(where, tableFields); err == nil {
+		deleteScripts := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
+		return deleteScripts, nil
+	} else {
+		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
+	}
 }

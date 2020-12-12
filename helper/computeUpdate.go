@@ -9,7 +9,7 @@ import (
 	mccrud "github.com/abbeymart/mccrudgo"
 )
 
-func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType , docIds []string) (mccrud.UpdateScriptResponseType, error) {
+func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType , docIds []string) (string, error) {
 
-	return mccrud.UpdateScriptResponseType{}, errors.New("development")
+	return "", errors.New("development")
 }
