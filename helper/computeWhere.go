@@ -13,9 +13,9 @@ import (
 	"time"
 )
 
-func whereScriptErr(errMsg string) (mccrud.WhereScriptResponseType, error) {
-	return mccrud.WhereScriptResponseType{
-		WhereScript: nil,
+func whereQueryErr(errMsg string) (mccrud.WhereQueryResponseType, error) {
+	return mccrud.WhereQueryResponseType{
+		WhereQuery:  nil,
 		FieldValues: nil,
 	}, errors.New(errMsg)
 }
@@ -827,19 +827,56 @@ func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (strin
 					if fVal, ok := fieldValue.([]string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						inValues := strings.Join(fVal, ", ")
+						fieldQuery += fmt.Sprintf(" %v IN (%v)", fieldName, inValues)
 					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							if fValLen > 1 && i <= fValLen-1 && i != 0 {
+								inValues += inValues + fmt.Sprintf(", %v", v)
+							} else {
+								inValues += inValues + fmt.Sprintf("%v", v)
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
 					}
-				case []float32, []float64:
+				case []float32:
+					if fVal, ok := fieldValue.([]float32); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							if fValLen > 1 && i <= fValLen-1 && i != 0 {
+								inValues += inValues + fmt.Sprintf(", %v", v)
+							} else {
+								inValues += inValues + fmt.Sprintf("%v", v)
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
+					}
+				case []float64:
 					if fVal, ok := fieldValue.([]float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							if fValLen > 1 && i <= fValLen-1 && i != 0 {
+								inValues += inValues + fmt.Sprintf(", %v", v)
+							} else {
+								inValues += inValues + fmt.Sprintf("%v", v)
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field[%v], format for field-value %v", fieldName, fieldValue))
@@ -860,19 +897,56 @@ func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (strin
 					if fVal, ok := fieldValue.([]string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						inValues := strings.Join(fVal, ", ")
+						fieldQuery += fmt.Sprintf(" %v NOT IN (%v)", fieldName, inValues)
 					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							if fValLen > 1 && i <= fValLen-1 && i != 0 {
+								inValues += inValues + fmt.Sprintf(", %v", v)
+							} else {
+								inValues += inValues + fmt.Sprintf("%v", v)
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
 					}
-				case []float32, []float64:
+				case []float32:
+					if fVal, ok := fieldValue.([]float32); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							if fValLen > 1 && i <= fValLen-1 && i != 0 {
+								inValues += inValues + fmt.Sprintf(", %v", v)
+							} else {
+								inValues += inValues + fmt.Sprintf("%v", v)
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+					}
+				case []float64:
 					if fVal, ok := fieldValue.([]float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							if fValLen > 1 && i <= fValLen-1 && i != 0 {
+								inValues += inValues + fmt.Sprintf(", %v", v)
+							} else {
+								inValues += inValues + fmt.Sprintf("%v", v)
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field[%v], format for field-value %v", fieldName, fieldValue))
@@ -884,7 +958,7 @@ func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (strin
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
 					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
+						fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 					}
 				}
 			default:

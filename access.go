@@ -37,7 +37,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 			accessDb:     crud.AccessDb,
 			userInfo:     crud.UserInfo,
 			tableName:    crud.TableName,
-			docIds:       crud.DocIds,
+			docIds:       crud.RecordIds,
 			accessTable:  crud.AccessTable,
 			userTable:    crud.UserTable,
 			roleTable:    crud.RoleTable,
@@ -55,12 +55,12 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	var docIds []string
 
 	// determine records/documents ownership
-	if len(crud.DocIds) > 0 && accessUserId != "" && accessInfo.IsActive {
+	if len(crud.RecordIds) > 0 && accessUserId != "" && accessInfo.IsActive {
 		// set docIds
-		docIds = crud.DocIds
+		docIds = crud.RecordIds
 		// SQL script
 		sqlScript := fmt.Sprintf("SELECT id FROM %v WHERE id IN $1 AND created_by = $2", crud.TableName)
-		rows, err := crud.AppDb.Query(sqlScript, crud.DocIds, accessUserId)
+		rows, err := crud.AppDb.Query(sqlScript, crud.RecordIds, accessUserId)
 		if err != nil {
 			errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -77,7 +77,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 				rowCount += 1
 			}
 		}
-		if rowCount == len(crud.DocIds) {
+		if rowCount == len(crud.RecordIds) {
 			ownerPermitted = true
 		}
 	}
@@ -406,7 +406,7 @@ func (crud Crud) GetRoleServices(accessDb *sql.DB, roleTable string, group strin
 func (crud Crud) GetCurrentRecord(recordType interface{}) mcresponse.ResponseMessage {
 	//var currentRecords []interface{}
 	roleScript := fmt.Sprintf("SELECT * from %v WHERE id IN $1", crud.TableName)
-	rows, err := crud.AppDb.Query(roleScript, crud.DocIds)
+	rows, err := crud.AppDb.Query(roleScript, crud.RecordIds)
 	if err != nil {
 		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return mcresponse.ResponseMessage{}

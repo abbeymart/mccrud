@@ -6,15 +6,20 @@ package helper
 
 import (
 	"errors"
-	mccrud "github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mccrud"
 )
 
-func ComputeSelectQueryById(tableName string, docIds []string, fields []string) (string, error) {
+func ComputeSelectQueryAll(tableName string, tableFields []string, recordIds []string, fields []string) (string, error) {
 
 	return "", errors.New("development")
 }
 
-func ComputeSelectQuery(tableName string, where mccrud.WhereParamType, fields []string, queryType mccrud.TaskType) (string, error) {
+func ComputeSelectQueryById(tableName string, tableFields []string, recordIds []string, fields []string) (string, error) {
+
+	return "", errors.New("development")
+}
+
+func ComputeSelectQueryByParam(tableName string, where mccrud.WhereParamType, fields []string, queryType mccrud.TaskType) (string, error) {
 
 	return "", errors.New("development")
 }

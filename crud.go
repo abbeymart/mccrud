@@ -25,7 +25,7 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	result.TableName = params.TableName
 	result.UserInfo = params.UserInfo
 	result.ActionParams = params.ActionParams
-	result.DocIds = params.DocIds
+	result.RecordIds = params.RecordIds
 	result.QueryParams = params.QueryParams
 	result.SortParams = params.SortParams
 	result.ProjectParams = params.ProjectParams
@@ -50,11 +50,11 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	result.LogUpdate = options.LogUpdate
 	result.LogDelete = options.LogDelete
 	result.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
-	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and DocIds
+	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
 	pParam, _ := json.Marshal(params.ProjectParams)
-	dIds, _ := json.Marshal(params.DocIds)
+	dIds, _ := json.Marshal(params.RecordIds)
 	result.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
 
 	// Audit/TransLog instance

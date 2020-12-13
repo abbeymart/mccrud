@@ -11,17 +11,17 @@ import (
 	"github.com/abbeymart/mccrud"
 )
 
-func errMessage(errMsg string) (mccrud.CreateScriptResponseType, error) {
-	return mccrud.CreateScriptResponseType{
-		CreateScript: "",
-		FieldNames:   nil,
-		FieldValues:  nil,
+func errMessage(errMsg string) (mccrud.CreateQueryResponseType, error) {
+	return mccrud.CreateQueryResponseType{
+		CreateQuery: "",
+		FieldNames:  nil,
+		FieldValues: nil,
 	}, errors.New(errMsg)
 }
 
 // ComputeCreateScript computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
-func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType, tableFields []string) (mccrud.CreateScriptResponseType, error) {
-	var insertScript string
+func ComputeCreateQuery(tableName string, tableFields []string, actionParams mccrud.ActionParamsType) (mccrud.CreateQueryResponseType, error) {
+	var insertQuery string
 	var fValues [][]interface{} // fieldValues array of ValueParamType
 
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
@@ -29,23 +29,22 @@ func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType, 
 	}
 	// value-computation for each of the actionParams' records must match the fieldNames
 	// compute create script for all the create-task, with value-placeholders
-	var itemScript = fmt.Sprintf("INSERT INTO %v(", tableName)
+	var itemQuery = fmt.Sprintf("INSERT INTO %v(", tableName)
 	var itemValuePlaceholder = " VALUES("
 	fieldsLength := len(tableFields)
 	for fieldIndex, fieldName := range tableFields {
+		itemQuery += fmt.Sprintf(" %v", fieldName)
+		itemValuePlaceholder += fmt.Sprintf(" $%v", fieldIndex+1)
 		if fieldsLength > 1 && fieldIndex < fieldsLength-1 {
-			itemScript += fmt.Sprintf(", %v", fieldName)
-			itemValuePlaceholder += fmt.Sprintf(", $%v", fieldIndex+1)
-		} else {
-			itemScript += fmt.Sprintf(" %v", fieldName)
-			itemValuePlaceholder += fmt.Sprintf(" $%v", fieldIndex+1)
+			itemQuery += ", "
+			itemValuePlaceholder += ", "
 		}
 	}
 	// close item-script/value-placeholder
-	itemScript += " )"
+	itemQuery += " )"
 	itemValuePlaceholder += " )"
 	// add/append item-script & value-placeholder to the createScripts
-	insertScript = itemScript + itemValuePlaceholder
+	insertQuery = itemQuery + itemValuePlaceholder
 
 	// computed create values from actionParams
 	for _, rec := range actionParams {
@@ -53,8 +52,8 @@ func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType, 
 		var recFieldValues []interface{}
 		for fieldName, fieldValue := range rec {
 			// check for missing field in each record
-			if !ArrayStringContains(tableFields, fieldName) {
-				return errMessage(fmt.Sprintf("Missing field: %v from record %v", fieldName, rec))
+			if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
+				return errMessage(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
 			}
 			// update recFieldValues by fieldValue-type
 			switch fieldValue.(type) {
@@ -175,9 +174,9 @@ func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType, 
 		recFieldValues = []interface{}{}
 	}
 	// result
-	return mccrud.CreateScriptResponseType{
-		CreateScript: insertScript,
-		FieldNames:   tableFields,
-		FieldValues:  fValues,
+	return mccrud.CreateQueryResponseType{
+		CreateQuery: insertQuery,
+		FieldNames:  tableFields,
+		FieldValues: fValues,
 	}, nil
 }

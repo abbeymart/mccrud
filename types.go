@@ -177,8 +177,8 @@ func FieldOperators() FieldOperatorType {
 
 func GroupOperators() GroupOperatorType {
 	return GroupOperatorType{
-		AND: "And",
-		OR:  "Or",
+		AND: "AND",
+		OR:  "OR",
 	}
 }
 
@@ -417,7 +417,7 @@ type CrudTaskType struct {
 	ActionParams  ActionParamsType
 	ExistParams   ExistParamsType
 	QueryParams   QueryParamType
-	DocIds        []string
+	RecordIds     []string
 	ProjectParams ProjectParamType
 	SortParams    SortParamType
 	Token         string
@@ -528,7 +528,7 @@ type PgxCrudTaskType struct {
 	ActionParams  ActionParamsType
 	ExistParams   ExistParamsType
 	QueryParams   QueryParamType
-	DocIds        []string
+	RecordIds     []string
 	ProjectParams ProjectParamType
 	SortParams    SortParamType
 	Token         string
@@ -787,31 +787,31 @@ type ModelType struct {
 
 // CRUD operations
 
-type CreateScriptResponseType struct {
-	CreateScript string
-	FieldNames   []string
-	FieldValues  [][]interface{}
+type CreateQueryResponseType struct {
+	CreateQuery string
+	FieldNames  []string
+	FieldValues [][]interface{}
 }
 
-type UpdateScriptResponseType struct {
-	UpdateScript string
-	WhereScript  string
-	FieldValues  []interface{}
-}
-
-type WhereScriptResponseType struct {
-	WhereScript string
+type UpdateQueryResponseType struct {
+	UpdateQuery string
+	WhereQuery  string
 	FieldValues []interface{}
 }
 
-type DeleteScriptResponseType struct {
-	DeleteScript string
-	WhereScript  string
-	FieldValues  []interface{}
+type WhereQueryResponseType struct {
+	WhereQuery  string
+	FieldValues []interface{}
 }
 
-type SelectScriptResponseType struct {
-	SelectScript string
-	WhereScript  string
-	FieldValues  []interface{}
+type DeleteQueryResponseType struct {
+	DeleteQuery string
+	WhereQuery  string
+	FieldValues []interface{}
+}
+
+type SelectQueryResponseType struct {
+	SelectQuery string
+	WhereQuery  string
+	FieldValues []interface{}
 }

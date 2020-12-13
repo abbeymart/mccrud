@@ -50,7 +50,7 @@ func NewCrud(params PgxCrudTaskType, options PgxCrudOptionsType) Crud {
 	result.LogUpdate = options.LogUpdate
 	result.LogDelete = options.LogDelete
 	result.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
-	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and DocIds
+	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
 	pParam, _ := json.Marshal(params.ProjectParams)

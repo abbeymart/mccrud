@@ -49,7 +49,7 @@ func NewCrudMongo(params mccrud.MongoCrudTaskType, options mccrud.MongoCrudOptio
 	result.LogUpdate = options.LogUpdate
 	result.LogDelete = options.LogDelete
 	result.CheckAccess = options.CheckAccess
-	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and DocIds
+	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
 	pParam, _ := json.Marshal(params.ProjectParams)

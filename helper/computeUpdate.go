@@ -1,15 +1,141 @@
 // @Author: abbeymart | Abi Akindele | @Created: 2020-12-08 | @Updated: 2020-12-08
 // @Company: mConnect.biz | @License: MIT
-// @Description: compute update-SQL script
+// @Description: compute update-SQL scripts
 
 package helper
 
 import (
 	"errors"
-	mccrud "github.com/abbeymart/mccrud"
+	"fmt"
+	"github.com/abbeymart/mccrud"
+	"strings"
 )
 
-func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType , docIds []string) (string, error) {
+func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mccrud.ActionParamsType) ([]string, error) {
+	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
+		return nil, errors.New("table-name, table-fields and action-params are required for the update operation")
+	}
+	// compute update script from queryParams
+	var updateQuery []string
+	invalidUpdateItemCount := 0
+	updateItemCount := 0 // valid update item count
 
-	return "", errors.New("development")
+	for _, rec := range actionParams {
+		itemScript := "UPDATE " + tableName + " SET"
+		fieldCount := 0
+		fieldLen := len(rec)
+		for fieldName, fieldValue := range rec {
+			// check for missing field in each record
+			if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
+				return nil, errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+			}
+			fieldCount += 1
+			itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
+
+			if fieldLen > 1 && fieldCount < fieldLen {
+				itemScript += ", "
+			}
+		}
+		//validate/update script content based on valid field specifications
+		if fieldCount > 0 {
+			updateItemCount += 1
+			updateQuery = append(updateQuery, itemScript)
+		} else {
+			invalidUpdateItemCount += 1
+		}
+	}
+	// check is there was no valid update items
+	if invalidUpdateItemCount == len(actionParams) {
+		return nil, errors.New(fmt.Sprintf("Invalid action-params"))
+	}
+	return updateQuery, nil
+}
+
+func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams mccrud.ActionParamsType, recordIds []string) (string, error) {
+	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(recordIds) < 1 {
+		return "", errors.New("table-name, table-fields, action-params and record/doc-Ids are required for the update-by-id operation")
+	}
+	// compute update script from queryParams
+	var updateQuery string
+	whereQuery := " WHERE id IN(" + strings.Join(recordIds, ", ") + ")"
+	invalidUpdateItemCount := 0
+	updateItemCount := 0 // valid update item count
+
+	// only one actionParams record is required for update by docIds
+	rec := actionParams[0]
+	itemScript := "UPDATE " + tableName + " SET"
+	fieldCount := 0
+	fieldLen := len(rec)
+	for fieldName, fieldValue := range rec {
+		// check for missing field in each record
+		if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
+			return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+		}
+		fieldCount += 1
+		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
+
+		if fieldLen > 1 && fieldCount < fieldLen {
+			itemScript += ", "
+		}
+	}
+	//validate/update script content based on valid field specifications
+	if fieldCount > 0 {
+		updateItemCount += 1
+		updateQuery = itemScript + whereQuery
+	} else {
+		invalidUpdateItemCount += 1
+	}
+
+	// check is there was no valid update items
+	if invalidUpdateItemCount == 1 {
+		return "", errors.New(fmt.Sprintf("Invalid action-params"))
+	}
+	return updateQuery, nil
+}
+
+func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionParams mccrud.ActionParamsType, where mccrud.WhereParamType) (string, error) {
+	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(where) < 1 {
+		return "", errors.New("table-name, table-fields, action-params and where-params are required for the update-by-params operation")
+	}
+	// compute update script from queryParams
+	var updateQuery string
+	invalidUpdateItemCount := 0
+	updateItemCount := 0 // valid update item count
+
+	// only one actionParams record is required for update by where-params
+	rec := actionParams[0]
+	itemScript := "UPDATE " + tableName + " SET"
+	fieldCount := 0
+	fieldLen := len(rec)
+	for fieldName, fieldValue := range rec {
+		// check for missing field in each record
+		if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
+			return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+		}
+		fieldCount += 1
+		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
+
+		if fieldLen > 1 && fieldCount < fieldLen {
+			itemScript += ", "
+		}
+	}
+	//validate/update script content based on valid field specifications
+	if fieldCount > 0 {
+		updateItemCount += 1
+		updateQuery = itemScript
+	} else {
+		invalidUpdateItemCount += 1
+	}
+
+	// check is there was no valid update items
+	if invalidUpdateItemCount == 1 {
+		return "", errors.New(fmt.Sprintf("Invalid action-params"))
+	}
+
+	if whereScript, err := ComputeWhereQuery(where, tableFields); err == nil {
+		updateQuery += updateQuery + whereScript
+		return updateQuery, nil
+	} else {
+		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
+	}
 }
