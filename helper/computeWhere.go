@@ -7,7 +7,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrudgo"
+	"github.com/abbeymart/mccrud"
 	"sort"
 	"strings"
 	"time"

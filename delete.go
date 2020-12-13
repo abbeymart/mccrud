@@ -4,7 +4,7 @@
 
 package mccrud
 
-import "github.com/abbeymart/mcresponsego"
+import "github.com/abbeymart/mcresponse"
 
 func (crud Crud) Delete() mcresponse.ResponseMessage {
 

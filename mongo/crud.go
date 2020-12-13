@@ -7,7 +7,7 @@ package mongo
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abbeymart/mccrudgo"
+	"github.com/abbeymart/mccrud"
 )
 
 type CrudMongo struct {

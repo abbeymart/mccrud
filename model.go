@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"strconv"
 )
-import "github.com/abbeymart/mcresponsego"
+import "github.com/abbeymart/mcresponse"
 import "github.com/asaskevich/govalidator"
-import "github.com/abbeymart/mcutilsgo"
+import "github.com/abbeymart/mcutils"
 
 type CrudOperations interface {
 	Save()

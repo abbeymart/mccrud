@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrudgo"
+	"github.com/abbeymart/mccrud"
 )
 
 func errMessage(errMsg string) (mccrud.CreateScriptResponseType, error) {

@@ -6,7 +6,7 @@ package helper
 
 import (
 	"errors"
-	mccrud "github.com/abbeymart/mccrudgo"
+	mccrud "github.com/abbeymart/mccrud"
 )
 
 func ComputeSelectQueryById(tableName string, docIds []string, fields []string) (string, error) {

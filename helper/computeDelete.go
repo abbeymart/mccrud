@@ -7,7 +7,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	mccrud "github.com/abbeymart/mccrudgo"
+	mccrud "github.com/abbeymart/mccrud"
 	"strings"
 )
 

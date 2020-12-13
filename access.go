@@ -7,8 +7,8 @@ package mccrud
 import (
 	"database/sql"
 	"fmt"
-	"github.com/abbeymart/mcresponsego"
-	"github.com/abbeymart/mcutilsgo"
+	"github.com/abbeymart/mcresponse"
+	"github.com/abbeymart/mcutils"
 	"strings"
 	"time"
 )

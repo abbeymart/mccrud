@@ -6,7 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
-	"github.com/abbeymart/mcutilsgo"
+	"github.com/abbeymart/mcutils"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.mongodb.org/mongo-driver/mongo"
 )
