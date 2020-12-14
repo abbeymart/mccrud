@@ -6,6 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/abbeymart/mcutils"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,11 +38,11 @@ type RelationActionType struct {
 
 type FieldOperatorType struct {
 	Equals              string
+	NotEquals           string
 	GreaterThan         string
 	LessThan            string
 	GreaterThanOrEquals string
 	LessThanOrEquals    string
-	NotEquals           string
 	True                string
 	False               string
 	In                  string
@@ -64,7 +65,7 @@ type DataType struct {
 	Text               string
 	StringAlpha        string
 	StringAlphaNumeric string
-	PostCode           string
+	PostalCode         string
 	MongoDBId          string
 	UUID               string
 	UUID3              string
@@ -125,60 +126,59 @@ type DataType struct {
 // constants | enum
 func CrudTasks() TaskType {
 	return TaskType{
-		// CRUD Tasks "create"
-		Create: "Create",
-		Insert: "Insert",
-		Update: "Update",
-		Read:   "Read",
-		Delete: "Delete",
-		Remove: "Remove",
+		Create: "create",
+		Insert: "insert",
+		Update: "update",
+		Read:   "read",
+		Delete: "delete",
+		Remove: "remove",
 	}
 }
 
 func ORMRelations() ORMRelationType {
 	return ORMRelationType{
-		OneToOne:   "OneToOne",
-		OneToMany:  "OneToMany",
-		ManyToMany: "ManyToMany",
-		ManyToOne:  "ManyToOne",
+		OneToOne:   "onetoone",
+		OneToMany:  "onetomany",
+		ManyToMany: "manytomany",
+		ManyToOne:  "manytoone",
 	}
 }
 
 func RelationActions() RelationActionType {
 	return RelationActionType{
-		Restrict: "Restrict", // must remove target-record(s), prior to removing source-record
-		Cascade:  "Cascade",  // default for ON UPDATE | update foreignKey value or delete foreignKey record/value
-		NoAction: "NoAction", // leave the foreignKey value, as-is
-		Default:  "Default",  // set foreignKey to specified default value
-		Null:     "Null",     // set foreignKey value to null or ""
+		Restrict: "restrict", // must remove target-record(s), prior to removing source-record
+		Cascade:  "cascade",  // default for ON UPDATE | update foreignKey value or delete foreignKey record/value
+		NoAction: "noaction", // leave the foreignKey value, as-is
+		Default:  "default",  // set foreignKey to specified default value
+		Null:     "null",     // set foreignKey value to null
 	}
 }
 
 func FieldOperators() FieldOperatorType {
 	return FieldOperatorType{
-		Equals:              "Equals",
-		GreaterThan:         "GreaterThan",
-		LessThan:            "LessThan",
-		GreaterThanOrEquals: "GreaterThanOrEquals",
-		LessThanOrEquals:    "LessThanOrEquals",
-		NotEquals:           "NotEquals",
-		True:                "True",
-		False:               "False",
-		In:                  "In",
-		NotIn:               "NotIn",
-		Includes:            "Includes",
-		NotIncludes:         "NotIncludes",
-		StartsWith:          "StartsWith",
-		EndsWith:            "EndsWith",
-		NotStartsWith:       "NotStartsWith",
-		NotEndsWith:         "NotEndsWith",
+		Equals:              "eq",
+		NotEquals:           "neq",
+		GreaterThan:         "gt",
+		LessThan:            "lt",
+		GreaterThanOrEquals: "gte",
+		LessThanOrEquals:    "lte",
+		True:                "true",
+		False:               "false",
+		In:                  "in",
+		NotIn:               "notin",
+		Includes:            "includes",
+		NotIncludes:         "notincludes",
+		StartsWith:          "startswith",
+		EndsWith:            "endswith",
+		NotStartsWith:       "notstartswith",
+		NotEndsWith:         "notendswith",
 	}
 }
 
 func GroupOperators() GroupOperatorType {
 	return GroupOperatorType{
-		AND: "AND",
-		OR:  "OR",
+		AND: "and",
+		OR:  "or",
 	}
 }
 
@@ -188,7 +188,7 @@ func DataTypes() DataType {
 		Text:               "text",
 		StringAlpha:        "stringalpha",
 		StringAlphaNumeric: "stringalphanumeric",
-		PostCode:           "postalcode",
+		PostalCode:         "postalcode",
 		MongoDBId:          "mongodbid",
 		UUID:               "uuid",
 		UUID3:              "uuid3",
@@ -376,6 +376,29 @@ type CheckAccessParamsType struct {
 	serviceTable string
 }
 
+type SaveError error
+type CreateError error
+type UpdateError error
+type DeleteError error
+type ReadError error
+type AuthError error
+type ConnectError error
+type SelectQueryError error
+type WhereQueryError error
+type CreateQueryError error
+type UpdateQueryError error
+type DeleteQueryError error
+
+type ErrorInfo struct {
+	Code    string
+	Message string
+}
+
+// sample Error() implementation
+func (err ErrorInfo) Error() string {
+	return fmt.Sprintf("Error-code: %v | Error-message: %v", err.Code, err.Message)
+}
+
 type RoleFuncType func(it1 string, it2 RoleServiceType) bool
 type FieldValueType interface{}
 type ValueParamType map[string]interface{}
@@ -410,15 +433,15 @@ type ModelOptionsType struct {
 	DocValue     ValueParamType
 }
 
-type CrudTaskParamType struct  {
-	UserInfo      UserInfoType		`json:"user_info"`
-	ActionParams  ActionParamsType	`json:"action_params"`
-	ExistParams   ExistParamsType	`json:"exist_params"`
-	QueryParams   QueryParamType	`json:"query_params"`
-	RecordIds     []string			`json:"record_ids"`
-	ProjectParams ProjectParamType	`json:"project_params"`
-	SortParams    SortParamType		`json:"sort_params"`
-	TaskName      string			`json:"task_name"`
+type CrudTaskParamType struct {
+	UserInfo      UserInfoType     `json:"user_info"`
+	ActionParams  ActionParamsType `json:"action_params"`
+	ExistParams   ExistParamsType  `json:"exist_params"`
+	QueryParams   QueryParamType   `json:"query_params"`
+	RecordIds     []string         `json:"record_ids"`
+	ProjectParams ProjectParamType `json:"project_params"`
+	SortParams    SortParamType    `json:"sort_params"`
+	TaskName      string           `json:"task_name"`
 }
 
 type CrudTaskType struct {
