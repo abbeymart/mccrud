@@ -410,6 +410,17 @@ type ModelOptionsType struct {
 	DocValue     ValueParamType
 }
 
+type CrudTaskParamType struct  {
+	UserInfo      UserInfoType		`json:"user_info"`
+	ActionParams  ActionParamsType	`json:"action_params"`
+	ExistParams   ExistParamsType	`json:"exist_params"`
+	QueryParams   QueryParamType	`json:"query_params"`
+	RecordIds     []string			`json:"record_ids"`
+	ProjectParams ProjectParamType	`json:"project_params"`
+	SortParams    SortParamType		`json:"sort_params"`
+	TaskName      string			`json:"task_name"`
+}
+
 type CrudTaskType struct {
 	AppDb         *sql.DB
 	TableName     string
