@@ -333,15 +333,15 @@ const (
 )
 
 type UserInfoType struct {
-	UserId    string `json:"user_id"`
+	UserId    string `json:"user_id" form:"user_id" binding:"required"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Language  string `json:"language"`
-	LoginName string `json:"login_name"`
+	LoginName string `json:"login_name" form:"login_name" binding:"required"`
 	Token     string `json:"token"`
 	Expire    uint   `json:"expire"`
 	Group     string `json:"group"`
-	Email     string `json:"email"`
+	Email     string `json:"email" form:"email" binding:"required"`
 }
 
 type RoleServiceType struct {
