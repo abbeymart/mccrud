@@ -356,13 +356,13 @@ type RoleServiceType struct {
 }
 
 type CheckAccessType struct {
-	UserId       string            `json:"user_id"`
-	Group        string            `json:"group"`
-	Groups       []string          `json:"groups"`
-	IsActive     bool              `json:"is_active"`
-	IsAdmin      bool              `json:"is_admin"`
-	RoleServices []RoleServiceType `json:"role_services"`
-	TableId      string            `json:"table_id"`
+	UserId       string            `json:"user_id" mcorm:"user_id"`
+	Group        string            `json:"group" mcorm:"group"`
+	Groups       []string          `json:"groups" mcorm:"groups"`
+	IsActive     bool              `json:"is_active" mcorm:"is_active"`
+	IsAdmin      bool              `json:"is_admin" mcorm:"is_admin"`
+	RoleServices []RoleServiceType `json:"role_services" mcorm:"role_services"`
+	TableId      string            `json:"table_id" mcorm:"table_id"`
 }
 
 type CheckAccessParamsType struct {
@@ -410,27 +410,25 @@ type SortParamType map[string]int     // 1 for "asc", -1 for "desc"
 type ProjectParamType map[string]bool // 1 or true for inclusion, 0 or false for exclusion
 
 type GroupItemType struct {
-	GroupItem      map[string]map[string]interface{}	`json:"group_item"` // key1 => fieldName, key2 => fieldOperator, interface{}=> value(s)
-	GroupItemOrder uint									`json:"group_item_order"`                              // item/field order within the group
-	GroupItemOp    string								`json:"group_item_op"`                            // group-item relationship to the next item (AND, OR), the last item groupItemOp should be "" or will be ignored
+	GroupItem      map[string]map[string]interface{} `json:"group_item"`       // key1 => fieldName, key2 => fieldOperator, interface{}=> value(s)
+	GroupItemOrder uint                              `json:"group_item_order"` // item/field order within the group
+	GroupItemOp    string                            `json:"group_item_op"`    // group-item relationship to the next item (AND, OR), the last item groupItemOp should be "" or will be ignored
 }
 
 type GroupParamType struct {
-	GroupName   string			`json:"group_name"`          // for group-items(fields) categorization
-	GroupItems  []GroupItemType	`json:"group_items"` // group items to be composed by category
-	GroupOrder  uint			`json:"group_order"`            // group order
-	GroupLinkOp string			`json:"group_link_op"`          // group relationship to the next group (AND, OR), the last group groupLinkOp should be "" or will be ignored
+	GroupName   string          `json:"group_name"`    // for group-items(fields) categorization
+	GroupItems  []GroupItemType `json:"group_items"`   // group items to be composed by category
+	GroupOrder  uint            `json:"group_order"`   // group order
+	GroupLinkOp string          `json:"group_link_op"` // group relationship to the next group (AND, OR), the last group groupLinkOp should be "" or will be ignored
 }
 
 type QueryParamType []GroupParamType
 type WhereParamType []GroupParamType
 
 type ModelOptionsType struct {
-	TimeStamp    bool // auto-add: createdAt and updatedAt | default: true
-	ActorStamp   bool // auto-add: createdBy and updatedBy | default: true
-	ActiveStamp  bool // auto-add isActive, if not already set | default: true
-	DocValueDesc RecordDescType
-	DocValue     ValueParamType
+	TimeStamp   bool // auto-add: createdAt and updatedAt | default: true
+	ActorStamp  bool // auto-add: createdBy and updatedBy | default: true
+	ActiveStamp bool // auto-add isActive, if not already set | default: true
 }
 
 // CrudTaskParamType is the struct type for receiving CRUD inputs
@@ -442,18 +440,19 @@ type CrudTaskParamType struct {
 	RecordIds     []string         `json:"record_ids"`
 	ProjectParams ProjectParamType `json:"project_params"`
 	SortParams    SortParamType    `json:"sort_params"`
-	TaskName      string           `json:"task_name"`
+	TaskName      string           `json:"-"`
 	Skip          uint             `json:"skip"`
 	Limit         uint             `json:"limit"`
 }
 
+// CrudTaskType is the struct type for receiving, composing and passing CRUD inputs
 type CrudTaskType struct {
 	AppDb         *sql.DB          `json:"-"`
 	TableName     string           `json:"-"`
 	UserInfo      UserInfoType     `json:"user_info"`
 	ActionParams  ActionParamsType `json:"action_params"`
 	ExistParams   ExistParamsType  `json:"exist_params"`
-	QueryParams   QueryParamType   `json:"query_params"`
+	QueryParams   WhereParamType   `json:"query_params"`
 	RecordIds     []string         `json:"record_ids"`
 	ProjectParams ProjectParamType `json:"project_params"`
 	SortParams    SortParamType    `json:"sort_params"`

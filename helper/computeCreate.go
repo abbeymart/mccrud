@@ -27,7 +27,7 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mcc
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
 		return errMessage("table-name, action-params and table-fields are required for the create operation")
 	}
-	// value-computation for each of the actionParams' records must match the fieldNames
+	// value-computation for each of the actionParams' records must match the tableFields
 	// compute create script for all the create-task, with value-placeholders
 	var itemQuery = fmt.Sprintf("INSERT INTO %v(", tableName)
 	var itemValuePlaceholder = " VALUES("

@@ -32,12 +32,11 @@ func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
 	result.ExistParams = params.ExistParams
 	result.Token = params.Token
 	result.TaskName = params.TaskName
+	result.Skip = params.Skip
+	result.Limit = params.Limit
 
 	// crud options
-	result.Skip = options.Skip
-	result.Limit = options.Limit
 	result.MaxQueryLimit = options.MaxQueryLimit
-
 	result.AuditTable = options.AuditTable
 	result.AccessTable = options.AccessTable
 	result.RoleTable = options.RoleTable
