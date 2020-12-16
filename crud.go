@@ -14,6 +14,7 @@ import (
 type Crud struct {
 	CrudParamsType
 	CrudOptionsType
+	CurrentRecords []interface{}
 	TransLog mcauditlog.PgxLogParam
 	HashKey  string // Unique for exactly the same query
 }
