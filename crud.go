@@ -10,87 +10,88 @@ import (
 	"github.com/abbeymart/mcauditlog"
 )
 
+// Crud object / struct
 type Crud struct {
-	CrudTaskType
+	CrudParamsType
 	CrudOptionsType
-	TransLog mcauditlog.LogParam
+	TransLog mcauditlog.PgxLogParam
 	HashKey  string // Unique for exactly the same query
 }
 
-// constructor
-func NewCrud(params CrudTaskType, options CrudOptionsType) Crud {
-	result := Crud{}
+// NewCrud constructor returns a new crud-instance
+func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance Crud) {
+	// crudInstance = Crud{}
 	// compute crud params
-	result.AppDb = params.AppDb
-	result.TableName = params.TableName
-	result.UserInfo = params.UserInfo
-	result.ActionParams = params.ActionParams
-	result.RecordIds = params.RecordIds
-	result.QueryParams = params.QueryParams
-	result.SortParams = params.SortParams
-	result.ProjectParams = params.ProjectParams
-	result.ExistParams = params.ExistParams
-	result.Token = params.Token
-	result.TaskName = params.TaskName
-	result.Skip = params.Skip
-	result.Limit = params.Limit
+	crudInstance.AppDb = params.AppDb
+	crudInstance.TableName = params.TableName
+	crudInstance.UserInfo = params.UserInfo
+	crudInstance.ActionParams = params.ActionParams
+	crudInstance.RecordIds = params.RecordIds
+	crudInstance.QueryParams = params.QueryParams
+	crudInstance.SortParams = params.SortParams
+	crudInstance.ProjectParams = params.ProjectParams
+	crudInstance.ExistParams = params.ExistParams
+	crudInstance.Token = params.Token
+	crudInstance.TaskName = params.TaskName
+	crudInstance.Skip = params.Skip
+	crudInstance.Limit = params.Limit
 
 	// crud options
-	result.MaxQueryLimit = options.MaxQueryLimit
-	result.AuditTable = options.AuditTable
-	result.AccessTable = options.AccessTable
-	result.RoleTable = options.RoleTable
-	result.UserTable = options.UserTable
-	result.AuditDb = options.AuditDb
-	result.AccessDb = options.AccessDb
-	result.LogAll = options.LogAll
-	result.LogRead = options.LogRead
-	result.LogCreate = options.LogCreate
-	result.LogUpdate = options.LogUpdate
-	result.LogDelete = options.LogDelete
-	result.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
+	crudInstance.MaxQueryLimit = options.MaxQueryLimit
+	crudInstance.AuditTable = options.AuditTable
+	crudInstance.AccessTable = options.AccessTable
+	crudInstance.RoleTable = options.RoleTable
+	crudInstance.UserTable = options.UserTable
+	crudInstance.AuditDb = options.AuditDb
+	crudInstance.AccessDb = options.AccessDb
+	crudInstance.LogAll = options.LogAll
+	crudInstance.LogRead = options.LogRead
+	crudInstance.LogCreate = options.LogCreate
+	crudInstance.LogUpdate = options.LogUpdate
+	crudInstance.LogDelete = options.LogDelete
+	crudInstance.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
 	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
 	pParam, _ := json.Marshal(params.ProjectParams)
 	dIds, _ := json.Marshal(params.RecordIds)
-	result.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
+	crudInstance.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
 
 	// Audit/TransLog instance
-	result.TransLog = mcauditlog.NewAuditLog(result.AuditDb, result.AuditTable)
+	crudInstance.TransLog = mcauditlog.NewAuditLogPgx(crudInstance.AuditDb, crudInstance.AuditTable)
 
 	// Default values
-	if result.AuditTable == "" {
-		result.AuditTable = "audits"
+	if crudInstance.AuditTable == "" {
+		crudInstance.AuditTable = "audits"
 	}
-	if result.AccessTable == "" {
-		result.AccessTable = "accesskeys"
+	if crudInstance.AccessTable == "" {
+		crudInstance.AccessTable = "accesskeys"
 	}
-	if result.RoleTable == "" {
-		result.RoleTable = "roles"
+	if crudInstance.RoleTable == "" {
+		crudInstance.RoleTable = "roles"
 	}
-	if result.UserTable == "" {
-		result.UserTable = "users"
+	if crudInstance.UserTable == "" {
+		crudInstance.UserTable = "users"
 	}
-	if result.ServiceTable == "" {
-		result.AuditTable = "services"
+	if crudInstance.ServiceTable == "" {
+		crudInstance.AuditTable = "services"
 	}
-	if result.AuditDb == nil {
-		result.AuditDb = result.AppDb
+	if crudInstance.AuditDb == nil {
+		crudInstance.AuditDb = crudInstance.AppDb
 	}
-	if result.AccessDb == nil {
-		result.AccessDb = result.AppDb
+	if crudInstance.AccessDb == nil {
+		crudInstance.AccessDb = crudInstance.AppDb
 	}
-	if result.Skip < 0 {
-		result.Skip = 0
+	if crudInstance.Skip < 0 {
+		crudInstance.Skip = 0
 	}
-	if result.Limit > result.MaxQueryLimit && result.MaxQueryLimit != 0 {
-		result.Limit = result.MaxQueryLimit
-	} else if result.Limit > 10000 {
-		result.Limit = 10000
+	if crudInstance.Limit > crudInstance.MaxQueryLimit && crudInstance.MaxQueryLimit != 0 {
+		crudInstance.Limit = crudInstance.MaxQueryLimit
+	} else if crudInstance.Limit > 10000 {
+		crudInstance.Limit = 10000
 	}
 
-	return result
+	return crudInstance
 }
 
 // String() function implementation

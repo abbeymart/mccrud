@@ -6,7 +6,3 @@ package tests
 
 // data
 
-type Person struct {
-	Name string
-
-}

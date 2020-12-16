@@ -27,10 +27,38 @@ type CrudDelete interface {
 	Delete()
 }
 
-// Model description
+// Model object description
 type Model struct {
 	TaskName string
 	ModelType
+}
+
+// NewModel constructor: for table structure definition
+func NewModel(model ModelType) ModelType {
+	result := ModelType{}
+	result.AppDb = model.AppDb
+	result.TableName = model.TableName
+	result.RecordDesc = model.RecordDesc
+	result.TimeStamp = model.TimeStamp
+	result.ActorStamp = model.ActorStamp
+	result.ActiveStamp = model.ActiveStamp
+	result.Relations = model.Relations
+	result.ComputedMethods = model.ComputedMethods
+	result.ValidateMethods = model.ValidateMethods
+	result.AlterSyncTable = model.AlterSyncTable
+
+	// Default values
+	if !result.TimeStamp {
+		result.TimeStamp = true
+	}
+	if !result.ActiveStamp {
+		result.ActiveStamp = true
+	}
+	if !result.ActorStamp {
+		result.ActorStamp = true
+	}
+
+	return result
 }
 
 // Methods
@@ -196,10 +224,10 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 
 // UpdateDefaultValue method update default-value for non-null field with no specified value
 // and pre-set value, prior to save (create/update) using setValueMethod
-func (model Model) UpdateDefaultValue(recordValue ValueParamType) ValueParamType {
+func (model Model) UpdateDefaultValue(recordValue ValueParamType) (setRecordValue ValueParamType) {
 	// set default values, for null fields | then setValue (pre-set/transform), if specified
 	// set base recordValue
-	setRecordValue := recordValue
+	setRecordValue = recordValue
 	// perform update of default/set-values for the doc-values => modelRecordValue
 	for key, fieldValue := range recordValue {
 		// defaultValue setting applies to FieldDescType only | otherwise, the value is required (not null)
@@ -460,7 +488,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 
 // sql.DB CRUD methods [pg, sqlite3...]
 // Save method performs create (new records) or update (for current/existing records) task
-func (model Model) Save(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) Save(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 	model.TaskName = params.TaskName
@@ -509,7 +537,7 @@ func (model Model) Save(params CrudTaskType, options CrudOptionsType) mcresponse
 
 // Get method query the DB by record-id, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters
-func (model Model) Get(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) Get(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
@@ -521,7 +549,7 @@ func (model Model) Get(params CrudTaskType, options CrudOptionsType) mcresponse.
 
 // GetStream method query the DB by record-ids, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters, and stream the result
-func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) GetStream(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
@@ -532,7 +560,7 @@ func (model Model) GetStream(params CrudTaskType, options CrudOptionsType) mcres
 }
 
 // Delete method delete record(s) by record-ids or defined query-parameter
-func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) Delete(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
@@ -541,5 +569,3 @@ func (model Model) Delete(params CrudTaskType, options CrudOptionsType) mcrespon
 	// perform delete-task
 	return crud.Delete()
 }
-
-// TODO: add pgxpool CRUD methods

@@ -115,5 +115,5 @@ type PgxCrudParamType struct {
 	roleServices        []mccrud.RoleServiceType
 	subItems            []bool
 	cacheExpire         uint
-	params              mccrud.CrudTaskType
+	params              mccrud.CrudParamsType
 }

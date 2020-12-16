@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/abbeymart/mcutils"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -366,7 +365,7 @@ type CheckAccessType struct {
 }
 
 type CheckAccessParamsType struct {
-	accessDb     *sql.DB
+	accessDb     *pgxpool.Pool
 	userInfo     UserInfoType
 	tableName    string
 	docIds       []string // for update, delete and read tasks
@@ -432,22 +431,23 @@ type ModelOptionsType struct {
 }
 
 // CrudTaskParamType is the struct type for receiving CRUD inputs
-type CrudTaskParamType struct {
-	UserInfo      UserInfoType     `json:"user_info"`
-	ActionParams  ActionParamsType `json:"action_params"`
-	ExistParams   ExistParamsType  `json:"exist_params"`
-	QueryParams   QueryParamType   `json:"query_params"`
-	RecordIds     []string         `json:"record_ids"`
-	ProjectParams ProjectParamType `json:"project_params"`
-	SortParams    SortParamType    `json:"sort_params"`
-	TaskName      string           `json:"-"`
-	Skip          uint             `json:"skip"`
-	Limit         uint             `json:"limit"`
-}
 
-// CrudTaskType is the struct type for receiving, composing and passing CRUD inputs
-type CrudTaskType struct {
-	AppDb         *sql.DB          `json:"-"`
+//type CrudTaskParamType struct {
+//	UserInfo      UserInfoType     `json:"user_info"`
+//	ActionParams  ActionParamsType `json:"action_params"`
+//	ExistParams   ExistParamsType  `json:"exist_params"`
+//	QueryParams   QueryParamType   `json:"query_params"`
+//	RecordIds     []string         `json:"record_ids"`
+//	ProjectParams ProjectParamType `json:"project_params"`
+//	SortParams    SortParamType    `json:"sort_params"`
+//	TaskName      string           `json:"-"`
+//	Skip          uint             `json:"skip"`
+//	Limit         uint             `json:"limit"`
+//}
+
+// CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
+type CrudParamsType struct {
+	AppDb         *pgxpool.Pool    `json:"-"`
 	TableName     string           `json:"-"`
 	UserInfo      UserInfoType     `json:"user_info"`
 	ActionParams  ActionParamsType `json:"action_params"`
@@ -459,7 +459,7 @@ type CrudTaskType struct {
 	Token         string           `json:"token"`
 	Skip          uint             `json:"skip"`
 	Limit         uint             `json:"limit"`
-	Options       CrudOptionsType  `json:"options"`
+	//Options       CrudOptionsType  `json:"options"`
 	TaskName      string           `json:"-"`
 }
 
@@ -468,9 +468,9 @@ type CrudOptionsType struct {
 	ChildTables           []string
 	RecursiveDelete       bool
 	CheckAccess           bool
-	AccessDb              *sql.DB
-	AuditDb               *sql.DB
-	ServiceDb             *sql.DB
+	AccessDb              *pgxpool.Pool
+	AuditDb               *pgxpool.Pool
+	ServiceDb             *pgxpool.Pool
 	AuditTable            string
 	ServiceTable          string
 	UserTable             string
@@ -496,7 +496,7 @@ type CrudOptionsType struct {
 }
 
 type CrudParamType struct {
-	appDb           *sql.DB
+	AppDb           *pgxpool.Pool // use *pgxpool.Pool, preferred || *pgx.Conn
 	tableName       string
 	token           string
 	userInfo        UserInfoType
@@ -515,8 +515,8 @@ type CrudParamType struct {
 	childTables     []string
 	recursiveDelete bool
 	checkAccess     bool
-	accessDb        *sql.DB
-	auditDb         *sql.DB
+	accessDb        *pgxpool.Pool
+	auditDb         *pgxpool.Pool
 	auditTable      string
 	serviceTable    string
 	userTable       string
@@ -541,7 +541,7 @@ type CrudParamType struct {
 	roleServices        []RoleServiceType
 	subItems            []bool
 	cacheExpire         uint
-	params              CrudTaskType
+	params              CrudParamsType
 }
 
 // Pgx specific types
@@ -652,7 +652,7 @@ type PgxCrudParamType struct {
 	roleServices        []RoleServiceType
 	subItems            []bool
 	cacheExpire         uint
-	params              CrudTaskType
+	params              CrudParamsType
 }
 
 // MongoDB specific types
@@ -809,6 +809,7 @@ type ModelRelationType struct {
 }
 
 type ModelType struct {
+	AppDb           *pgxpool.Pool
 	TableName       string
 	RecordDesc      RecordDescType
 	TimeStamp       bool // auto-add: createdAt and updatedAt | default: true
