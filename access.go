@@ -5,10 +5,11 @@
 package mccrud
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mcutils"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"strings"
 	"time"
 )
@@ -60,7 +61,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 		docIds = crud.RecordIds
 		// SQL script
 		sqlScript := fmt.Sprintf("SELECT id FROM %v WHERE id IN $1 AND created_by = $2", crud.TableName)
-		rows, err := crud.AppDb.Query(sqlScript, crud.RecordIds, accessUserId)
+		rows, err := crud.AppDb.Query(context.Background(), sqlScript, crud.RecordIds, accessUserId)
 		if err != nil {
 			errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -293,7 +294,7 @@ func (crud Crud) CheckTaskAccess(params CheckAccessParamsType) mcresponse.Respon
 
 	// get the accessKey information for the user
 	accessScript := fmt.Sprintf("SELECT expire from %v WHERE user_id=$1 AND token=$2 AND login_name=$3", params.accessTable)
-	rowAccess := crud.AccessDb.QueryRow(accessScript, params.userInfo.UserId, params.userInfo.Token, params.userInfo.LoginName)
+	rowAccess := crud.AccessDb.QueryRow(context.Background(), accessScript, params.userInfo.UserId, params.userInfo.Token, params.userInfo.LoginName)
 	// check login-status/expiration
 	var accessExpire int64
 	if err := rowAccess.Scan(&accessExpire); err != nil {
@@ -318,7 +319,7 @@ func (crud Crud) CheckTaskAccess(params CheckAccessParamsType) mcresponse.Respon
 		isActive bool
 	)
 	userScript := fmt.Sprintf("SELECT id, group, groups, isAdmin, isActive from %v WHERE id=$1 AND is_active=$2", params.userTable)
-	rowUser := crud.AccessDb.QueryRow(userScript, params.userInfo.UserId, true)
+	rowUser := crud.AccessDb.QueryRow(context.Background(), userScript, params.userInfo.UserId, true)
 	// check login-status/expiration
 	if err := rowUser.Scan(&uId, &group, &groups, &isAdmin, &isActive); err != nil {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
@@ -334,7 +335,7 @@ func (crud Crud) CheckTaskAccess(params CheckAccessParamsType) mcresponse.Respon
 		category  string
 	)
 	serviceScript := fmt.Sprintf("SELECT id, category from %v WHERE name=$1", params.serviceTable)
-	rowService := crud.AccessDb.QueryRow(serviceScript, params.tableName)
+	rowService := crud.AccessDb.QueryRow(context.Background(), serviceScript, params.tableName)
 	// check login-status/expiration
 	if err := rowService.Scan(&serviceId, &category); err != nil {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
@@ -373,10 +374,10 @@ func (crud Crud) CheckTaskAccess(params CheckAccessParamsType) mcresponse.Respon
 	})
 }
 
-func (crud Crud) GetRoleServices(accessDb *sql.DB, roleTable string, group string, serviceIds []string) []RoleServiceType {
+func (crud Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, group string, serviceIds []string) []RoleServiceType {
 	var roleServices []RoleServiceType
 	roleScript := fmt.Sprintf("SELECT service_id, role_id, service_category, can_read, can_create, can_delete, can_update from %v WHERE service_id IN $1 AND group=$2 AND is_active=$3", roleTable)
-	rows, err := accessDb.Query(roleScript, serviceIds, group, true)
+	rows, err := accessDb.Query(context.Background(), roleScript, serviceIds, group, true)
 	if err != nil {
 		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return roleServices
@@ -406,7 +407,7 @@ func (crud Crud) GetRoleServices(accessDb *sql.DB, roleTable string, group strin
 func (crud Crud) GetCurrentRecord(recordType interface{}) mcresponse.ResponseMessage {
 	//var currentRecords []interface{}
 	roleScript := fmt.Sprintf("SELECT * from %v WHERE id IN $1", crud.TableName)
-	rows, err := crud.AppDb.Query(roleScript, crud.RecordIds)
+	rows, err := crud.AppDb.Query(context.Background(), roleScript, crud.RecordIds)
 	if err != nil {
 		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return mcresponse.ResponseMessage{}
