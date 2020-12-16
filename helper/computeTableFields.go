@@ -9,7 +9,7 @@ import (
 	"github.com/abbeymart/mccrud"
 )
 
-func ComputeTableFields(actionParams mccrud.ActionParamsType, projectParams mccrud.ProjectParamType) ([]string, error) {
+func ComputeSaveFields(actionParams mccrud.ActionParamsType, projectParams mccrud.ProjectParamType) ([]string, error) {
 	if len(actionParams) < 1 {
 		return nil, errors.New("actionParams is required")
 	}
@@ -36,3 +36,29 @@ func ComputeTableFields(actionParams mccrud.ActionParamsType, projectParams mccr
 
 	return tableFields, nil
 }
+
+func ComputeGetFields(projectParams mccrud.ProjectParamType) ([]string, error) {
+	if len(projectParams) < 1 {
+		return nil, errors.New("select/projection-params is required")
+	}
+	// obtain tableFields from api consumer (ProjectParams)
+	var tableFields []string
+	if len(projectParams) > 0 {
+		for fieldName, ok := range projectParams {
+			if ok {
+				tableFields = append(tableFields, fieldName)
+			}
+		}
+		// include default fields (id) for get/select-query only
+		// s = append([]int{0}, s...) | s = append([]string{"id"}, s...)
+		if !ArrayStringContains(tableFields, "id") {
+			tableFields = append([]string{"id"}, tableFields...)
+		}
+	}
+	if len(tableFields) < 1 {
+		return nil, errors.New("unable to compute query-fields")
+	}
+
+	return tableFields, nil
+}
+

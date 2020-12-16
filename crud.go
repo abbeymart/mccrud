@@ -85,10 +85,14 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance Crud)
 	if crudInstance.Skip < 0 {
 		crudInstance.Skip = 0
 	}
+
+	if crudInstance.MaxQueryLimit == 0 {
+		crudInstance.MaxQueryLimit = 10000
+	}
+
+
 	if crudInstance.Limit > crudInstance.MaxQueryLimit && crudInstance.MaxQueryLimit != 0 {
 		crudInstance.Limit = crudInstance.MaxQueryLimit
-	} else if crudInstance.Limit > 10000 {
-		crudInstance.Limit = 10000
 	}
 
 	return crudInstance

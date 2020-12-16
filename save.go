@@ -71,7 +71,7 @@ func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage 
 	// create from createRecs (actionParams)
 	var tableFields []string
 	// compose tableFields
-	if tFields, err := helper.ComputeTableFields(createRecs, crud.ProjectParams); err != nil {
+	if tFields, err := helper.ComputeSaveFields(createRecs, crud.ProjectParams); err != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
 			Value:   tFields,
@@ -84,8 +84,8 @@ func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage 
 			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
 			Value:   createQuery,
 		})
-		// TODO: perform create/insert action, wrap in transaction:
-
+	} else {
+		// TODO: perform create/insert action:
 	}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
@@ -98,7 +98,7 @@ func (crud Crud) UpdateById(updateRecs ActionParamsType) mcresponse.ResponseMess
 	// create from updatedRecs (actionParams)
 	var tableFields []string
 	// compose tableFields
-	if tFields, err := helper.ComputeTableFields(updateRecs, crud.ProjectParams); err != nil {
+	if tFields, err := helper.ComputeSaveFields(updateRecs, crud.ProjectParams); err != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
 			Value:   tFields,
@@ -112,8 +112,8 @@ func (crud Crud) UpdateById(updateRecs ActionParamsType) mcresponse.ResponseMess
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
 			Value:   updateQuery,
 		})
-		// TODO: perform create/insert action, wrap in transaction:
-
+	} else {
+		// TODO: perform create/insert action:
 	}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
@@ -126,7 +126,7 @@ func (crud Crud) UpdateByParam(updateRecs ActionParamsType) mcresponse.ResponseM
 	// create from updatedRecs (actionParams)
 	var tableFields []string
 	// compose tableFields
-	if tFields, err := helper.ComputeTableFields(updateRecs, crud.ProjectParams); err != nil {
+	if tFields, err := helper.ComputeSaveFields(updateRecs, crud.ProjectParams); err != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
 			Value:   tFields,
@@ -140,8 +140,8 @@ func (crud Crud) UpdateByParam(updateRecs ActionParamsType) mcresponse.ResponseM
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
 			Value:   updateQuery,
 		})
-		// TODO: perform create/insert action, wrap in transaction:
-
+	} else {
+		// TODO: perform create/insert action:
 	}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
