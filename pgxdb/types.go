@@ -5,7 +5,7 @@
 package pgxdb
 
 import (
-	mccrud "github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mccrud"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 

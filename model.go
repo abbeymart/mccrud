@@ -537,14 +537,14 @@ func (model Model) Save(params CrudParamsType, options CrudOptionsType) mcrespon
 
 // Get method query the DB by record-id, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters
-func (model Model) Get(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) GetById(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform get-task
-	return crud.Get()
+	return crud.GetById()
 }
 
 // GetStream method query the DB by record-ids, defined query-parameter or all records, constrained
@@ -560,12 +560,12 @@ func (model Model) GetStream(params CrudParamsType, options CrudOptionsType) mcr
 }
 
 // Delete method delete record(s) by record-ids or defined query-parameter
-func (model Model) Delete(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) DeleteById(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform delete-task
-	return crud.Delete()
+	return crud.DeleteById()
 }

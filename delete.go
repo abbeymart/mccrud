@@ -138,7 +138,7 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 	})
 }
 
-// DeleteAll function removes all records in the tables. Recommended for admin-users only
+// DeleteAll method removes all records in the tables. Recommended for admin-users only
 // Use if and only if you know what you are doing
 func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 	// TODO: perform crud-task action:
