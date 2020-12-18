@@ -67,6 +67,9 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 	// compute delete script from where
 
 	// perform audit-log
+	if crud.LogDelete {
+
+	}
 
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
@@ -131,6 +134,9 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// compute delete script from where
 
 	// perform audit-log
+	if crud.LogDelete {
+
+	}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "success",
@@ -145,6 +151,9 @@ func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 	// compute delete script from where
 
 	// perform audit-log | record only the action performed, excluding table-records
+	if crud.LogDelete {
+
+	}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "success",

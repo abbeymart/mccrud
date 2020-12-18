@@ -5,9 +5,11 @@
 package mccrud
 
 import (
+	"context"
 	"fmt"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
+	"github.com/jackc/pgx/v4"
 )
 
 func (crud *Crud) Save() mcresponse.ResponseMessage {
@@ -79,18 +81,49 @@ func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage 
 	} else {
 		tableFields = tFields
 	}
-	if createQuery, err := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs); err != nil {
+	// compute query
+	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
+	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
+			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
 			Value:   createQuery,
 		})
-	} else {
-		// TODO: perform create/insert action:
 	}
 
+	// perform create/insert action, via transaction/copy-protocol:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new records: %v", txErr.Error()),
+			Value:   createQuery,
+		})
+	}
+	defer tx.Rollback(context.Background())
+
+	// bulk create
+	copyCount, cErr := tx.CopyFrom(
+		context.Background(),
+		pgx.Identifier{crud.TableName},
+		createQuery.FieldNames,
+		pgx.CopyFromRows(createQuery.FieldValues),
+	)
+	if cErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new records: %v", cErr.Error()),
+			Value:   createQuery,
+		})
+	}
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new records: %v", txcErr.Error()),
+			Value:   createQuery,
+		})
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "success",
-		Value:   nil,
+		Value:   copyCount,
 	})
 }
 

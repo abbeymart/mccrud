@@ -34,6 +34,7 @@ var PersonModel = mccrud.ModelType{
 	TimeStamp: true,
 	ActorStamp: true,
 	ActiveStamp: true,
+	AlterSyncTable: true,
 }
 
 var person = mccrud.NewModel(PersonModel)
