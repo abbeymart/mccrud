@@ -30,7 +30,7 @@ func (crud *Crud) Save() mcresponse.ResponseMessage {
 			default:
 				// invalid fieldValue type (string)
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("Invalid fieldValue type for fieldName: id, and in record: %v", rec),
+					Message: fmt.Sprintf("Invalid fieldValue type for fieldName: id, in record: %v", rec),
 					Value:   nil,
 				})
 			}
@@ -42,7 +42,7 @@ func (crud *Crud) Save() mcresponse.ResponseMessage {
 	// permit only create or update, not both at the same time
 	if len(createRecs) > 0 && len(updateRecs) > 0 {
 		return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
-			Message: "you may only create or update record(s), not both at the same time",
+			Message: "You may only create or update record(s), not both at the same time",
 			Value:   nil,
 		})
 	}
