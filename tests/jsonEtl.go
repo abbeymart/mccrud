@@ -8,16 +8,58 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/abbeymart/mccrud"
 )
 
 // data
-var jsonData = `{"name": "Abi", "age": 10, "location_id": "CA", "phone_number": "123-456-9999"}`
+var jsonData = `[
+	{"name": "Abi", "age": 10, "location_id": "CA", "phone_number": "123-456-9999"},
+	{"name": "Abi", "age": 10, "location_id": "CA", "phone_number": "123-456-9999"},
+	{"name": "Abi", "age": 10, "location_id": "CA", "phone_number": "123-456-9999"}
+]`
+
+var jsonQueryParams = `
+	{
+		"group_name": "abc",
+		"group_order": 1,
+		"group_link_op": "and",
+		"group_items": [
+			group_item: {"name": { "eq": Paul"}, "age":{"eq": 10}, "location": {"eq": Toronto"}},
+			
+		]
+	},
+	{},
+	{},
+`
+// convert/decode jsonQueryParams to queryParams
+var queryParams mccrud.QueryParamType = mccrud.QueryParamType{
+	mccrud.GroupParamType{
+		GroupName: "abc",
+		GroupOrder: 1,
+		GroupLinkOp: mccrud.GroupOperators().AND,
+		GroupItems: []mccrud.GroupItemType{
+			mccrud.GroupItemType{},
+			mccrud.GroupItemType{},
+		},
+	},
+	mccrud.GroupParamType{},
+	mccrud.GroupParamType{},
+}
 
 type Person struct {
+	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Age         int    `json:"age"`
 	LocationId  string `json:"location_id"`
 	PhoneNumber string `json:"phone_number"`
+}
+
+// convert/decode jsonData to []model-type => action-params
+var actionParams = mccrud.ActionParamsType{
+	mccrud.ValueParamType{},
+	mccrud.ValueParamType{},
+	mccrud.ValueParamType{},
+	mccrud.ValueParamType{},
 }
 
 func jsonDataETL(personJson []byte) (Person, error) {
@@ -35,4 +77,7 @@ func main() {
 	} else {
 		fmt.Printf("Error coverting json-data: %v", err.Error())
 	}
+
+	// TODO: table-fields | tableFieldPointers | queryParams
+
 }

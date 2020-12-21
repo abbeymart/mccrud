@@ -437,7 +437,7 @@ type CrudParamsType struct {
 	Skip          uint             `json:"skip"`
 	Limit         uint             `json:"limit"`
 	//Options       CrudOptionsType  `json:"options"`
-	TaskName      string           `json:"-"`
+	TaskName string `json:"-"`
 }
 
 type CrudOptionsType struct {
