@@ -55,7 +55,7 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(recordIds) < 1 {
 		return "", errors.New("table-name, table-fields, action-params and record/doc-Ids are required for the update-by-id operation")
 	}
-	// compute update script from queryParams
+	// compute update script from query-ids
 	var updateQuery string
 	whereQuery := " WHERE id IN(" + strings.Join(recordIds, ", ") + ")"
 	invalidUpdateItemCount := 0
@@ -68,7 +68,11 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 	fieldLen := len(rec)
 	for fieldName, fieldValue := range rec {
 		// check for missing field in each record
-		if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
+		if !ArrayStringContains(tableFields, fieldName) {
+			return "", errors.New(fmt.Sprintf("Unrecognised field: %v from record %v", fieldName, rec))
+		}
+		// TODO: review/optional, check for missing field-value in each record | may set field-value to null, if allowed
+		if fieldValue == nil {
 			return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
 		}
 		fieldCount += 1
@@ -86,8 +90,8 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 		invalidUpdateItemCount += 1
 	}
 
-	// check is there was no valid update items
-	if invalidUpdateItemCount == 1 {
+	// check is there was invalid update items
+	if invalidUpdateItemCount > 0 {
 		return "", errors.New(fmt.Sprintf("Invalid action-params"))
 	}
 	return updateQuery, nil
@@ -109,7 +113,11 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 	fieldLen := len(rec)
 	for fieldName, fieldValue := range rec {
 		// check for missing field in each record
-		if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
+		if !ArrayStringContains(tableFields, fieldName) {
+			return "", errors.New(fmt.Sprintf("Unrecognised field: %v from record %v", fieldName, rec))
+		}
+		// TODO: review/optional, check for missing field-value in each record | may set field-value to null, if allowed
+		if fieldValue == nil {
 			return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
 		}
 		fieldCount += 1
@@ -127,8 +135,8 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 		invalidUpdateItemCount += 1
 	}
 
-	// check is there was no valid update items
-	if invalidUpdateItemCount == 1 {
+	// check is there was invalid update items
+	if invalidUpdateItemCount > 0 {
 		return "", errors.New(fmt.Sprintf("Invalid action-params"))
 	}
 

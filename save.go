@@ -75,27 +75,27 @@ func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage 
 	// compose tableFields
 	if tFields, err := helper.ComputeSaveFields(createRecs, crud.ProjectParams); err != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
-			Value:   tFields,
+			Message: fmt.Sprintf("Error computing create-query-fields: %v", err.Error()),
+			Value:   nil,
 		})
 	} else {
 		tableFields = tFields
 	}
+
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
-			Value:   createQuery,
+			Value:   nil,
 		})
 	}
-
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error creating new records: %v", txErr.Error()),
-			Value:   createQuery,
+			Message: fmt.Sprintf("Error creating new record(s): %v", txErr.Error()),
+			Value:   nil,
 		})
 	}
 	defer tx.Rollback(context.Background())
@@ -109,16 +109,16 @@ func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage 
 	)
 	if cErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error creating new records: %v", cErr.Error()),
-			Value:   createQuery,
+			Message: fmt.Sprintf("Error creating new record(s): %v", cErr.Error()),
+			Value:   nil,
 		})
 	}
 	// commit
 	txcErr := tx.Commit(context.Background())
 	if txcErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error creating new records: %v", txcErr.Error()),
-			Value:   createQuery,
+			Message: fmt.Sprintf("Error creating new record(s): %v", txcErr.Error()),
+			Value:   nil,
 		})
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
@@ -132,27 +132,49 @@ func (crud Crud) UpdateById(updateRecs ActionParamsType) mcresponse.ResponseMess
 	var tableFields []string
 	// compose tableFields
 	if tFields, err := helper.ComputeSaveFields(updateRecs, crud.ProjectParams); err != nil {
-		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
-			Value:   tFields,
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing update-query-fields: %v", err.Error()),
+			Value:   nil,
 		})
 	} else {
 		tableFields = tFields
 	}
 
 	if updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, tableFields, updateRecs, crud.RecordIds); err != nil {
-		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
-			Value:   updateQuery,
+			Value:   nil,
 		})
 	} else {
-		// TODO: perform create/insert action:
+		// perform update action, via transaction/copy-protocol:
+		tx, txErr := crud.AppDb.Begin(context.Background())
+		if txErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+				Value:   nil,
+			})
+		}
+		defer tx.Rollback(context.Background())
+		commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+		if updateErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+				Value:   nil,
+			})
+		}
+		// commit
+		txcErr := tx.Commit(context.Background())
+		if txcErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+				Value:   nil,
+			})
+		}
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "success",
+			Value:   commandTag.RowsAffected(),
+		})
 	}
-
-	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "success",
-		Value:   nil,
-	})
 }
 
 func (crud Crud) UpdateByParam(updateRecs ActionParamsType) mcresponse.ResponseMessage {
@@ -161,24 +183,46 @@ func (crud Crud) UpdateByParam(updateRecs ActionParamsType) mcresponse.ResponseM
 	// compose tableFields
 	if tFields, err := helper.ComputeSaveFields(updateRecs, crud.ProjectParams); err != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing create-query: %v", err.Error()),
-			Value:   tFields,
+			Message: fmt.Sprintf("Error computing update-query-fields: %v", err.Error()),
+			Value:   nil,
 		})
 	} else {
 		tableFields = tFields
 	}
 
 	if updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, tableFields, updateRecs, crud.QueryParams); err != nil {
-		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
-			Value:   updateQuery,
+			Value:   nil,
 		})
-	} else {
-		// TODO: perform create/insert action:
+	}  else {
+		// perform update action, via transaction/copy-protocol:
+		tx, txErr := crud.AppDb.Begin(context.Background())
+		if txErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+				Value:   nil,
+			})
+		}
+		defer tx.Rollback(context.Background())
+		commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+		if updateErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+				Value:   nil,
+			})
+		}
+		// commit
+		txcErr := tx.Commit(context.Background())
+		if txcErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+				Value:   nil,
+			})
+		}
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "success",
+			Value:   commandTag.RowsAffected(),
+		})
 	}
-
-	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "success",
-		Value:   nil,
-	})
 }
