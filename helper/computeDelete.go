@@ -11,13 +11,13 @@ import (
 	"strings"
 )
 
-func deleteScriptErr(errMsg string) (mccrud.DeleteQueryResponseType, error) {
-	return mccrud.DeleteQueryResponseType{
-		DeleteQuery: nil,
-		WhereQuery:  nil,
-		FieldValues: nil,
-	}, errors.New(errMsg)
-}
+//func deleteScriptErr(errMsg string) (mccrud.DeleteQueryResponseType, error) {
+//	return mccrud.DeleteQueryResponseType{
+//		DeleteQuery: nil,
+//		WhereQuery:  nil,
+//		FieldValues: nil,
+//	}, errors.New(errMsg)
+//}
 
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
 func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error) {
@@ -32,7 +32,7 @@ func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error
 }
 
 // ComputeDeleteQueryByParam function computes delete SQL script by parameter specifications
-func ComputeDeleteQueryByParam(tableName string, tableFields []string, where mccrud.WhereParamType) (string, error) {
+func ComputeDeleteQueryByParam(tableName string, where mccrud.WhereParamType, tableFields []string) (string, error) {
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}

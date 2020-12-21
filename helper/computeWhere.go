@@ -23,8 +23,8 @@ func whereQueryErr(errMsg string) (mccrud.WhereQueryResponseType, error) {
 func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (string, error) {
 	// groups length/size
 	groupsLen := len(where)
-	if len(where) < 1 || len(tableFields) < 1 {
-		return "", errors.New("where condition and table-field names are required")
+	if len(where) < 1 {
+		return "", errors.New("where condition is required")
 	}
 	// compute where script from where
 	// initialize group validation variable | to determine group with empty/no fieldItems
@@ -70,8 +70,8 @@ func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (strin
 					fieldValue = val
 				}
 			}
-			// validate fieldName
-			if !ArrayStringContains(tableFields, fieldName) {
+			// validate fieldName, if tableFields param is provided
+			if len(tableFields) > 0 && !ArrayStringContains(tableFields, fieldName) {
 				return "", errors.New(fmt.Sprintf("invalid field name [%v] specified in where condition", fieldName))
 			}
 			if fieldName == "" || fieldOperator == "" || fieldValue == nil {

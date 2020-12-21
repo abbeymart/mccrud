@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mccrud"
+	"strings"
 )
 
 // ComputeSelectQueryAll compose select SQL script to retrieve all table-records
@@ -22,60 +23,36 @@ func ComputeSelectQueryAll(tableName string, tableFields []string) (string, erro
 	case 0:
 		selectQuery = "SELECT * FROM " + tableName
 	default:
-		selectQuery = "SELECT "
-		for fieldInd, fieldName := range tableFields {
-			selectQuery += "" + fmt.Sprintf("%v", fieldName)
-			if fieldLen > 1 && fieldInd < fieldLen-1{
-				selectQuery += ", "
-			}
-		}
+		selectQuery = "SELECT " + strings.Join(tableFields, ", ")
 		selectQuery += fmt.Sprintf(" FROM %v ", tableName)
 	}
 	return selectQuery, nil
 }
 
 // ComputeSelectQueryById compose select SQL script by id(s)
-func ComputeSelectQueryById(tableName string, tableFields []string, recordIds []string) (string, error) {
+func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []string) (string, error) {
 	if tableName == "" || len(recordIds) < 1 {
 		return "", errors.New("table-name and record-ids are required to perform the select operation")
 	}
 	selectQuery := ""
 	fieldLen := len(tableFields)
-	recordIdLen := len(recordIds)
 	switch fieldLen {
 	case 0:
-		selectQuery = "SELECT * FROM " + tableName + " WHERE id IN ("
-		for recIndex, recId := range recordIds {
-			selectQuery += selectQuery + fmt.Sprintf("%v", recId)
-			if recordIdLen > 1 && recIndex < recordIdLen-1 {
-				selectQuery += ", "
-			}
-		}
-		selectQuery += ")"
+		selectQuery = "SELECT * FROM " + tableName + " WHERE id IN (" + strings.Join(recordIds, ", ") + ")"
 	default:
 		// get record(s) based on projected/provided field names ([]string)
 		// select field/column-names
-		selectQuery = "SELECT "
-		for fieldInd, fieldName := range tableFields {
-			selectQuery += "" + fmt.Sprintf("%v", fieldName)
-			if fieldLen > 1 && fieldInd < fieldLen-1{
-				selectQuery += ", "
-			}
-		}
+		selectQuery = "SELECT " + strings.Join(tableFields, ", ")
+		// from / where condition
 		selectQuery += fmt.Sprintf(" FROM %v WHERE id IN(", tableName)
-		// in-values
-		for recIndex, recId := range recordIds {
-			selectQuery += selectQuery + fmt.Sprintf("%v", recId)
-			if recordIdLen > 1 && recIndex < recordIdLen-1 {
-				selectQuery += ", "
-			}
-		}
+		// where-in-values
+		selectQuery += strings.Join(recordIds, ", ") + ")"
 	}
 	return selectQuery, nil
 }
 
 // ComputeSelectQueryByParam compose SELECT query from the where-parameters
-func ComputeSelectQueryByParam(tableName string, tableFields []string, where mccrud.WhereParamType) (string, error) {
+func ComputeSelectQueryByParam(tableName string, where mccrud.WhereParamType, tableFields []string ) (string, error) {
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table-name and where-params are required to perform the select operation")
 	}
@@ -87,13 +64,8 @@ func ComputeSelectQueryByParam(tableName string, tableFields []string, where mcc
 	default:
 		// get record(s) based on projected/provided field names ([]string)
 		// select field/column-names
-		selectQuery = "SELECT "
-		for fieldInd, fieldName := range tableFields {
-			selectQuery += "" + fmt.Sprintf("%v", fieldName)
-			if fieldLen > 1 && fieldInd < fieldLen-1{
-				selectQuery += ", "
-			}
-		}
+		selectQuery = "SELECT " + strings.Join(tableFields, ", ")
+		// from
 		selectQuery += fmt.Sprintf(" FROM %v", tableName)
 	}
 	// add where-params condition
