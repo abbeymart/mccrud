@@ -13,12 +13,12 @@ import (
 	"time"
 )
 
-func whereQueryErr(errMsg string) (mccrud.WhereQueryResponseType, error) {
-	return mccrud.WhereQueryResponseType{
-		WhereQuery:  nil,
-		FieldValues: nil,
-	}, errors.New(errMsg)
-}
+//func whereQueryErr(errMsg string) (mccrud.WhereQueryResponseType, error) {
+//	return mccrud.WhereQueryResponseType{
+//		WhereQuery:  nil,
+//		FieldValues: nil,
+//	}, errors.New(errMsg)
+//}
 
 func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (string, error) {
 	// groups length/size
@@ -80,7 +80,7 @@ func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (strin
 				continue
 				//return "", errors.New("field-name, operator and/or value are required")
 			}
-			// count valid groupItem | TODO: include date-type
+			// count valid groupItem
 			groupItemCount += 1
 			switch fieldOperator {
 			case mccrud.FieldOperators().Equals, strings.ToLower(mccrud.FieldOperators().Equals):

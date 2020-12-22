@@ -16,15 +16,10 @@ func (crud Crud) GetById(tableFieldPointers ...*interface{}) mcresponse.Response
 	// TODO: compose tableFields | ignore error, if tablesFields-len==0,
 	// TODO: SELECT/scan fields in order specified by the table-model/type definition
 
-	if tFields, err := helper.ComputeGetFields(crud.ProjectParams); err != nil {
-		return mcresponse.GetResMessage("getError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing get/read-query-fields: %v", err.Error()),
-			Value:   nil,
-		})
-	} else {
+	if tFields, err := helper.ComputeGetFields(crud.ProjectParams); err == nil {
 		tableFields = tFields
 	}
-	if queryRes, err := helper.ComputeSelectQueryById(crud.TableName, tableFields, crud.RecordIds); err != nil {
+	if queryRes, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, tableFields); err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
 			Value:   queryRes,
