@@ -41,7 +41,7 @@ func ComputeGetFields(projectParams mccrud.ProjectParamType) ([]string, error) {
 	if len(projectParams) < 1 {
 		return nil, errors.New("select/projection-params is required")
 	}
-	// obtain tableFields from api consumer (ProjectParams)
+	// obtain tableFields from api consumer (ProjectParams) | TODO: order-by-model-field-type-specs
 	var tableFields []string
 	if len(projectParams) > 0 {
 		for fieldName, ok := range projectParams {
