@@ -10,6 +10,7 @@ import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
+	"github.com/abbeymart/mctypes/tasks"
 	"time"
 )
 
@@ -90,7 +91,7 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(CrudTasks().Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -180,7 +181,7 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(CrudTasks().Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -215,7 +216,7 @@ func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 			TableName:  crud.TableName,
 			LogRecords: fmt.Sprintf("All Records Delete From %v table, by User: %v [id: %v, email: %v], at %v", crud.TableName, crud.UserInfo.LoginName, crud.UserInfo.UserId, crud.UserInfo.Email, time.Now()),
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(CrudTasks().Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)

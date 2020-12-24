@@ -406,7 +406,7 @@ func (crud Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, group
 	return roleServices
 }
 
-func (crud Crud) GetCurrentRecord(recordType interface{}) mcresponse.ResponseMessage {
+func (crud Crud) GetCurrentRecord() mcresponse.ResponseMessage {
 	//var currentRecords []interface{}
 	roleScript := fmt.Sprintf("SELECT * from %v WHERE id IN $1", crud.TableName)
 	rows, err := crud.AppDb.Query(context.Background(), roleScript, crud.RecordIds)

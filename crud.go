@@ -16,8 +16,8 @@ type Crud struct {
 	mctypes.CrudParamsType
 	mctypes.CrudOptionsType
 	CurrentRecords []interface{}
-	TransLog mcauditlog.PgxLogParam
-	HashKey  string // Unique for exactly the same query
+	TransLog       mcauditlog.PgxLogParam
+	HashKey        string // Unique for exactly the same query
 }
 
 // NewCrud constructor returns a new crud-instance
@@ -91,7 +91,6 @@ func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (cr
 	if crudInstance.MaxQueryLimit == 0 {
 		crudInstance.MaxQueryLimit = 10000
 	}
-
 
 	if crudInstance.Limit > crudInstance.MaxQueryLimit && crudInstance.MaxQueryLimit != 0 {
 		crudInstance.Limit = crudInstance.MaxQueryLimit
