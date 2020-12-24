@@ -128,6 +128,57 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType) mcresponse.Response
 	})
 }
 
+func (crud Crud) Update(updateRecs mctypes.ActionParamsType) mcresponse.ResponseMessage {
+	// create from updatedRecs (actionParams)
+	var tableFields []string
+	// compose tableFields
+	if tFields, err := helper.ComputeSaveFields(updateRecs, crud.ProjectParams); err != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing update-query-fields: %v", err.Error()),
+			Value:   nil,
+		})
+	} else {
+		tableFields = tFields
+	}
+
+	if updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, tableFields, updateRecs); err != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
+			Value:   nil,
+		})
+	} else {
+		// perform update action, via transaction/copy-protocol:
+		tx, txErr := crud.AppDb.Begin(context.Background())
+		if txErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+				Value:   nil,
+			})
+		}
+		defer tx.Rollback(context.Background())
+		// TODO: perform record updates
+		commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+		if updateErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+				Value:   nil,
+			})
+		}
+		// commit
+		txcErr := tx.Commit(context.Background())
+		if txcErr != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+				Value:   nil,
+			})
+		}
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "success",
+			Value:   commandTag.RowsAffected(),
+		})
+	}
+}
+
 func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	var tableFields []string

@@ -36,6 +36,8 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 				itemScript += ", "
 			}
 		}
+		// add where condition by id
+		itemScript += itemScript + fmt.Sprintf("WHERE id=%v", rec["id"])
 		//validate/update script content based on valid field specifications
 		if fieldCount > 0 {
 			updateItemCount += 1
