@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 	"sort"
 	"strings"
 	"time"
@@ -20,7 +21,7 @@ import (
 //	}, errors.New(errMsg)
 //}
 
-func ComputeWhereQuery(where mccrud.WhereParamType, tableFields []string) (string, error) {
+func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (string, error) {
 	// groups length/size
 	groupsLen := len(where)
 	if len(where) < 1 {

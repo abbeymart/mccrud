@@ -7,7 +7,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 	"strings"
 )
 
@@ -32,7 +32,7 @@ func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error
 }
 
 // ComputeDeleteQueryByParam function computes delete SQL script by parameter specifications
-func ComputeDeleteQueryByParam(tableName string, where mccrud.WhereParamType, tableFields []string) (string, error) {
+func ComputeDeleteQueryByParam(tableName string, where mctypes.WhereParamType, tableFields []string) (string, error) {
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}

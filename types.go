@@ -365,14 +365,14 @@ type CheckAccessType struct {
 }
 
 type CheckAccessParamsType struct {
-	accessDb     *pgxpool.Pool
-	userInfo     UserInfoType
-	tableName    string
-	docIds       []string // for update, delete and read tasks
-	accessTable  string
-	userTable    string
-	roleTable    string
-	serviceTable string
+	AccessDb     *pgxpool.Pool
+	UserInfo     UserInfoType
+	TableName    string
+	RecordIds    []string // for update, delete and read tasks
+	AccessTable  string
+	UserTable    string
+	RoleTable    string
+	ServiceTable string
 }
 
 type RoleFuncType func(it1 string, it2 RoleServiceType) bool

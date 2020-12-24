@@ -8,11 +8,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 )
 
-func errMessage(errMsg string) (mccrud.CreateQueryResponseType, error) {
-	return mccrud.CreateQueryResponseType{
+func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
+	return mctypes.CreateQueryResponseType{
 		CreateQuery: "",
 		FieldNames:  nil,
 		FieldValues: nil,
@@ -20,7 +20,7 @@ func errMessage(errMsg string) (mccrud.CreateQueryResponseType, error) {
 }
 
 // ComputeCreateScript computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
-func ComputeCreateQuery(tableName string, tableFields []string, actionParams mccrud.ActionParamsType) (mccrud.CreateQueryResponseType, error) {
+func ComputeCreateQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) (mctypes.CreateQueryResponseType, error) {
 	var insertQuery string
 	var fValues [][]interface{} // fieldValues array of ValueParamType
 
@@ -174,7 +174,7 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mcc
 		recFieldValues = []interface{}{}
 	}
 	// result
-	return mccrud.CreateQueryResponseType{
+	return mctypes.CreateQueryResponseType{
 		CreateQuery: insertQuery,
 		FieldNames:  tableFields,
 		FieldValues: fValues,

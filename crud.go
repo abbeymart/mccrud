@@ -8,19 +8,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mctypes"
 )
 
 // Crud object / struct
 type Crud struct {
-	CrudParamsType
-	CrudOptionsType
+	mctypes.CrudParamsType
+	mctypes.CrudOptionsType
 	CurrentRecords []interface{}
 	TransLog mcauditlog.PgxLogParam
 	HashKey  string // Unique for exactly the same query
 }
 
 // NewCrud constructor returns a new crud-instance
-func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance Crud) {
+func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (crudInstance Crud) {
 	// crudInstance = Crud{}
 	// compute crud params
 	crudInstance.AppDb = params.AppDb

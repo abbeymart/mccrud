@@ -6,10 +6,10 @@ package helper
 
 import (
 	"errors"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 )
 
-func ComputeSaveFields(actionParams mccrud.ActionParamsType, projectParams mccrud.ProjectParamType) ([]string, error) {
+func ComputeSaveFields(actionParams mctypes.ActionParamsType, projectParams mctypes.ProjectParamType) ([]string, error) {
 	if len(actionParams) < 1 {
 		return nil, errors.New("actionParams is required")
 	}
@@ -37,7 +37,7 @@ func ComputeSaveFields(actionParams mccrud.ActionParamsType, projectParams mccru
 	return tableFields, nil
 }
 
-func ComputeGetFields(projectParams mccrud.ProjectParamType) ([]string, error) {
+func ComputeGetFields(projectParams mctypes.ProjectParamType) ([]string, error) {
 	if len(projectParams) < 1 {
 		return nil, errors.New("select/projection-params is required")
 	}

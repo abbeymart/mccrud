@@ -7,7 +7,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 	"strings"
 )
 
@@ -52,7 +52,7 @@ func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []
 }
 
 // ComputeSelectQueryByParam compose SELECT query from the where-parameters
-func ComputeSelectQueryByParam(tableName string, where mccrud.WhereParamType, tableFields []string ) (string, error) {
+func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, tableFields []string ) (string, error) {
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table-name and where-params are required to perform the select operation")
 	}

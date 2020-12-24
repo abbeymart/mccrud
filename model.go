@@ -6,6 +6,8 @@ package mccrud
 
 import (
 	"fmt"
+	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mctypes/datatypes"
 	"strconv"
 )
 import "github.com/abbeymart/mcresponse"
@@ -30,12 +32,12 @@ type CrudDelete interface {
 // Model object description
 type Model struct {
 	TaskName string
-	ModelType
+	mctypes.ModelType
 }
 
 // NewModel constructor: for table structure definition
-func NewModel(model ModelType) ModelType {
-	result := ModelType{}
+func NewModel(model mctypes.ModelType) mctypes.ModelType {
+	result := mctypes.ModelType{}
 	result.AppDb = model.AppDb
 	result.TableName = model.TableName
 	result.RecordDesc = model.RecordDesc
@@ -63,9 +65,9 @@ func NewModel(model ModelType) ModelType {
 
 // Methods
 // GetParentRelations method computes the parent-relations for the current model table
-func (model Model) GetParentRelations() []ModelRelationType {
+func (model Model) GetParentRelations() []mctypes.ModelRelationType {
 	// extract relations/collections where targetTable == model-TableName
-	var parentRelations []ModelRelationType
+	var parentRelations []mctypes.ModelRelationType
 	modelRelations := model.Relations
 	for _, item := range modelRelations {
 		if item.TargetTable == model.TableName {
@@ -76,9 +78,9 @@ func (model Model) GetParentRelations() []ModelRelationType {
 }
 
 // GetChildRelations method computes the child-relations for the current model table
-func (model Model) GetChildRelations() []ModelRelationType {
+func (model Model) GetChildRelations() []mctypes.ModelRelationType {
 	// extract relations/collections where sourceTable == model-TableName
-	var childRelations []ModelRelationType
+	var childRelations []mctypes.ModelRelationType
 	modelRelations := model.Relations
 	for _, item := range modelRelations {
 		if item.SourceTable == model.TableName {
@@ -109,8 +111,8 @@ func (model Model) GetChildTables() []string {
 }
 
 //  ComputeRecordValueType computes the corresponding standard/define types based on the record-fields types
-func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDataType {
-	computedType := ValueToDataType{}
+func (model Model) ComputeRecordValueType(recordValue mctypes.ValueParamType) mctypes.ValueToDataType {
+	computedType := mctypes.ValueToDataType{}
 	// perform computation of doc-value-types
 	for key, val := range recordValue {
 		// array check
@@ -118,21 +120,21 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 		// switch fmt.Sprintf("%T", val)
 		switch val.(type) {
 		case []string:
-			computedType[key] = DataTypes().ArrayOfString
+			computedType[key] = datatypes.ArrayOfString
 		case []int:
-			computedType[key] = DataTypes().ArrayOfNumber
+			computedType[key] = datatypes.ArrayOfNumber
 		case []float32, []float64:
-			computedType[key] = DataTypes().ArrayOfNumber
+			computedType[key] = datatypes.ArrayOfNumber
 		case []bool:
-			computedType[key] = DataTypes().ArrayOfBoolean
+			computedType[key] = datatypes.ArrayOfBoolean
 		//case []map:
-		//	computedType[key] = DataTypes().ArrayOfObject
+		//	computedType[key] = datatypes.ArrayOfObject
 		case []struct{}:
-			computedType[key] = DataTypes().ArrayOfObject
+			computedType[key] = datatypes.ArrayOfStruct
 		//case map:
-		//	computedType[key] = DataTypes().Map
+		//	computedType[key] = datatypes.Map
 		case struct{}:
-			computedType[key] = DataTypes().Object
+			computedType[key] = datatypes.Object
 		case string:
 			// compute string value
 			strVal := val.(string)
@@ -145,78 +147,78 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 			// check all string-based formats
 			// TODO: ISO2, ISO3, Currency, Mime, JWT, PostalCode
 			if govalidator.IsEmail(strVal) {
-				computedType[key] = DataTypes().Email
+				computedType[key] = datatypes.Email
 			} else if govalidator.IsUnixTime(strVal) {
-				computedType[key] = DataTypes().DateTime
+				computedType[key] = datatypes.DateTime
 			} else if govalidator.IsTime(strVal, "HH:MM:SS") {
-				computedType[key] = DataTypes().Time
+				computedType[key] = datatypes.Time
 			} else if govalidator.IsMongoID(strVal) {
-				computedType[key] = DataTypes().MongoDBId
+				computedType[key] = datatypes.MongoDBId
 			} else if govalidator.IsUUID(strVal) {
-				computedType[key] = DataTypes().UUID
+				computedType[key] = datatypes.UUID
 			} else if govalidator.IsUUIDv3(strVal) {
-				computedType[key] = DataTypes().UUID3
+				computedType[key] = datatypes.UUID3
 			} else if govalidator.IsUUIDv4(strVal) {
-				computedType[key] = DataTypes().UUID4
+				computedType[key] = datatypes.UUID4
 			} else if govalidator.IsUUIDv5(strVal) {
-				computedType[key] = DataTypes().UUID5
+				computedType[key] = datatypes.UUID5
 			} else if govalidator.IsMD4(strVal) {
-				computedType[key] = DataTypes().MD4
+				computedType[key] = datatypes.MD4
 			} else if govalidator.IsMD5(strVal) {
-				computedType[key] = DataTypes().MD5
+				computedType[key] = datatypes.MD5
 			} else if govalidator.IsSHA1(strVal) {
-				computedType[key] = DataTypes().SHA1
+				computedType[key] = datatypes.SHA1
 			} else if govalidator.IsSHA256(strVal) {
-				computedType[key] = DataTypes().SHA256
+				computedType[key] = datatypes.SHA256
 			} else if govalidator.IsSHA384(strVal) {
-				computedType[key] = DataTypes().SHA384
+				computedType[key] = datatypes.SHA384
 			} else if govalidator.IsSHA512(strVal) {
-				computedType[key] = DataTypes().SHA512
+				computedType[key] = datatypes.SHA512
 			} else if govalidator.IsJSON(strVal) {
-				computedType[key] = DataTypes().JSON
+				computedType[key] = datatypes.JSON
 			} else if govalidator.IsCreditCard(strVal) {
-				computedType[key] = DataTypes().CreditCard
+				computedType[key] = datatypes.CreditCard
 			} else if govalidator.IsURL(strVal) {
-				computedType[key] = DataTypes().URL
+				computedType[key] = datatypes.URL
 			} else if govalidator.IsDNSName(strVal) {
-				computedType[key] = DataTypes().DomainName
+				computedType[key] = datatypes.DomainName
 			} else if govalidator.IsPort(strVal) {
-				computedType[key] = DataTypes().Port
+				computedType[key] = datatypes.Port
 			} else if govalidator.IsIP(strVal) {
-				computedType[key] = DataTypes().IP
+				computedType[key] = datatypes.IP
 			} else if govalidator.IsIPv4(strVal) {
-				computedType[key] = DataTypes().IP4
+				computedType[key] = datatypes.IP4
 			} else if govalidator.IsIPv6(strVal) {
-				computedType[key] = DataTypes().IP6
+				computedType[key] = datatypes.IP6
 			} else if govalidator.IsIMEI(strVal) {
-				computedType[key] = DataTypes().IMEI
+				computedType[key] = datatypes.IMEI
 			} else if govalidator.IsLatitude(strVal) {
-				computedType[key] = DataTypes().Latitude
+				computedType[key] = datatypes.Latitude
 			} else if govalidator.IsLongitude(strVal) {
-				computedType[key] = DataTypes().Longitude
+				computedType[key] = datatypes.Longitude
 			} else if govalidator.IsMAC(strVal) {
-				computedType[key] = DataTypes().MACAddress
+				computedType[key] = datatypes.MACAddress
 			} else if govalidator.IsInt(strVal) {
-				computedType[key] = DataTypes().Integer
+				computedType[key] = datatypes.Integer
 			} else if govalidator.IsPositive(strToNum) {
-				computedType[key] = DataTypes().Positive
+				computedType[key] = datatypes.Positive
 			} else if govalidator.IsNegative(strToNum) {
-				computedType[key] = DataTypes().Negative
+				computedType[key] = datatypes.Negative
 			} else if govalidator.IsNatural(strToNum) {
-				computedType[key] = DataTypes().Natural
+				computedType[key] = datatypes.Natural
 			} else {
-				computedType[key] = DataTypes().String
+				computedType[key] = datatypes.String
 			}
 		case int, int8, int16, int32, int64:
-			computedType[key] = DataTypes().Integer
+			computedType[key] = datatypes.Integer
 		case uint, uint8, uint16, uint32, uint64:
-			computedType[key] = DataTypes().Positive
+			computedType[key] = datatypes.Positive
 		case float32, float64:
-			computedType[key] = DataTypes().Float
+			computedType[key] = datatypes.Float
 		case bool:
-			computedType[key] = DataTypes().Boolean
+			computedType[key] = datatypes.Boolean
 		default:
-			computedType[key] = DataTypes().Undefined
+			computedType[key] = datatypes.Undefined
 		}
 	}
 	return computedType
@@ -224,7 +226,7 @@ func (model Model) ComputeRecordValueType(recordValue ValueParamType) ValueToDat
 
 // UpdateDefaultValue method update default-value for non-null field with no specified value
 // and pre-set value, prior to save (create/update) using setValueMethod
-func (model Model) UpdateDefaultValue(recordValue ValueParamType) (setRecordValue ValueParamType) {
+func (model Model) UpdateDefaultValue(recordValue mctypes.ValueParamType) (setRecordValue mctypes.ValueParamType) {
 	// set default values, for null fields | then setValue (pre-set/transform), if specified
 	// set base recordValue
 	setRecordValue = recordValue
@@ -262,7 +264,7 @@ func (model Model) UpdateDefaultValue(recordValue ValueParamType) (setRecordValu
 }
 
 // ValidateRecordValue method validate record-field-values based on model constraints and validation method
-func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName string) ValidateResponseType {
+func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, taskName string) ValidateResponseType {
 	// perform validation of model-record-value
 	// recommendation: use updated recordValue, defaultValues and setValues, prior to validation
 	// get recordValue transformed types
@@ -281,7 +283,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 			case FieldDescType:
 				// validate fieldValue and fieldDesc (model) types
 				// exception for fieldTypes: Text...
-				typePermitted := recordValueTypes[key] == DataTypes().String && recordFieldDesc.FieldType == DataTypes().Text
+				typePermitted := recordValueTypes[key] == datatypes.String && recordFieldDesc.FieldType == datatypes.Text
 				if recordValueTypes[key] != recordFieldDesc.FieldType && !typePermitted {
 					errMsg := fmt.Sprintf("Invalid Type for:  %v. Expected %v, Got %v", key, recordFieldDesc.FieldType, recordValueTypes[key])
 					if recordFieldDesc.ValidateMessage != "" {
@@ -488,7 +490,7 @@ func (model Model) ValidateRecordValue(modelRecordValue ValueParamType, taskName
 
 // sql.DB CRUD methods [pg, sqlite3...]
 // Save method performs create (new records) or update (for current/existing records) task
-func (model Model) Save(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 	model.TaskName = params.TaskName
@@ -499,7 +501,7 @@ func (model Model) Save(params CrudParamsType, options CrudOptionsType) mcrespon
 		})
 	}
 	// validate task/actionParams (recordValue), prior to saving, via model.ValidateRecordValue
-	var actParams ActionParamsType
+	var actParams mctypes.ActionParamsType
 	if params.ActionParams != nil && len(params.ActionParams) > 0 {
 		for _, recordValue := range params.ActionParams {
 			// update defaultValues and setValues, before/prior to save
@@ -537,7 +539,7 @@ func (model Model) Save(params CrudParamsType, options CrudOptionsType) mcrespon
 
 // Get method query the DB by record-id, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters
-func (model Model) GetById(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) GetById(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
@@ -549,7 +551,7 @@ func (model Model) GetById(params CrudParamsType, options CrudOptionsType) mcres
 
 // GetStream method query the DB by record-ids, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters, and stream the result
-func (model Model) GetStream(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) GetStream(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
@@ -560,7 +562,7 @@ func (model Model) GetStream(params CrudParamsType, options CrudOptionsType) mcr
 }
 
 // Delete method delete record(s) by record-ids or defined query-parameter
-func (model Model) DeleteById(params CrudParamsType, options CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) DeleteById(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 

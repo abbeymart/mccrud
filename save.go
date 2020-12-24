@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
+	"github.com/abbeymart/mctypes"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -16,8 +17,8 @@ func (crud *Crud) Save() mcresponse.ResponseMessage {
 	//  determine taskType from actionParams: create or update
 	//  iterate through actionParams, update createRecs, updateRecs & crud.recordIds
 	var (
-		createRecs ActionParamsType // records without id or _id field-value
-		updateRecs ActionParamsType // records with id or _id field-value
+		createRecs mctypes.ActionParamsType // records without id or _id field-value
+		updateRecs mctypes.ActionParamsType // records with id or _id field-value
 	)
 	for _, rec := range crud.ActionParams {
 		// determine if record existed (update) or is new (create)
@@ -69,7 +70,7 @@ func (crud *Crud) Save() mcresponse.ResponseMessage {
 	})
 }
 
-func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage {
+func (crud Crud) Create(createRecs mctypes.ActionParamsType) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	var tableFields []string
 	// compose tableFields
@@ -127,7 +128,7 @@ func (crud Crud) Create(createRecs ActionParamsType) mcresponse.ResponseMessage 
 	})
 }
 
-func (crud Crud) UpdateById(updateRecs ActionParamsType) mcresponse.ResponseMessage {
+func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	var tableFields []string
 	// compose tableFields
@@ -177,7 +178,7 @@ func (crud Crud) UpdateById(updateRecs ActionParamsType) mcresponse.ResponseMess
 	}
 }
 
-func (crud Crud) UpdateByParam(updateRecs ActionParamsType) mcresponse.ResponseMessage {
+func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	var tableFields []string
 	// compose tableFields

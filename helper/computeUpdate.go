@@ -7,11 +7,11 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 	"strings"
 )
 
-func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mccrud.ActionParamsType) ([]string, error) {
+func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) ([]string, error) {
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
 		return nil, errors.New("table-name, table-fields and action-params are required for the update operation")
 	}
@@ -51,7 +51,7 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mcc
 	return updateQuery, nil
 }
 
-func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams mccrud.ActionParamsType, recordIds []string) (string, error) {
+func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams mctypes.ActionParamsType, recordIds []string) (string, error) {
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(recordIds) < 1 {
 		return "", errors.New("table-name, table-fields, action-params and record/doc-Ids are required for the update-by-id operation")
 	}
@@ -97,7 +97,7 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 	return updateQuery, nil
 }
 
-func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionParams mccrud.ActionParamsType, where mccrud.WhereParamType) (string, error) {
+func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionParams mctypes.ActionParamsType, where mctypes.WhereParamType) (string, error) {
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(where) < 1 {
 		return "", errors.New("table-name, table-fields, action-params and where-params are required for the update-by-params operation")
 	}
