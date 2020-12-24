@@ -21,11 +21,6 @@ func ComputeSaveFields(actionParams mctypes.ActionParamsType, projectParams mcty
 				tableFields = append(tableFields, fieldName)
 			}
 		}
-		// include default fields (id) for select-query only
-		// s = append([]int{0}, s...) | s = append([]string{"id"}, s...)
-		//if !ArrayStringContains(tableFields, "id") {
-		//	tableFields = append([]string{"id"}, tableFields...)
-		//}
 	}
 	if len(tableFields) < 1 {
 		// obtain tableFields from actionParams[0]

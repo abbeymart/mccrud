@@ -22,7 +22,7 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 				Value:   getQuery,
 			})
 		} else {
-			// exit of currentRec-length is less than recordIds-length
+			// exit if currentRec-length is less than recordIds-length
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -112,7 +112,7 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 				Value:   getQuery,
 			})
 		} else {
-			// exit of currentRec-length is less than recordIds-length
+			// exit if currentRec-length is less than recordIds-length
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -196,7 +196,8 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 // DeleteAll method removes all records in the tables. Recommended for admin-users only
 // Use if and only if you know what you are doing
 func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
-	// ***** perform DELETE-ALL-RECORDS FROM A TABLE | IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING*****
+	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT
+	// && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING*****
 	// compute delete query
 	delQuery := "DELETE * FROM " + crud.TableName
 	commandTag, delErr := crud.AppDb.Exec(context.Background(), delQuery)

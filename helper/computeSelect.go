@@ -14,60 +14,43 @@ import (
 // ComputeSelectQueryAll compose select SQL script to retrieve all table-records
 // The query may be limit/response may be controlled, by the user, by appending skip and limit options
 func ComputeSelectQueryAll(tableName string, tableFields []string) (string, error) {
-	if tableName == "" {
-		return "", errors.New("table-name is required to perform the select operation")
+	if tableName == "" || len(tableFields) < 1 {
+		return "", errors.New("table-name and table-fields/columns are required to perform the select operation")
 	}
 	selectQuery := ""
-	fieldLen := len(tableFields)
-	switch fieldLen {
-	case 0:
-		selectQuery = "SELECT * FROM " + tableName
-	default:
-		selectQuery = "SELECT " + strings.Join(tableFields, ", ")
-		selectQuery += fmt.Sprintf(" FROM %v ", tableName)
-	}
+	//fieldLen := len(tableFields)
+	selectQuery = "SELECT " + strings.Join(tableFields, ", ")
+	selectQuery += fmt.Sprintf(" FROM %v ", tableName)
 	return selectQuery, nil
 }
 
 // ComputeSelectQueryById compose select SQL script by id(s)
 func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []string) (string, error) {
-	if tableName == "" || len(recordIds) < 1 {
-		return "", errors.New("table-name and record-ids are required to perform the select operation")
+	if tableName == "" || len(recordIds) < 1 || len(tableFields) < 1 {
+		return "", errors.New("table-name, record-ids and table-fields/columns are required to perform the select operation")
 	}
 	selectQuery := ""
-	fieldLen := len(tableFields)
-	switch fieldLen {
-	case 0:
-		selectQuery = "SELECT * FROM " + tableName + " WHERE id IN (" + strings.Join(recordIds, ", ") + ")"
-	default:
-		// get record(s) based on projected/provided field names ([]string)
-		// select field/column-names
-		selectQuery = "SELECT " + strings.Join(tableFields, ", ")
-		// from / where condition
-		selectQuery += fmt.Sprintf(" FROM %v WHERE id IN(", tableName)
-		// where-in-values
-		selectQuery += strings.Join(recordIds, ", ") + ")"
-	}
+	// get record(s) based on projected/provided field names ([]string)
+	// select field/column-names
+	selectQuery = "SELECT " + strings.Join(tableFields, ", ")
+	// from / where condition
+	selectQuery += fmt.Sprintf(" FROM %v WHERE id IN(", tableName)
+	// where-in-values
+	selectQuery += strings.Join(recordIds, ", ") + ")"
 	return selectQuery, nil
 }
 
 // ComputeSelectQueryByParam compose SELECT query from the where-parameters
 func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, tableFields []string ) (string, error) {
-	if tableName == "" || len(where) < 1 {
-		return "", errors.New("table-name and where-params are required to perform the select operation")
+	if tableName == "" || len(where) < 1 || len(tableFields) < 1 {
+		return "", errors.New("table-name, where-params and table-fields/columns are required to perform the select operation")
 	}
 	selectQuery := ""
-	fieldLen := len(tableFields)
-	switch fieldLen {
-	case 0:
-		selectQuery = "SELECT * FROM " + tableName
-	default:
-		// get record(s) based on projected/provided field names ([]string)
-		// select field/column-names
-		selectQuery = "SELECT " + strings.Join(tableFields, ", ")
-		// from
-		selectQuery += fmt.Sprintf(" FROM %v", tableName)
-	}
+	// get record(s) based on projected/provided field names ([]string)
+	// select field/column-names
+	selectQuery = "SELECT " + strings.Join(tableFields, ", ")
+	// from
+	selectQuery += fmt.Sprintf(" FROM %v", tableName)
 	// add where-params condition
 	if whereScript, err := ComputeWhereQuery(where, tableFields); err == nil {
 		selectQuery += selectQuery + whereScript
