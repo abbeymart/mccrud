@@ -6,13 +6,13 @@ package mccrud
 
 import (
 	"fmt"
+	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mctypes"
 	"github.com/abbeymart/mctypes/datatypes"
 	"strconv"
 )
 import "github.com/abbeymart/mcresponse"
 import "github.com/asaskevich/govalidator"
-import "github.com/abbeymart/mcutils"
 
 type CrudOperations interface {
 	Save()
@@ -239,7 +239,7 @@ func (model Model) UpdateDefaultValue(recordValue mctypes.ValueParamType) (setRe
 		// set default values
 		if fieldValue != nil {
 			switch fieldDescType.(type) {
-			case FieldDescType:
+			case mctypes.FieldDescType:
 				// type of defaultValue and fieldValue must be equivalent (re: validateMethod)
 				fieldDesc := model.RecordDesc[key]
 				if fieldDesc.DefaultValue != nil {
@@ -252,7 +252,7 @@ func (model Model) UpdateDefaultValue(recordValue mctypes.ValueParamType) (setRe
 		}
 		// setValue / transform field-value prior-to/before save-task (create / update)
 		switch fieldDescType.(type) {
-		case FieldDescType:
+		case mctypes.FieldDescType:
 			setFieldValue := setRecordValue[key]
 			if setFieldValue != nil && model.RecordDesc[key].SetValue != nil {
 				// set/pre-set setRecordValue for the key/field-column
@@ -264,7 +264,7 @@ func (model Model) UpdateDefaultValue(recordValue mctypes.ValueParamType) (setRe
 }
 
 // ValidateRecordValue method validate record-field-values based on model constraints and validation method
-func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, taskName string) ValidateResponseType {
+func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, taskName string) mctypes.ValidateResponseType {
 	// perform validation of model-record-value
 	// recommendation: use updated recordValue, defaultValues and setValues, prior to validation
 	// get recordValue transformed types
@@ -280,7 +280,7 @@ func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, 
 			// transform recordFieldDesc to interface{} for type checking
 			var recordFieldDescType interface{} = recordFieldDesc
 			switch recordFieldDescType.(type) {
-			case FieldDescType:
+			case mctypes.FieldDescType:
 				// validate fieldValue and fieldDesc (model) types
 				// exception for fieldTypes: Text...
 				typePermitted := recordValueTypes[key] == datatypes.String && recordFieldDesc.FieldType == datatypes.Text
@@ -477,20 +477,20 @@ func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, 
 
 	// check validateErrors
 	if len(validateErrorMessage) != 0 {
-		return ValidateResponseType{
+		return mctypes.ValidateResponseType{
 			Ok:     false,
 			Errors: validateErrorMessage,
 		}
 	}
 
 	// return success, if validation process has been completed without errors
-	var errMsg = mcutils.MessageObject{}
-	return ValidateResponseType{Ok: true, Errors: errMsg}
+	var errMsg = mctypes.MessageObject{}
+	return mctypes.ValidateResponseType{Ok: true, Errors: errMsg}
 }
 
 // sql.DB CRUD methods [pg, sqlite3...]
 // Save method performs create (new records) or update (for current/existing records) task
-func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptionsType, tableFields []string) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 	model.TaskName = params.TaskName
@@ -509,7 +509,7 @@ func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptio
 			// validate actionParam-item (recordValue) field-value
 			validateRes := model.ValidateRecordValue(modelRecordValue, model.TaskName)
 			if !validateRes.Ok || len(validateRes.Errors) > 0 {
-				return mcutils.GetParamsMessage(validateRes.Errors)
+				return helper.GetParamsMessage(validateRes.Errors)
 			}
 			// update actParams
 			actParams = append(actParams, recordValue)
@@ -534,19 +534,19 @@ func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptio
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform save-task
-	return crud.Save()
+	return crud.Save(tableFields)
 }
 
 // Get method query the DB by record-id, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters
-func (model Model) GetById(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
+func (model Model) GetById(params mctypes.CrudParamsType, options mctypes.CrudOptionsType, tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform get-task
-	return crud.GetById()
+	return crud.GetById(tableFields, tableFieldPointers)
 }
 
 // GetStream method query the DB by record-ids, defined query-parameter or all records, constrained

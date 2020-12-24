@@ -7,8 +7,9 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
 	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mctypes/groupOperators"
+	"github.com/abbeymart/mctypes/operators"
 	"sort"
 	"strings"
 	"time"
@@ -84,7 +85,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			// count valid groupItem
 			groupItemCount += 1
 			switch fieldOperator {
-			case mccrud.FieldOperators().Equals, strings.ToLower(mccrud.FieldOperators().Equals):
+			case operators.Equals, strings.ToLower(operators.Equals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -200,14 +201,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().NotEquals, strings.ToLower(mccrud.FieldOperators().NotEquals):
+			case operators.NotEquals, strings.ToLower(operators.NotEquals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -323,14 +324,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().LessThan, strings.ToLower(mccrud.FieldOperators().LessThan):
+			case operators.LessThan, strings.ToLower(operators.LessThan):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -446,14 +447,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().LessThanOrEquals, strings.ToLower(mccrud.FieldOperators().LessThanOrEquals):
+			case operators.LessThanOrEquals, strings.ToLower(operators.LessThanOrEquals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -569,14 +570,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().GreaterThan, strings.ToLower(mccrud.FieldOperators().GreaterThan):
+			case operators.GreaterThan, strings.ToLower(operators.GreaterThan):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -692,14 +693,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().GreaterThanOrEquals, strings.ToLower(mccrud.FieldOperators().GreaterThanOrEquals):
+			case operators.GreaterThanOrEquals, strings.ToLower(operators.GreaterThanOrEquals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -815,14 +816,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().In, strings.ToLower(mccrud.FieldOperators().In):
+			case operators.In, strings.ToLower(operators.In):
 				switch fieldValue.(type) {
 				case []string:
 					if fVal, ok := fieldValue.([]string); !ok {
@@ -885,14 +886,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
 					}
 				}
-			case mccrud.FieldOperators().NotIn, strings.ToLower(mccrud.FieldOperators().NotIn):
+			case operators.NotIn, strings.ToLower(operators.NotIn):
 				switch fieldValue.(type) {
 				case []string:
 					if fVal, ok := fieldValue.([]string); !ok {
@@ -955,10 +956,10 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
 				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
-					groupItemOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen - unspecifiedGroupItemCount){
-					if groupItem.GroupItemOp == mccrud.GroupOperators().AND {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+					if groupItem.GroupItemOp == groupOperators.AND {
 						fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 					}
 				}
@@ -975,10 +976,10 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			grpLinkOp := group.GroupLinkOp
 			groupLnOps := []string{"and", "or"}
 			if grpLinkOp != "" && !ArrayStringContains(groupLnOps, strings.ToLower(grpLinkOp)) {
-				grpLinkOp = mccrud.GroupOperators().AND // use GroupOpTypes.AND as default operator
+				grpLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 			}
 			// add groupLinkOp, if groupsLen > 1
-			if groupsLen > 1 && groupCount < (groupsLen - unspecifiedGroupCount)  {
+			if groupsLen > 1 && groupCount < (groupsLen-unspecifiedGroupCount) {
 				fieldQuery = fieldQuery + " " + strings.ToUpper(grpLinkOp) + " "
 			}
 			// compute where-script from the group-script, append in sequence by groupOrder

@@ -10,6 +10,7 @@ import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
+	"github.com/abbeymart/mctypes/tasks"
 )
 
 func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
@@ -59,7 +60,7 @@ func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}
 				TableName:  crud.TableName,
 				LogRecords: crud.RecordIds,
 			}
-			if logRes, logErr := crud.TransLog.AuditLog(CrudTasks().Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 				logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 			} else {
 				logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -123,7 +124,7 @@ func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interfac
 				TableName:  crud.TableName,
 				LogRecords: crud.RecordIds,
 			}
-			if logRes, logErr := crud.TransLog.AuditLog(CrudTasks().Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 				logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 			} else {
 				logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -187,7 +188,7 @@ func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{})
 				TableName:  crud.TableName,
 				LogRecords: crud.RecordIds,
 			}
-			if logRes, logErr := crud.TransLog.AuditLog(CrudTasks().Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 				logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 			} else {
 				logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)

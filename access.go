@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mctypes/tasks"
 	"github.com/abbeymart/mcutils"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"strings"
@@ -169,7 +170,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	// taskType specific permission(s)
 	if !isAdmin && len(roleServices) > 0 {
 		switch taskType {
-		case CrudTasks().Create, CrudTasks().Insert:
+		case tasks.Create, tasks.Insert:
 			// collection/table level access | only tableName Id was included in serviceIds
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
@@ -181,7 +182,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 					return true
 				}()
 			}
-		case CrudTasks().Update:
+		case tasks.Update:
 			// collection/table level access
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
@@ -204,7 +205,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 					return true
 				}()
 			}
-		case CrudTasks().Delete, CrudTasks().Remove:
+		case tasks.Delete, tasks.Remove:
 			// collection/table level access
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
@@ -227,7 +228,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 					return true
 				}()
 			}
-		case CrudTasks().Read:
+		case tasks.Read:
 			// collection/table level access
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
