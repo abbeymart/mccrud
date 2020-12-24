@@ -53,12 +53,18 @@ func (crud *Crud) Save() mcresponse.ResponseMessage {
 		return crud.Create(createRecs)
 	}
 
+	// update each record by it's recordId
+	if len(updateRecs) > 1 && len(crud.RecordIds) > 0 {
+		// update-record(s): update existing record(s), if len(updateRecs) > 0
+		return crud.Update(updateRecs)
+	}
+
 	// update record(s) by recordIds or by queryParams
-	if len(updateRecs) > 0 && len(crud.RecordIds) > 0 {
+	if len(updateRecs) == 1 && len(crud.RecordIds) > 0 {
 		// update-record(s): update existing record(s), recordIds != @[], if len(updateRecs) > 0
 		return crud.UpdateById(updateRecs)
 	}
-	if len(updateRecs) > 0 && len(crud.QueryParams) > 0 {
+	if len(updateRecs) == 1 && len(crud.QueryParams) > 0 {
 		// update-record(s): update existing record(s), recordIds != @[], if len(updateRecs) > 0
 		return crud.UpdateByParam(updateRecs)
 	}
@@ -156,13 +162,17 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType) mcresponse.Response
 			})
 		}
 		defer tx.Rollback(context.Background())
-		// TODO: perform record updates
-		commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
-		if updateErr != nil {
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
-				Value:   nil,
-			})
+		// perform records' updates
+		updateCount := 0
+		for _, upQuery := range updateQuery {
+			commandTag, updateErr := tx.Exec(context.Background(), upQuery)
+			if updateErr != nil {
+				return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+					Value:   nil,
+				})
+			}
+			updateCount += int(commandTag.RowsAffected())
 		}
 		// commit
 		txcErr := tx.Commit(context.Background())
@@ -174,7 +184,7 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType) mcresponse.Response
 		}
 		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 			Message: "success",
-			Value:   commandTag.RowsAffected(),
+			Value:   updateCount,
 		})
 	}
 }
