@@ -8,7 +8,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mctypes/groupOperators"
 )
 
 // data
@@ -32,18 +33,18 @@ var jsonQueryParams = `
 	{},
 `
 // convert/decode jsonQueryParams to queryParams
-var queryParams mccrud.QueryParamType = mccrud.QueryParamType{
-	mccrud.GroupParamType{
+var queryParams mctypes.QueryParamType = mctypes.QueryParamType{
+	mctypes.QueryGroupType{
 		GroupName: "abc",
 		GroupOrder: 1,
-		GroupLinkOp: mccrud.GroupOperators().AND,
-		GroupItems: []mccrud.GroupItemType{
-			mccrud.GroupItemType{},
-			mccrud.GroupItemType{},
+		GroupLinkOp: groupOperators.AND,
+		GroupItems: []mctypes.QueryItemType{
+			{},
+			{},
 		},
 	},
-	mccrud.GroupParamType{},
-	mccrud.GroupParamType{},
+	mctypes.QueryGroupType{},
+	mctypes.QueryGroupType{},
 }
 
 type Person struct {
@@ -55,11 +56,11 @@ type Person struct {
 }
 
 // convert/decode jsonData to []model-type => action-params
-var actionParams = mccrud.ActionParamsType{
-	mccrud.ValueParamType{},
-	mccrud.ValueParamType{},
-	mccrud.ValueParamType{},
-	mccrud.ValueParamType{},
+var actionParams = mctypes.ActionParamsType{
+	mctypes.ValueParamType{},
+	mctypes.ValueParamType{},
+	mctypes.ValueParamType{},
+	mctypes.ValueParamType{},
 }
 
 func jsonDataETL(personJson []byte) (Person, error) {

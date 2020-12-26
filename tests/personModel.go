@@ -4,13 +4,17 @@
 
 package tests
 
-import "github.com/abbeymart/mccrud"
+import (
+	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mctypes/datatypes"
+)
 
-var PersonModel = mccrud.ModelType{
+var PersonModel = mctypes.ModelType{
 	TableName: "persons",
-	RecordDesc: map[string]mccrud.FieldDescType{
+	RecordDesc: map[string]mctypes.FieldDescType{
 		"id": {
-			FieldType: mccrud.DataTypes().String,
+			FieldType: datatypes.String,
 			FieldLength: 100,
 			FieldPattern: "",
 			AllowNull: false,
@@ -20,7 +24,7 @@ var PersonModel = mccrud.ModelType{
 			ValidateMessage: "Length must not be longer than 100",
 		},
 		"name": {
-			FieldType: mccrud.DataTypes().String,
+			FieldType: datatypes.String,
 			FieldLength: 100,
 			FieldPattern: "",
 			AllowNull: false,
