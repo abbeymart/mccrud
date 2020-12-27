@@ -59,15 +59,12 @@ func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (cr
 	dIds, _ := json.Marshal(params.RecordIds)
 	crudInstance.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
 
-	// Audit/TransLog instance
-	crudInstance.TransLog = mcauditlog.NewAuditLogPgx(crudInstance.AuditDb, crudInstance.AuditTable)
-
 	// Default values
 	if crudInstance.AuditTable == "" {
 		crudInstance.AuditTable = "audits"
 	}
 	if crudInstance.AccessTable == "" {
-		crudInstance.AccessTable = "accesskeys"
+		crudInstance.AccessTable = "access_keys"
 	}
 	if crudInstance.RoleTable == "" {
 		crudInstance.RoleTable = "roles"
@@ -96,17 +93,19 @@ func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (cr
 		crudInstance.Limit = crudInstance.MaxQueryLimit
 	}
 
+	// Audit/TransLog instance
+	crudInstance.TransLog = mcauditlog.NewAuditLogPgx(crudInstance.AuditDb, crudInstance.AuditTable)
+
 	return crudInstance
 }
 
-// String() function implementation
+// String() function implementation for crud instance/object
 func (crud Crud) String() string {
-	//appDb := fmt.Sprintf("Application DB: %v", crud.AppDb)
 	return fmt.Sprintf(`
-	Application DB: %v \n Table Name: %v \n
+	Application Database Connection: %v \n Table Name: %v \n
 	`,
 		crud.AppDb,
 		crud.TableName)
 }
 
-// Methods => separate go-files: auth.go...
+// Methods => separate go-files: access.go...

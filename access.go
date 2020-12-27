@@ -411,10 +411,27 @@ func (crud Crud) GetCurrentRecord() mcresponse.ResponseMessage {
 	roleScript := fmt.Sprintf("SELECT * from %v WHERE id IN $1", crud.TableName)
 	rows, err := crud.AppDb.Query(context.Background(), roleScript, crud.RecordIds)
 	if err != nil {
-		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
-		return mcresponse.ResponseMessage{}
+		errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+		return mcresponse.ResponseMessage{
+			Message: errMsg,
+			Value: nil,
+		}
 	}
 	defer rows.Close()
+	// check rows count
+	var rowCount = 0
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err == nil {
+			rowCount += 1
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error reading/getting records: %v", err.Error()),
+			Value:   nil,
+		})
+	}
 
 	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 		Message: "action-params is required to perform save operation.",
