@@ -21,3 +21,14 @@ func ArrayIntContains(arr []int, val int) bool {
 	}
 	return false
 }
+
+func ArraySQLInStringValues(arr []string) string {
+	result := ""
+	for ind, val := range arr {
+		result += "'" + val + "'"
+		if ind < len(arr) - 1 {
+			result += ", "
+		}
+	}
+	return result
+}

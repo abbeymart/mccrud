@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+// Save method creates new record(s) or updates existing record(s)
 func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 	//  determine taskType from actionParams: create or update
 	//  iterate through actionParams, update createRecs, updateRecs & crud.recordIds
@@ -77,6 +78,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 	})
 }
 
+// Create method creates new record(s)
 func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	//var tableFields []string // compose tableFields
 	//if tFields, err := helper.ComputeSaveFields(createRecs, crud.ProjectParams); err != nil {
@@ -136,6 +138,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 	})
 }
 
+// Update method updates existing record(s)
 func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	if updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, tableFields, updateRecs); err != nil {
@@ -182,6 +185,7 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []strin
 	}
 }
 
+// UpdateById method updates existing records (in batch) that met the specified record-id(s)
 func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	if updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, tableFields, updateRecs, crud.RecordIds); err != nil {
@@ -223,6 +227,7 @@ func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []s
 	}
 }
 
+// UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
 func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	if updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, tableFields, updateRecs, crud.QueryParams); err != nil {

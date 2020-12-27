@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// DeleteById method deletes or removes record(s) by record-id(s)
 func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
 	if crud.LogDelete {
@@ -104,6 +105,7 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 	})
 }
 
+// DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
 func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
 	if crud.LogDelete {
@@ -194,7 +196,7 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 	})
 }
 
-// DeleteAll method removes all records in the tables. Recommended for admin-users only
+// DeleteAll method deletes or removes all records in the tables. Recommended for admin-users only
 // Use if and only if you know what you are doing
 func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT

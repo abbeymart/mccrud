@@ -13,6 +13,8 @@ import (
 	"github.com/abbeymart/mctypes/tasks"
 )
 
+// GetById method fetches/gets/reads record(s) that met the specified record-id(s),
+// constrained by optional skip and limit parameters
 func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// TODO: SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// i.e. tableFields and tableFieldPointers order must match
@@ -74,6 +76,8 @@ func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}
 	})
 }
 
+// GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
+// constrained by optional skip and limit parameters
 func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// i.e. tableFields and tableFieldPointers order must match
@@ -138,6 +142,7 @@ func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interfac
 	})
 }
 
+// GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
 func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// i.e. tableFields and tableFieldPointers order must match
