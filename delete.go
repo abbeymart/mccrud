@@ -18,13 +18,12 @@ import (
 func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
 	if crud.LogDelete {
-		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, []string{}, crud.RecordIds); err != nil {
+		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, []string{}); err != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
 				Value:   getQuery,
 			})
 		} else {
-			// exit if currentRec-length is less than recordIds-length
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -53,6 +52,7 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 					}
 				}
 			}
+			// exit if currentRec-length is less than recordIds-length
 			if rowCount < len(crud.RecordIds) {
 				return mcresponse.GetResMessage("fewRecords", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("Fewer records (%v) less than expected (%v)", rowCount, len(crud.RecordIds)),
@@ -115,7 +115,6 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 				Value:   getQuery,
 			})
 		} else {
-			// exit if currentRec-length is less than recordIds-length
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -143,12 +142,6 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
 					}
 				}
-			}
-			if rowCount < len(crud.RecordIds) {
-				return mcresponse.GetResMessage("fewRecords", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("Fewer records (%v) less than expected (%v)", rowCount, len(crud.RecordIds)),
-					Value:   nil,
-				})
 			}
 			if err := rows.Err(); err != nil {
 				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{

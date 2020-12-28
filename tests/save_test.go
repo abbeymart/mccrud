@@ -9,7 +9,9 @@ import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
+	"github.com/abbeymart/mctypes"
 	"testing"
+	"time"
 )
 
 func TestSave(t *testing.T) {
@@ -37,21 +39,54 @@ func TestSave(t *testing.T) {
 		return
 	}
 	// expected db-connection result
-	mcLogResult := mcauditlog.LogParam{AuditDb: dbc, AuditTable: "audits"}
+	mcLogResult := mcauditlog.PgxLogParam{AuditDb: dbc.DbConn, AuditTable: TestAuditTable}
 	// audit-log instance
-	mcLog := mcauditlog.NewAuditLog(dbc, "audits")
+	mcLog := mcauditlog.NewAuditLogPgx(dbc.DbConn, TestAuditTable)
+
+	// json-records
+	fmt.Println("table-records-json", string(TableRecords))
+	fmt.Println("new-table-records-json", string(NewTableRecords))
+
+	createCrudParams := mctypes.CrudParamsType{
+		AppDb:     dbc.DbConn,
+		TableName: TestTable,
+		UserInfo:  TestUserInfo,
+		ActionParams: mctypes.ActionParamsType{
+			{"table_name": "services",
+				"log_records":     string(TableRecords),
+				"new_log_records": "",
+				"log_type":        "create",
+				"log_by":          UserId,
+				"log_at":          time.Now(),
+			},
+			{"table_name": "services",
+				"log_records":     Recs,
+				"new_log_records": "",
+				"log_type":        "create",
+				"log_by":          UserId,
+				"log_at":          time.Now(),
+			},
+		},
+	}
 
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should connect to the DB and return an instance object:",
+		Name: "should connect to the Audit-DB and return an instance object:",
 		TestFunc: func() {
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, mcLog, mcLogResult, "db-connection instance should be: "+mcLogResult.String())
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store create-transaction log and return success:",
+		Name: "should connect to the CRUD-object and return an instance object:",
 		TestFunc: func() {
-			res, err := mcLog.AuditLog(mcauditlog.CreateLog, UserId, mcauditlog.AuditLogOptionsType{
+			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
+			mctest.AssertEquals(t, mcLog, mcLogResult, "db-connection instance should be: "+mcLogResult.String())
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should store create-transaction log and return success:",
+		TestFunc: func() {
+			res, err := mcLog.AuditLog(mcauditlog.CreateLog, UserId, mcauditlog.PgxAuditLogOptionsType{
 				TableName:  TestTable,
 				LogRecords: string(TableRecords),
 			})
@@ -63,4 +98,3 @@ func TestSave(t *testing.T) {
 
 	mctest.PostTestResult()
 }
-

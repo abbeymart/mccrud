@@ -7,9 +7,11 @@ package mccrud
 import (
 	"context"
 	"fmt"
+	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mctypes/tasks"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -59,7 +61,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 
 	// update each record by it's recordId
 	if len(updateRecs) >= 1 && len(recIds) == len(updateRecs) {
-		return crud.Update(updateRecs, tableFields)
+		return crud.Update(updateRecs, tableFields, recIds)
 	}
 
 	// update record(s) by recordIds | CONTROL ACCESS
@@ -122,14 +124,79 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
+	// perform audit-log
+	logMessage := ""
+	if crud.LogRead {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:  crud.TableName,
+			LogRecords: crud.ActionParams,
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "success",
+		Message: logMessage,
 		Value:   copyCount,
 	})
 }
 
 // Update method updates existing record(s)
-func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string, recordIds []string) mcresponse.ResponseMessage {
+	// get current records, for audit-log
+	if crud.LogUpdate {
+		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, recordIds, tableFields); err != nil {
+			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
+				Value:   getQuery,
+			})
+		} else {
+			rows, err := crud.AppDb.Query(context.Background(), getQuery)
+			if err != nil {
+				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+					Message: errMsg,
+					Value:   nil,
+				})
+			}
+			defer rows.Close()
+			// check rows count
+			var rowCount = 0
+			for rows.Next() {
+				var id string
+				if err := rows.Scan(&id); err == nil {
+					rowCount += 1
+					// crud.CurrentRecords = append(crud.CurrentRecords, id)
+					// parse the current-records for audit-log
+					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
+						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
+							Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
+							Value:   nil,
+						})
+					} else {
+						// update instance CurrentRecords
+						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
+					}
+				}
+			}
+			// exit if currentRec-length is less than recordIds-length
+			if rowCount < len(crud.RecordIds) {
+				return mcresponse.GetResMessage("fewRecords", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Fewer records (%v) less than expected (%v)", rowCount, len(crud.RecordIds)),
+					Value:   nil,
+				})
+			}
+			if err := rows.Err(); err != nil {
+				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error reading/getting records: %v", err.Error()),
+					Value:   nil,
+				})
+			}
+		}
+	}
+
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, tableFields, updateRecs)
 	if err != nil {
@@ -169,14 +236,80 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
+	// perform audit-log
+	logMessage := ""
+	if crud.LogRead {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:     crud.TableName,
+			LogRecords:    crud.CurrentRecords,
+			NewLogRecords: crud.ActionParams,
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "success",
+		Message: logMessage,
 		Value:   updateCount,
 	})
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
 func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+	// get current records, for audit-log
+	if crud.LogUpdate {
+		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, tableFields); err != nil {
+			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
+				Value:   getQuery,
+			})
+		} else {
+			rows, err := crud.AppDb.Query(context.Background(), getQuery)
+			if err != nil {
+				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+					Message: errMsg,
+					Value:   nil,
+				})
+			}
+			defer rows.Close()
+			// check rows count
+			var rowCount = 0
+			for rows.Next() {
+				var id string
+				if err := rows.Scan(&id); err == nil {
+					rowCount += 1
+					// crud.CurrentRecords = append(crud.CurrentRecords, id)
+					// parse the current-records for audit-log
+					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
+						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
+							Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
+							Value:   nil,
+						})
+					} else {
+						// update instance CurrentRecords
+						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
+					}
+				}
+			}
+			// exit if currentRec-length is less than recordIds-length
+			if rowCount < len(crud.RecordIds) {
+				return mcresponse.GetResMessage("fewRecords", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Fewer records (%v) less than expected (%v)", rowCount, len(crud.RecordIds)),
+					Value:   nil,
+				})
+			}
+			if err := rows.Err(); err != nil {
+				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error reading/getting records: %v", err.Error()),
+					Value:   nil,
+				})
+			}
+		}
+	}
+
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, tableFields, updateRecs, crud.RecordIds)
 	if err != nil {
@@ -211,8 +344,23 @@ func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []s
 			Value:   nil,
 		})
 	}
+	// perform audit-log
+	logMessage := ""
+	if crud.LogRead {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:     crud.TableName,
+			LogRecords:    crud.CurrentRecords,
+			NewLogRecords: crud.ActionParams,
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "success",
+		Message: logMessage,
 		Value:   commandTag.RowsAffected(),
 	})
 
@@ -220,6 +368,52 @@ func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []s
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
 func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+	// get current records, for audit-log
+	if crud.LogUpdate {
+		if getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, tableFields); err != nil {
+			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
+				Value:   getQuery,
+			})
+		} else {
+			// exit if currentRec-length is less than recordIds-length
+			rows, err := crud.AppDb.Query(context.Background(), getQuery)
+			if err != nil {
+				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+					Message: errMsg,
+					Value:   nil,
+				})
+			}
+			defer rows.Close()
+			// check rows count
+			var rowCount = 0
+			for rows.Next() {
+				var id string
+				if err := rows.Scan(&id); err == nil {
+					rowCount += 1
+					// crud.CurrentRecords = append(crud.CurrentRecords, id)
+					// parse the current-records for audit-log
+					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
+						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
+							Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
+							Value:   nil,
+						})
+					} else {
+						// update instance CurrentRecords
+						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
+					}
+				}
+			}
+			if err := rows.Err(); err != nil {
+				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error reading/getting records: %v", err.Error()),
+					Value:   nil,
+				})
+			}
+		}
+	}
+
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, tableFields, updateRecs, crud.QueryParams)
 	if err != nil {
@@ -254,8 +448,24 @@ func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields 
 			Value:   nil,
 		})
 	}
+
+	// perform audit-log
+	logMessage := ""
+	if crud.LogRead {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:     crud.TableName,
+			LogRecords:    crud.CurrentRecords,
+			NewLogRecords: crud.ActionParams,
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "success",
+		Message: logMessage,
 		Value:   commandTag.RowsAffected(),
 	})
 }

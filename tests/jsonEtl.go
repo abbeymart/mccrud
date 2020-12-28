@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"github.com/abbeymart/mctypes"
 	"github.com/abbeymart/mctypes/groupOperators"
+	"github.com/asaskevich/govalidator"
+	"reflect"
 )
 
 // data
@@ -32,11 +34,12 @@ var jsonQueryParams = `
 	{},
 	{},
 `
+
 // convert/decode jsonQueryParams to queryParams
 var queryParams mctypes.QueryParamType = mctypes.QueryParamType{
 	mctypes.QueryGroupType{
-		GroupName: "abc",
-		GroupOrder: 1,
+		GroupName:   "abc",
+		GroupOrder:  1,
 		GroupLinkOp: groupOperators.AND,
 		GroupItems: []mctypes.QueryItemType{
 			{},
@@ -55,7 +58,38 @@ type Person struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
-// convert/decode jsonData to []model-type => action-params
+//var camelCaseUnderscore = govalidator.CamelCaseToUnderscore("firstName")
+
+// JsonDataETL method converts json inputs to equivalent struct data type specification
+// rec must be a pointer to a type matching the jsonRec
+func JsonDataETL(jsonRec []byte, rec interface{}) error {
+	if err := json.Unmarshal(jsonRec, &rec); err == nil {
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Error converting json-to-record-format: %v", err.Error()))
+	}
+}
+
+// DataToValueParam method accepts only a struct record/param (type/model) and returns the ValueParamType
+// data camel/Pascal-case keys are converted to underscore-keys to match table-field/columns specs
+func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
+	switch rec.(type) {
+	case struct{}:
+		dataValue := mctypes.ValueParamType{}
+		v := reflect.ValueOf(rec)
+		typeOfS := v.Type()
+
+		for i := 0; i < v.NumField(); i++ {
+			dataValue[govalidator.CamelCaseToUnderscore(typeOfS.Field(i).Name)] = v.Field(i).Interface()
+			//fmt.Printf("Field: %s\tValue: %v\n", typeOfS.Field(i).Name, v.Field(i).Interface())
+		}
+		return dataValue, nil
+	default:
+		return nil, errors.New("invalid type - requires parameter of type struct only")
+	}
+}
+
+// convert dataToValueParam record(s) to action-params
 var actionParams = mctypes.ActionParamsType{
 	mctypes.ValueParamType{},
 	mctypes.ValueParamType{},
@@ -63,17 +97,9 @@ var actionParams = mctypes.ActionParamsType{
 	mctypes.ValueParamType{},
 }
 
-func jsonDataETL(personJson []byte) (Person, error) {
-	var person Person
-	if err := json.Unmarshal(personJson, &person); err == nil {
-		return person, nil
-	} else {
-		return Person{}, errors.New(fmt.Sprintf("Error converting json-to-struct: %v", err.Error()))
-	}
-}
-
 func main() {
-	if person, err := jsonDataETL([]byte(jsonData)); err == nil {
+	var person Person
+	if err := JsonDataETL([]byte(jsonData), &person); err == nil {
 		fmt.Printf("Person's record: %+v", person)
 	} else {
 		fmt.Printf("Error coverting json-data: %v", err.Error())

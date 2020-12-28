@@ -72,7 +72,7 @@ func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   nil,	// handle result on requester-side (i.e. struct-spec)... tableFieldPointers
+		Value:   nil, // handle result on requester-side (i.e. struct-spec)... tableFieldPointers
 	})
 }
 
@@ -135,7 +135,7 @@ func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interfac
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   nil,	// handle result on requester-side (i.e. struct-spec)... tableFieldPointers
+		Value:   nil, // handle result on requester-side (i.e. struct-spec)... tableFieldPointers
 	})
 }
 
@@ -189,7 +189,7 @@ func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{})
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: crud.RecordIds,
+			LogRecords: []string{"all-records"},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -200,6 +200,6 @@ func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{})
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   nil,	// handle result on requester-side (i.e. struct-spec)... tableFieldPointers
+		Value:   nil, // handle result on requester-side (i.e. struct-spec)... tableFieldPointers
 	})
 }
