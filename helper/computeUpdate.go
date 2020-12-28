@@ -25,9 +25,9 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 		fieldCount := 0
 		fieldLen := len(rec)
 		for fieldName, fieldValue := range rec {
-			// check for missing field in each record
-			if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
-				return nil, errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+			// check for missing field in each record | TODO: check optional fieldValue == nil for not-null filed-value
+			if !ArrayStringContains(tableFields, fieldName) {
+				return nil, errors.New(fmt.Sprintf("Missing field: %v from record %v", fieldName, rec))
 			}
 			fieldCount += 1
 			itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
@@ -73,10 +73,10 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 		if !ArrayStringContains(tableFields, fieldName) {
 			return "", errors.New(fmt.Sprintf("Unrecognised field: %v from record %v", fieldName, rec))
 		}
-		// TODO: review/optional, check for missing field-value in each record | may set field-value to null, if allowed
-		if fieldValue == nil {
-			return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
-		}
+		// TODO: check optional fieldValue == nil for not-null filed-value
+		//if fieldValue == nil {
+		//	return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+		//}
 		fieldCount += 1
 		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
 
@@ -118,10 +118,10 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 		if !ArrayStringContains(tableFields, fieldName) {
 			return "", errors.New(fmt.Sprintf("Unrecognised field: %v from record %v", fieldName, rec))
 		}
-		// TODO: review/optional, check for missing field-value in each record | may set field-value to null, if allowed
-		if fieldValue == nil {
-			return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
-		}
+		// TODO: check optional fieldValue == nil for not-null filed-value
+		//if fieldValue == nil {
+		//	return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+		//}
 		fieldCount += 1
 		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
 

@@ -1,18 +1,18 @@
 // @Author: abbeymart | Abi Akindele | @Created: 2020-12-01 | @Updated: 2020-12-01
 // @Company: mConnect.biz | @License: MIT
-// @Description: crud model specs
+// @Description: crud model
 
 package mccrud
 
 import (
 	"fmt"
 	"github.com/abbeymart/mccrud/helper"
+	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes"
 	"github.com/abbeymart/mctypes/datatypes"
+	"github.com/asaskevich/govalidator"
 	"strconv"
 )
-import "github.com/abbeymart/mcresponse"
-import "github.com/asaskevich/govalidator"
 
 type CrudOperations interface {
 	Save()
@@ -539,7 +539,7 @@ func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptio
 
 // Get method query the DB by record-id, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters
-func (model Model) GetById(params mctypes.CrudParamsType, options mctypes.CrudOptionsType, tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (model Model) Get(params mctypes.CrudParamsType, options mctypes.CrudOptionsType, tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
@@ -561,8 +561,30 @@ func (model Model) GetStream(params mctypes.CrudParamsType, options mctypes.Crud
 	return crud.GetStream()
 }
 
-// Delete method delete record(s) by record-ids or defined query-parameter
+// DeleteById method delete record(s) by record-ids
 func (model Model) DeleteById(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
+	// model specific params
+	params.TableName = model.TableName
+
+	// instantiate Crud action
+	crud := NewCrud(params, options)
+	// perform delete-task
+	return crud.DeleteById()
+}
+
+// DeleteByParam method delete record(s) by specified query-parameter
+func (model Model) DeleteByParam(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
+	// model specific params
+	params.TableName = model.TableName
+
+	// instantiate Crud action
+	crud := NewCrud(params, options)
+	// perform delete-task
+	return crud.DeleteById()
+}
+
+// DeleteAll method delete all records from a table - ***** recommended for admin users only *****
+func (model Model) DeleteAll(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 

@@ -131,130 +131,131 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 // Update method updates existing record(s)
 func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
-	if updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, tableFields, updateRecs); err != nil {
+	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, tableFields, updateRecs)
+	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
 			Value:   nil,
 		})
-	} else {
-		// perform update action, via transaction/copy-protocol:
-		tx, txErr := crud.AppDb.Begin(context.Background())
-		if txErr != nil {
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
-				Value:   nil,
-			})
-		}
-		defer tx.Rollback(context.Background())
-		// perform records' updates
-		updateCount := 0
-		for _, upQuery := range updateQuery {
-			commandTag, updateErr := tx.Exec(context.Background(), upQuery)
-			if updateErr != nil {
-				_ = tx.Rollback(context.Background())
-				return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
-					Value:   nil,
-				})
-			}
-			updateCount += int(commandTag.RowsAffected())
-		}
-		// commit
-		txcErr := tx.Commit(context.Background())
-		if txcErr != nil {
-			_ = tx.Rollback(context.Background())
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
-				Value:   nil,
-			})
-		}
-		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-			Message: "success",
-			Value:   updateCount,
+	}
+	// perform update action, via transaction:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+			Value:   nil,
 		})
 	}
+	defer tx.Rollback(context.Background())
+	// perform records' updates
+	updateCount := 0
+	for _, upQuery := range updateQuery {
+		commandTag, updateErr := tx.Exec(context.Background(), upQuery)
+		if updateErr != nil {
+			_ = tx.Rollback(context.Background())
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+				Value:   nil,
+			})
+		}
+		updateCount += int(commandTag.RowsAffected())
+	}
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+			Value:   nil,
+		})
+	}
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "success",
+		Value:   updateCount,
+	})
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
 func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
-	if updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, tableFields, updateRecs, crud.RecordIds); err != nil {
+	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, tableFields, updateRecs, crud.RecordIds)
+	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
 			Value:   nil,
 		})
-	} else {
-		// perform update action, via transaction/copy-protocol:
-		tx, txErr := crud.AppDb.Begin(context.Background())
-		if txErr != nil {
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
-				Value:   nil,
-			})
-		}
-		defer tx.Rollback(context.Background())
-		commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
-		if updateErr != nil {
-			_ = tx.Rollback(context.Background())
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
-				Value:   nil,
-			})
-		}
-		// commit
-		txcErr := tx.Commit(context.Background())
-		if txcErr != nil {
-			_ = tx.Rollback(context.Background())
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
-				Value:   nil,
-			})
-		}
-		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-			Message: "success",
-			Value:   commandTag.RowsAffected(),
+	}
+	// perform update action, via transaction:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+			Value:   nil,
 		})
 	}
+	defer tx.Rollback(context.Background())
+	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+	if updateErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+			Value:   nil,
+		})
+	}
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+			Value:   nil,
+		})
+	}
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "success",
+		Value:   commandTag.RowsAffected(),
+	})
+
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
 func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
-	if updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, tableFields, updateRecs, crud.QueryParams); err != nil {
+	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, tableFields, updateRecs, crud.QueryParams)
+	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
 			Value:   nil,
 		})
-	} else {
-		// perform update action, via transaction/copy-protocol:
-		tx, txErr := crud.AppDb.Begin(context.Background())
-		if txErr != nil {
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
-				Value:   nil,
-			})
-		}
-		defer tx.Rollback(context.Background())
-		commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
-		if updateErr != nil {
-			_ = tx.Rollback(context.Background())
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
-				Value:   nil,
-			})
-		}
-		// commit
-		txcErr := tx.Commit(context.Background())
-		if txcErr != nil {
-			_ = tx.Rollback(context.Background())
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
-				Value:   nil,
-			})
-		}
-		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-			Message: "success",
-			Value:   commandTag.RowsAffected(),
+	}
+	// perform update action, via transaction:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+			Value:   nil,
 		})
 	}
+	defer tx.Rollback(context.Background())
+	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+	if updateErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+			Value:   nil,
+		})
+	}
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+			Value:   nil,
+		})
+	}
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "success",
+		Value:   commandTag.RowsAffected(),
+	})
 }
