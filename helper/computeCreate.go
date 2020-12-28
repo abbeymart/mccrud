@@ -21,12 +21,11 @@ func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
 
 // ComputeCreateScript computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
 func ComputeCreateQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) (mctypes.CreateQueryResponseType, error) {
-	var insertQuery string
-	var fValues [][]interface{} // fieldValues array of ValueParamType
-
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
 		return errMessage("table-name, action-params and table-fields are required for the create operation")
 	}
+	var insertQuery string
+	var fValues [][]interface{} // fieldValues array of ValueParamType
 	// value-computation for each of the actionParams' records must match the tableFields
 	// compute create script for all the create-task, with value-placeholders
 	var itemQuery = fmt.Sprintf("INSERT INTO %v(", tableName)
@@ -46,7 +45,7 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 	// add/append item-script & value-placeholder to the createScripts
 	insertQuery = itemQuery + itemValuePlaceholder
 
-	// computed create values from actionParams
+	// compute create values from actionParams
 	for _, rec := range actionParams {
 		// initial item-values-computation variables
 		var recFieldValues []interface{}
@@ -149,6 +148,18 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 				}
 			case []int:
 				if fVal, ok := fieldValue.([]int); !ok {
+					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					recFieldValues = append(recFieldValues, fVal)
+				}
+			case []float32:
+				if fVal, ok := fieldValue.([]float32); !ok {
+					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					recFieldValues = append(recFieldValues, fVal)
+				}
+			case []float64:
+				if fVal, ok := fieldValue.([]float64); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
 					recFieldValues = append(recFieldValues, fVal)

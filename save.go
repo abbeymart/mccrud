@@ -80,16 +80,6 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 
 // Create method creates new record(s)
 func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
-	//var tableFields []string // compose tableFields
-	//if tFields, err := helper.ComputeSaveFields(createRecs, crud.ProjectParams); err != nil {
-	//	return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-	//		Message: fmt.Sprintf("Error computing create-query-fields: %v", err.Error()),
-	//		Value:   nil,
-	//	})
-	//} else {
-	//	tableFields = tFields
-	//}
-
 	// create from createRecs (actionParams)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
