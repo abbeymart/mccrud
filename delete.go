@@ -199,10 +199,10 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 // DeleteAll method deletes or removes all records in the tables. Recommended for admin-users only
 // Use if and only if you know what you are doing
 func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
-	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT
-	// && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING*****
+	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT *****
+	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING *****
 	// compute delete query
-	delQuery := "DELETE * FROM " + crud.TableName
+	delQuery := fmt.Sprintf("DELETE * FROM %v", crud.TableName)
 	commandTag, delErr := crud.AppDb.Exec(context.Background(), delQuery)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
@@ -216,7 +216,7 @@ func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: fmt.Sprintf("All Records Delete From %v table, by User: %v [id: %v, email: %v], at %v", crud.TableName, crud.UserInfo.LoginName, crud.UserInfo.UserId, crud.UserInfo.Email, time.Now()),
+			LogRecords: fmt.Sprintf("All records deleted from %v table, by user: %v [id: %v, email: %v], at %v", crud.TableName, crud.UserInfo.LoginName, crud.UserInfo.UserId, crud.UserInfo.Email, time.Now()),
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

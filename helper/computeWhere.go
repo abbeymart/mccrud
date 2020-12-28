@@ -23,11 +23,11 @@ import (
 //}
 
 func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (string, error) {
-	// groups length/size
-	groupsLen := len(where)
 	if len(where) < 1 {
 		return "", errors.New("where condition is required")
 	}
+	// groups length/size
+	groupsLen := len(where)
 	// compute where script from where
 	// initialize group validation variable | to determine group with empty/no fieldItems
 	unspecifiedGroupCount := 0
@@ -77,15 +77,15 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				return "", errors.New(fmt.Sprintf("invalid field name [%v] specified in where condition", fieldName))
 			}
 			if fieldName == "" || fieldOperator == "" || fieldValue == nil {
-				// skip missing field or return error
+				// skip missing field/continue to nx groupItem, or return error?
 				unspecifiedGroupItemCount += 1
 				continue
 				//return "", errors.New("field-name, operator and/or value are required")
 			}
 			// count valid groupItem
 			groupItemCount += 1
-			switch fieldOperator {
-			case operators.Equals, strings.ToLower(operators.Equals):
+			switch strings.ToLower(fieldOperator) {
+			case strings.ToLower(operators.Equals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -200,15 +200,13 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.NotEquals, strings.ToLower(operators.NotEquals):
+			case strings.ToLower(operators.NotEquals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -323,15 +321,13 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.LessThan, strings.ToLower(operators.LessThan):
+			case strings.ToLower(operators.LessThan):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -419,24 +415,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
-					}
-				case []string:
-					if fVal, ok := fieldValue.([]string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
-					}
-				case []int:
-					if fVal, ok := fieldValue.([]int); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
-					}
-				case []struct{}:
-					if fVal, ok := fieldValue.([]struct{}); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						fieldQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
@@ -446,15 +424,13 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.LessThanOrEquals, strings.ToLower(operators.LessThanOrEquals):
+			case strings.ToLower(operators.LessThanOrEquals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -464,12 +440,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					}
 				case time.Time:
 					if fVal, ok := fieldValue.(time.Time); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
-					}
-				case bool:
-					if fVal, ok := fieldValue.(bool); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						fieldQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
@@ -546,38 +516,18 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					} else {
 						fieldQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
 					}
-				case []string:
-					if fVal, ok := fieldValue.([]string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
-					}
-				case []int:
-					if fVal, ok := fieldValue.([]int); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
-					}
-				case []struct{}:
-					if fVal, ok := fieldValue.([]struct{}); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
-					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field[%v], format for field-value %v", fieldName, fieldValue))
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.GreaterThan, strings.ToLower(operators.GreaterThan):
+			case strings.ToLower(operators.GreaterThan):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -587,12 +537,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					}
 				case time.Time:
 					if fVal, ok := fieldValue.(time.Time); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
-					}
-				case bool:
-					if fVal, ok := fieldValue.(bool); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						fieldQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
@@ -669,38 +613,18 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					} else {
 						fieldQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
 					}
-				case []string:
-					if fVal, ok := fieldValue.([]string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
-					}
-				case []int:
-					if fVal, ok := fieldValue.([]int); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
-					}
-				case []struct{}:
-					if fVal, ok := fieldValue.([]struct{}); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
-					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field[%v], format for field-value %v", fieldName, fieldValue))
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.GreaterThanOrEquals, strings.ToLower(operators.GreaterThanOrEquals):
+			case strings.ToLower(operators.GreaterThanOrEquals):
 				switch fieldValue.(type) {
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
@@ -710,12 +634,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					}
 				case time.Time:
 					if fVal, ok := fieldValue.(time.Time); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
-					}
-				case bool:
-					if fVal, ok := fieldValue.(bool); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						fieldQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
@@ -792,38 +710,18 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					} else {
 						fieldQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
 					}
-				case []string:
-					if fVal, ok := fieldValue.([]string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
-					}
-				case []int:
-					if fVal, ok := fieldValue.([]int); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
-					}
-				case []struct{}:
-					if fVal, ok := fieldValue.([]struct{}); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fieldQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
-					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field[%v], format for field-value %v", fieldName, fieldValue))
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.In, strings.ToLower(operators.In):
+			case strings.ToLower(operators.In):
 				switch fieldValue.(type) {
 				case []string:
 					if fVal, ok := fieldValue.([]string); !ok {
@@ -832,6 +730,21 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := strings.Join(fVal, ", ")
 						fieldQuery += fmt.Sprintf(" %v IN (%v)", fieldName, inValues)
 					}
+				case []bool:
+					if fVal, ok := fieldValue.([]bool); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
+					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
@@ -839,10 +752,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							if fValLen > 1 && i <= fValLen-1 && i != 0 {
-								inValues += inValues + fmt.Sprintf(", %v", v)
-							} else {
-								inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
@@ -855,10 +767,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							if fValLen > 1 && i <= fValLen-1 && i != 0 {
-								inValues += inValues + fmt.Sprintf(", %v", v)
-							} else {
-								inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
@@ -871,10 +782,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							if fValLen > 1 && i <= fValLen-1 && i != 0 {
-								inValues += inValues + fmt.Sprintf(", %v", v)
-							} else {
-								inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
@@ -885,15 +795,13 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + groupItem.GroupItemOp + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
-			case operators.NotIn, strings.ToLower(operators.NotIn):
+			case strings.ToLower(operators.NotIn):
 				switch fieldValue.(type) {
 				case []string:
 					if fVal, ok := fieldValue.([]string); !ok {
@@ -902,6 +810,21 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := strings.Join(fVal, ", ")
 						fieldQuery += fmt.Sprintf(" %v NOT IN (%v)", fieldName, inValues)
 					}
+				case []bool:
+					if fVal, ok := fieldValue.([]bool); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						inValues := "("
+						fValLen := len(fVal)
+						for i, v := range fVal {
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
+							}
+						}
+						inValues += ")"
+						fieldQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
@@ -909,10 +832,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							if fValLen > 1 && i <= fValLen-1 && i != 0 {
-								inValues += inValues + fmt.Sprintf(", %v", v)
-							} else {
-								inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
@@ -925,10 +847,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							if fValLen > 1 && i <= fValLen-1 && i != 0 {
-								inValues += inValues + fmt.Sprintf(", %v", v)
-							} else {
-								inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
@@ -941,10 +862,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							if fValLen > 1 && i <= fValLen-1 && i != 0 {
-								inValues += inValues + fmt.Sprintf(", %v", v)
-							} else {
-								inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += inValues + fmt.Sprintf("%v", v)
+							if fValLen > 1 && i < fValLen-1 {
+								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
@@ -955,13 +875,11 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				}
 				groupItemOps := []string{"and", "or"}
 				groupItemOp := groupItem.GroupItemOp
-				if groupItemOp != "" && !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
+				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
 				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
-					if groupItem.GroupItemOp == groupOperators.AND {
-						fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
-					}
+					fieldQuery = fieldQuery + " " + strings.ToUpper(groupItem.GroupItemOp) + " "
 				}
 			default:
 				return "", errors.New(fmt.Sprintf("Unknown or unsupported field(%v) operator: %v", fieldName, fieldOperator))
@@ -975,7 +893,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			//validate acceptable groupLinkOperators (and || or)
 			grpLinkOp := group.GroupLinkOp
 			groupLnOps := []string{"and", "or"}
-			if grpLinkOp != "" && !ArrayStringContains(groupLnOps, strings.ToLower(grpLinkOp)) {
+			if grpLinkOp == "" || !ArrayStringContains(groupLnOps, strings.ToLower(grpLinkOp)) {
 				grpLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 			}
 			// add groupLinkOp, if groupsLen > 1
