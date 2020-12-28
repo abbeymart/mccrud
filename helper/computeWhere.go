@@ -908,6 +908,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			return "", errors.New("no valid where condition specified")
 		}
 	}
+
 	// if all went well, return valid where script
 	return whereQuery, nil
 }
