@@ -87,14 +87,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			switch strings.ToLower(fieldOperator) {
 			case strings.ToLower(operators.Equals):
 				switch fieldValue.(type) {
-				case string:
-					if fVal, ok := fieldValue.(string); !ok {
+				case time.Time:
+					if fVal, ok := fieldValue.(time.Time); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
 					}
-				case time.Time:
-					if fVal, ok := fieldValue.(time.Time); !ok {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						fieldQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)

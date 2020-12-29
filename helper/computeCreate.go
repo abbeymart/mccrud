@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mctypes"
+	"github.com/asaskevich/govalidator"
+	"time"
 )
 
 func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
@@ -46,21 +48,39 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 	insertQuery = itemQuery + itemValuePlaceholder
 
 	// compute create values from actionParams
-	for _, rec := range actionParams {
+	for recNum, rec := range actionParams {
 		// initial item-values-computation variables
 		var recFieldValues []interface{}
-		for fieldName, fieldValue := range rec {
-			// check for missing field in each record
-			if !ArrayStringContains(tableFields, fieldName) || fieldValue == nil {
-				return errMessage(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
+		for _, fieldName := range tableFields {
+			fieldValue := rec[fieldName]
+			// check for non-required field in each record
+			if fieldValue == nil {
+				return errMessage(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recNum, rec, fieldName, fieldValue))
 			}
 			// update recFieldValues by fieldValue-type
 			switch fieldValue.(type) {
+			case time.Time:
+				if fVal, ok := fieldValue.(time.Time); !ok {
+					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					recFieldValues = append(recFieldValues, fVal)
+				}
 			case string:
 				if fVal, ok := fieldValue.(string); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					if govalidator.IsJSON(fVal){
+						//fValue := "`" + fVal +"`"
+						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
+							return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						} else {
+							recFieldValues = append(recFieldValues, fValue)
+						}
+
+					} else {
+						fValue := "'" + fVal +"'"
+						recFieldValues = append(recFieldValues, fValue)
+					}
 				}
 			case bool:
 				if fVal, ok := fieldValue.(bool); !ok {
