@@ -5,7 +5,6 @@
 package tests
 
 import (
-	"github.com/abbeymart/mccrud"
 	"github.com/abbeymart/mctypes"
 	"github.com/abbeymart/mctypes/datatypes"
 )
@@ -41,4 +40,4 @@ var PersonModel = mctypes.ModelType{
 	AlterSyncTable: true,
 }
 
-var person = mccrud.NewModel(PersonModel)
+//var person = mccrud.NewModel(PersonModel)

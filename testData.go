@@ -2,11 +2,12 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: go: mConnect
 
-package tests
+package mccrud
 
 import (
 	"encoding/json"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mctypes"
 	"time"
 )
@@ -111,8 +112,8 @@ var CreateRecordB = mcauditlog.AuditRecord{
 	LogAt:      time.Now(),
 }
 
-var valParam1, _ = DataToValueParam(CreateRecordA)
-var valParam2, _ = DataToValueParam(CreateRecordB)
+var valParam1, _ = helper.DataToValueParam(CreateRecordA)
+var valParam2, _ = helper.DataToValueParam(CreateRecordB)
 
 var CreateActionParams = mctypes.ActionParamsType{
 	valParam1,
@@ -169,10 +170,10 @@ var UpdateRecordByParam = mcauditlog.AuditRecord{
 	LogAt:         time.Now(),
 }
 
-var updateRec1, _ = DataToValueParam(UpdateRecordA)
-var updateRec2, _ = DataToValueParam(UpdateRecordB)
-var updateRecId, _ = DataToValueParam(UpdateRecordById)
-var updateRecParam, _ = DataToValueParam(UpdateRecordByParam)
+var updateRec1, _ = helper.DataToValueParam(UpdateRecordA)
+var updateRec2, _ = helper.DataToValueParam(UpdateRecordB)
+var updateRecId, _ = helper.DataToValueParam(UpdateRecordById)
+var updateRecParam, _ = helper.DataToValueParam(UpdateRecordByParam)
 
 var TestUpdateRecords = mctypes.ActionParamsType{
 	updateRec1,

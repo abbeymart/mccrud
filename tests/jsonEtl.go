@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mctypes"
-	"github.com/abbeymart/mctypes/groupOperators"
 	"github.com/asaskevich/govalidator"
 	"reflect"
 )
@@ -27,8 +26,17 @@ var jsonQueryParams = `
 		"group_order": 1,
 		"group_link_op": "and",
 		"group_items": [
-			group_item: {"name": { "eq": Paul"}, "age":{"eq": 10}, "location": {"eq": Toronto"}},
-			
+			{"group_item": {"name": { "eq": Paul"}},
+			"group_item_order": 1,
+			"groupItemOp": "and"
+			},
+			{"group_item": {"age":{"gt": 10}},
+			"group_item_order": 3,
+			},
+			{"group_item": {"location": {"eq": Toronto"}}
+			"group_item_order": 2,
+			"groupItemOp": "and"
+			},
 		]
 	},
 	{},
@@ -36,19 +44,9 @@ var jsonQueryParams = `
 `
 
 // convert/decode jsonQueryParams to queryParams
-var queryParams mctypes.QueryParamType = mctypes.QueryParamType{
-	mctypes.QueryGroupType{
-		GroupName:   "abc",
-		GroupOrder:  1,
-		GroupLinkOp: groupOperators.AND,
-		GroupItems: []mctypes.QueryItemType{
-			{},
-			{},
-		},
-	},
-	mctypes.QueryGroupType{},
-	mctypes.QueryGroupType{},
-}
+var queryParams mctypes.QueryParamType
+var _ = json.Unmarshal([]byte(jsonQueryParams), &queryParams)
+//var _ = JsonDataETL([]byte(jsonQueryParams), queryParams)
 
 type Person struct {
 	Id          string `json:"id"`

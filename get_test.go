@@ -2,4 +2,4 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: get/read records test cases
 
-package tests
+package mccrud

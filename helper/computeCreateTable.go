@@ -5,16 +5,16 @@
 package helper
 
 import (
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mctypes"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
-func CreateTableQuery(model mccrud.Model) (string, error)  {
+func CreateTableQuery(model mctypes.ModelType) (string, error)  {
 
 
 	return "", nil
 }
 
-func CreateTable(model mccrud.Model, appDb *pgxpool.Pool) error {
+func CreateTable(model mctypes.ModelType, appDb *pgxpool.Pool) error {
 
 
 	return nil

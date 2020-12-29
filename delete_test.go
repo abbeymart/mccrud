@@ -2,4 +2,4 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: records deletion test cases
 
-package tests
+package mccrud
