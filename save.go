@@ -17,7 +17,7 @@ import (
 
 // Save method creates new record(s) or updates existing record(s)
 func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
-	fmt.Printf("save-action-params: %#v \n\n", crud.ActionParams)
+	//fmt.Printf("save-action-params: %#v \n\n", crud.ActionParams)
 	//  determine taskType from actionParams: create or update
 	//  iterate through actionParams, update createRecs, updateRecs & crud.recordIds
 	var (
@@ -84,7 +84,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 // Create method creates new record(s)
 func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
-	fmt.Printf("action-params: %#v \n", createRecs)
+	fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {
@@ -94,8 +94,6 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 		})
 	}
 	fmt.Printf("create-query: %v \n", createQuery)
-	fmt.Printf("create-query-fields: %v \n", createQuery.FieldNames)
-	fmt.Printf("create-query-values: %v \n", createQuery.FieldValues)
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -104,8 +102,77 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	fmt.Println("transaction-start")
+	fmt.Printf("transaction-start\n\n")
+	defer tx.Rollback(context.Background())
+
+	// perform records' creation
+	insertCount := 0
+	for _, insertQuery := range createQuery {
+		commandTag, insertErr := tx.Exec(context.Background(), insertQuery)
+		if insertErr != nil {
+			_ = tx.Rollback(context.Background())
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", insertErr.Error()),
+				Value:   nil,
+			})
+		}
+		insertCount += int(commandTag.RowsAffected())
+	}
+	fmt.Printf("before-commit\n\n")
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new record(s): %v", txcErr.Error()),
+			Value:   nil,
+		})
+	}
+	fmt.Println("before-log")
 	fmt.Println("")
+	// perform audit-log
+	logMessage := ""
+	if crud.LogRead {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:  crud.TableName,
+			LogRecords: crud.ActionParams,
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: logMessage,
+		Value:   insertCount,
+	})
+}
+
+// CreateCopy method creates new record(s) using Pg CopyFrom
+func (crud Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+	// create from createRecs (actionParams)
+	fmt.Printf("action-params: %#v \n\n", createRecs)
+	// compute query
+	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, tableFields, createRecs)
+	if qErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
+			Value:   nil,
+		})
+	}
+	fmt.Printf("create-query: %v \n", createQuery)
+	fmt.Printf("create-query-fields: %v \n", createQuery.FieldNames)
+	fmt.Printf("create-query-values: %v \n\n", createQuery.FieldValues)
+	// perform create/insert action, via transaction/copy-protocol:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new record(s): %v", txErr.Error()),
+			Value:   nil,
+		})
+	}
+	fmt.Printf("transaction-start\n\n")
 	defer tx.Rollback(context.Background())
 
 	// bulk create
@@ -122,8 +189,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	fmt.Println("before-commit")
-	fmt.Println("")
+	fmt.Printf("before-commit\n\n")
 	// commit
 	txcErr := tx.Commit(context.Background())
 	if txcErr != nil {

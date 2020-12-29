@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mctypes"
@@ -67,11 +66,11 @@ var TestUserInfo = mctypes.UserInfoType{
 }
 
 var Recs = TestParam{Name: "Abi", Desc: "Testing only", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var TableRecords, _ = json.Marshal(Recs)
+var TableRecords, _ = helper.DataToValueParam(Recs)
 
 //fmt.Println("table-records-json", string(tableRecords))
 var NewRecs = TestParam{Name: "Abi Akindele", Desc: "Testing only - updated", Url: "localhost:9900", Priority: 1, Cost: 2000.00}
-var NewTableRecords, _ = json.Marshal(NewRecs)
+var NewTableRecords, _ = helper.DataToValueParam(NewRecs)
 
 //fmt.Println("new-table-records-json", string(newTableRecords))
 //var ReadP = map[string][]string{"keywords": {"lagos", "nigeria", "ghana", "accra"}}
@@ -97,7 +96,7 @@ var TestCrudParamOptions = mctypes.CrudOptionsType{
 // create record(s)
 var CreateRecordA = mcauditlog.AuditRecord{
 	TableName:  "services",
-	LogRecords: string(TableRecords),
+	LogRecords: TableRecords,
 	LogBy:      UserId,
 	LogType:    mcauditlog.CreateLog,
 	LogAt:      time.Now(),
@@ -105,7 +104,7 @@ var CreateRecordA = mcauditlog.AuditRecord{
 
 var CreateRecordB = mcauditlog.AuditRecord{
 	TableName:  "services",
-	LogRecords: string(TableRecords),
+	LogRecords: TableRecords,
 	LogBy:      UserId,
 	LogType:    mcauditlog.CreateLog,
 	LogAt:      time.Now(),
@@ -133,8 +132,8 @@ type UpdateRecordType struct {
 var UpdateRecordA = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services",
-	LogRecords:    string(TableRecords),
-	NewLogRecords: string(NewTableRecords),
+	LogRecords:    TableRecords,
+	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.CreateLog,
 	LogAt:         time.Now(),
@@ -143,8 +142,8 @@ var UpdateRecordA = UpdateRecordType{
 var UpdateRecordB = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services",
-	LogRecords:    string(TableRecords),
-	NewLogRecords: string(NewTableRecords),
+	LogRecords:    TableRecords,
+	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.CreateLog,
 	LogAt:         time.Now(),
@@ -153,8 +152,8 @@ var UpdateRecordB = UpdateRecordType{
 var UpdateRecordById = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services",
-	LogRecords:    string(TableRecords),
-	NewLogRecords: string(NewTableRecords),
+	LogRecords:   TableRecords,
+	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
 	LogAt:         time.Now(),
@@ -162,8 +161,8 @@ var UpdateRecordById = UpdateRecordType{
 
 var UpdateRecordByParam = mcauditlog.AuditRecord{
 	TableName:     "services",
-	LogRecords:    string(TableRecords),
-	NewLogRecords: string(NewTableRecords),
+	LogRecords:    TableRecords,
+	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
 	LogAt:         time.Now(),
