@@ -120,49 +120,76 @@ var CreateActionParams = mctypes.ActionParamsType{
 }
 
 // update record(s)
-var UpdateRecordA = mcauditlog.AuditRecord{
-	TableName:  "services",
-	LogRecords: string(TableRecords),
-	LogBy:      UserId,
-	LogType:    mcauditlog.CreateLog,
-	LogAt:      time.Now(),
+type UpdateRecordType struct {
+	Id            string
+	TableName     string
+	LogRecords    interface{}
+	NewLogRecords interface{}
+	LogBy         string
+	LogType       string
+	LogAt         time.Time
 }
 
-var UpdateRecordB = mcauditlog.AuditRecord{
-	TableName:  "services",
-	LogRecords: string(TableRecords),
-	LogBy:      UserId,
-	LogType:    mcauditlog.CreateLog,
-	LogAt:      time.Now(),
+var UpdateRecordA = UpdateRecordType{
+	Id:            "record-id",
+	TableName:     "services",
+	LogRecords:    string(TableRecords),
+	NewLogRecords: string(NewTableRecords),
+	LogBy:         UserId,
+	LogType:       mcauditlog.CreateLog,
+	LogAt:         time.Now(),
 }
 
-var UpdateRecordById = mcauditlog.AuditRecord{
-	TableName:  "services",
-	LogRecords: string(TableRecords),
-	LogBy:      UserId,
-	LogType:    mcauditlog.CreateLog,
-	LogAt:      time.Now(),
+var UpdateRecordB = UpdateRecordType{
+	Id:            "record-id",
+	TableName:     "services",
+	LogRecords:    string(TableRecords),
+	NewLogRecords: string(NewTableRecords),
+	LogBy:         UserId,
+	LogType:       mcauditlog.CreateLog,
+	LogAt:         time.Now(),
+}
+
+var UpdateRecordById = UpdateRecordType{
+	Id:            "record-id",
+	TableName:     "services",
+	LogRecords:    string(TableRecords),
+	NewLogRecords: string(NewTableRecords),
+	LogBy:         UserId,
+	LogType:       mcauditlog.UpdateLog,
+	LogAt:         time.Now(),
 }
 
 var UpdateRecordByParam = mcauditlog.AuditRecord{
-	TableName:  "services",
-	LogRecords: string(TableRecords),
-	LogBy:      UserId,
-	LogType:    mcauditlog.CreateLog,
-	LogAt:      time.Now(),
+	TableName:     "services",
+	LogRecords:    string(TableRecords),
+	NewLogRecords: string(NewTableRecords),
+	LogBy:         UserId,
+	LogType:       mcauditlog.UpdateLog,
+	LogAt:         time.Now(),
 }
 
 var updateRec1, _ = DataToValueParam(UpdateRecordA)
 var updateRec2, _ = DataToValueParam(UpdateRecordB)
+var updateRecId, _ = DataToValueParam(UpdateRecordById)
+var updateRecParam, _ = DataToValueParam(UpdateRecordByParam)
 
 var TestUpdateRecords = mctypes.ActionParamsType{
 	updateRec1,
 	updateRec2,
 }
 
-var TestUpdateRecordIds = []string{
-	"abc",
-	"xyz",
+var TestUpdateRecordIds = mctypes.ActionParamsType{
+	updateRecId,
+}
+
+var TestUpdateByIds = []string{
+	"id1",
+	"id2",
+}
+
+var TestUpdateByParams = mctypes.QueryParamType{
+
 }
 
 // get record(s)

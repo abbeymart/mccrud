@@ -51,22 +51,7 @@ func TestSave(t *testing.T) {
 		AppDb:     dbc.DbConn,
 		TableName: TestTable,
 		UserInfo:  TestUserInfo,
-		ActionParams: mctypes.ActionParamsType{
-			{"table_name": "services",
-				"log_records":     string(TableRecords),
-				"new_log_records": "",
-				"log_type":        "create",
-				"log_by":          UserId,
-				"log_at":          time.Now(),
-			},
-			{"table_name": "services",
-				"log_records":     Recs,
-				"new_log_records": "",
-				"log_type":        "create",
-				"log_by":          UserId,
-				"log_at":          time.Now(),
-			},
-		},
+		ActionParams: CreateActionParams,
 	}
 
 	mctest.McTest(mctest.OptionValue{
