@@ -55,6 +55,19 @@ func JsonDataETL(jsonRec []byte, rec interface{}) error {
 // DataToValueParam method accepts only a struct record/param (type/model) and returns the ValueParamType
 // data camel/Pascal-case keys are converted to underscore-keys to match table-field/columns specs
 func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
+	dataValue := mctypes.ValueParamType{}
+	v := reflect.ValueOf(rec)
+	typeOfS := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		dataValue[govalidator.CamelCaseToUnderscore(typeOfS.Field(i).Name)] = v.Field(i).Interface()
+		//fmt.Printf("Field: %s\tValue: %v\n", typeOfS.Field(i).Name, v.Field(i).Interface())
+	}
+	return dataValue, nil
+}
+
+func DataToValueParam2(rec interface{}) (mctypes.ValueParamType, error) {
+
 	switch rec.(type) {
 	case struct{}:
 		dataValue := mctypes.ValueParamType{}

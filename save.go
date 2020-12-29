@@ -17,6 +17,7 @@ import (
 
 // Save method creates new record(s) or updates existing record(s)
 func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
+	fmt.Printf("save-action-params: %#v \n\n", crud.ActionParams)
 	//  determine taskType from actionParams: create or update
 	//  iterate through actionParams, update createRecs, updateRecs & crud.recordIds
 	var (
@@ -83,6 +84,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 // Create method creates new record(s)
 func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
+	fmt.Printf("action-params: %#v \n", createRecs)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {
@@ -91,6 +93,9 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
+	fmt.Printf("create-query: %v \n", createQuery)
+	fmt.Printf("create-query-fields: %v \n", createQuery.FieldNames)
+	fmt.Printf("create-query-values: %v \n", createQuery.FieldValues)
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -99,6 +104,8 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
+	fmt.Println("transaction-start")
+	fmt.Println("")
 	defer tx.Rollback(context.Background())
 
 	// bulk create
@@ -115,6 +122,8 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
+	fmt.Println("before-commit")
+	fmt.Println("")
 	// commit
 	txcErr := tx.Commit(context.Background())
 	if txcErr != nil {
@@ -124,6 +133,8 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
+	fmt.Println("before-log")
+	fmt.Println("")
 	// perform audit-log
 	logMessage := ""
 	if crud.LogRead {

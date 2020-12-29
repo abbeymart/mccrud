@@ -19,7 +19,6 @@ const TestAuditTable = "audits"
 var CreateTableFields = []string{
 	"table_name",
 	"log_records",
-	"new_log_records",
 	"log_type",
 	"log_by",
 	"log_at",

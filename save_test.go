@@ -53,6 +53,8 @@ func TestSave(t *testing.T) {
 		ActionParams: CreateActionParams,
 	}
 
+	fmt.Printf("test-action-params: %#v \n", createCrudParams.ActionParams)
+
 	var crudCreate interface{} = NewCrud(createCrudParams, TestCrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
@@ -70,18 +72,19 @@ func TestSave(t *testing.T) {
 		},
 	})
 
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should store create-transaction log and return success:",
-	//	TestFunc: func() {
-	//		res, err := mcLog.AuditLog(mcauditlog.CreateLog, UserId, mcauditlog.PgxAuditLogOptionsType{
-	//			TableName:  TestTable,
-	//			LogRecords: string(TableRecords),
-	//		})
-	//		//fmt.Printf("create-log: %v", res)
-	//		mctest.AssertEquals(t, err, nil, "error-response should be: nil")
-	//		mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
-	//	},
-	//})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should create two new records and return success:",
+		TestFunc: func() {
+			crud, ok := crudCreate.(Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crudCreate should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, res.Value, 2, "save-create should return count-value: 2")
+		},
+	})
 
 	mctest.PostTestResult()
 }
