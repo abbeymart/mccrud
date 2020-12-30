@@ -84,7 +84,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 // Create method creates new record(s)
 func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
-	fmt.Printf("action-params: %#v \n\n", createRecs)
+	//fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {
@@ -93,7 +93,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	fmt.Printf("create-query: %v \n", createQuery)
+	//fmt.Printf("create-query: %v \n", createQuery)
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -102,7 +102,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	fmt.Printf("transaction-start\n\n")
+	//fmt.Printf("transaction-start\n\n")
 	defer tx.Rollback(context.Background())
 
 	// perform records' creation
@@ -118,7 +118,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 		}
 		insertCount += int(commandTag.RowsAffected())
 	}
-	fmt.Printf("before-commit\n\n")
+	//fmt.Printf("before-commit\n\n")
 	// commit
 	txcErr := tx.Commit(context.Background())
 	if txcErr != nil {
@@ -128,8 +128,8 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	fmt.Println("before-log")
-	fmt.Println("")
+	//fmt.Println("before-log")
+	//fmt.Println("")
 	// perform audit-log
 	logMessage := ""
 	if crud.LogRead {
@@ -137,6 +137,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			TableName:  crud.TableName,
 			LogRecords: crud.ActionParams,
 		}
+		//fmt.Printf("\n***Audit-Table***: %v\n\n", crud.AuditTable)
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
@@ -152,7 +153,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 // CreateCopy method creates new record(s) using Pg CopyFrom
 func (crud Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
-	fmt.Printf("action-params: %#v \n\n", createRecs)
+	//fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {

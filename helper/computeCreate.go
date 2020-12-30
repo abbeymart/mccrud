@@ -32,16 +32,6 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 	// compute create script for all the records in actionParams
 	var itemQuery = fmt.Sprintf("INSERT INTO %v(%v)", tableName, strings.Join(tableFields, ", "))
 
-	//fieldsLength := len(tableFields)
-	//for fieldIndex, fieldName := range tableFields {
-	//	itemQuery += fmt.Sprintf(" %v", fieldName)
-	//	if fieldsLength > 1 && fieldIndex < fieldsLength-1 {
-	//		itemQuery += ", "
-	//	}
-	//}
-	// close item-script
-	//itemQuery += " )"
-
 	// compute create values from actionParams/records
 	for recNum, rec := range actionParams {
 		// initial item-values-computation variables
@@ -63,7 +53,9 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 				if fVal, ok := fieldValue.(time.Time); !ok {
 					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					currentFieldValue = "'" + fVal.String() + "'"
+					//currentFieldValue = fmt.Sprintf("TO_TIMESTAMP(%v, YYYY-MM-DD HH:MI:SS)", fVal)
+					currentFieldValue = fmt.Sprintf("%v", fVal.Format(time.RFC3339))
+					//currentFieldValue = TO_TIMESTAMP(fVal, "YYYY-MM-DD HH:MI:SS")
 				}
 			case string:
 				if fVal, ok := fieldValue.(string); !ok {
@@ -193,8 +185,8 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 				if fVal, err := json.Marshal(fieldValue); err != nil {
 					return nil, errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 				} else {
-					fmt.Printf("***is-json-value***: %v\n\n", govalidator.IsJSON(string(fVal)))
-					fmt.Printf("toJson-value: %v\n\n", string(fVal))
+					//fmt.Printf("***is-json-value***: %v\n\n", govalidator.IsJSON(string(fVal)))
+					//fmt.Printf("toJson-value: %v\n\n", string(fVal))
 					currentFieldValue = "'" + string(fVal) + "'"
 				}
 			}
@@ -264,16 +256,16 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
 					if govalidator.IsJSON(fVal) {
-						//fValue := "`" + fVal +"`"
+						fmt.Printf("string-toJson-value: %v\n\n", fVal)
+						//recFieldValues = append(recFieldValues, "'" + fVal + "'")
 						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 							return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						} else {
 							fmt.Printf("string-toJson-value: %v\n\n", fValue)
-							recFieldValues = append(recFieldValues, fValue)
+							recFieldValues = append(recFieldValues, "'" + fValue + "'")
 						}
 					} else {
-						fValue := "'" + fVal + "'"
-						recFieldValues = append(recFieldValues, fValue)
+						recFieldValues = append(recFieldValues, "'" + fVal + "'")
 					}
 				}
 			case bool:
@@ -391,7 +383,7 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 				} else {
 					fmt.Printf("***is-json-value***: %v\n\n", govalidator.IsJSON(string(fVal)))
 					fmt.Printf("toJson-value: %v\n\n", string(fVal))
-					recFieldValues = append(recFieldValues, string(fVal))
+					recFieldValues = append(recFieldValues, "'" + string(fVal) + "'")
 				}
 			}
 		}

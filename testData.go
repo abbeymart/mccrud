@@ -20,7 +20,7 @@ var CreateTableFields = []string{
 	"log_records",
 	"log_type",
 	"log_by",
-	"log_at",
+	//"log_at",
 }
 
 var UpdateTableFields = []string{
@@ -30,7 +30,7 @@ var UpdateTableFields = []string{
 	"new_log_records",
 	"log_type",
 	"log_by",
-	"log_at",
+	//"log_at",
 }
 
 var GetTableFields = []string{
@@ -40,7 +40,7 @@ var GetTableFields = []string{
 	"new_log_records",
 	"log_type",
 	"log_by",
-	"log_at",
+	//"log_at",
 }
 
 type TestParam struct {
