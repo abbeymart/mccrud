@@ -53,9 +53,8 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 				if fVal, ok := fieldValue.(time.Time); !ok {
 					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					//currentFieldValue = fmt.Sprintf("TO_TIMESTAMP(%v, YYYY-MM-DD HH:MI:SS)", fVal)
-					currentFieldValue = fmt.Sprintf("%v", fVal.Format(time.RFC3339))
-					//currentFieldValue = TO_TIMESTAMP(fVal, "YYYY-MM-DD HH:MI:SS")
+					//currentFieldValue = fmt.Sprintf("'%v'", fVal)
+					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 				}
 			case string:
 				if fVal, ok := fieldValue.(string); !ok {
@@ -249,14 +248,14 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 				if fVal, ok := fieldValue.(time.Time); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					recFieldValues = append(recFieldValues, "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'")
 				}
 			case string:
 				if fVal, ok := fieldValue.(string); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
 					if govalidator.IsJSON(fVal) {
-						fmt.Printf("string-toJson-value: %v\n\n", fVal)
+						//fmt.Printf("string-toJson-value: %v\n\n", fVal)
 						//recFieldValues = append(recFieldValues, "'" + fVal + "'")
 						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 							return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
@@ -381,9 +380,9 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 				if fVal, err := json.Marshal(fieldValue); err != nil {
 					return errMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 				} else {
-					fmt.Printf("***is-json-value***: %v\n\n", govalidator.IsJSON(string(fVal)))
-					fmt.Printf("toJson-value: %v\n\n", string(fVal))
-					recFieldValues = append(recFieldValues, "'" + string(fVal) + "'")
+					//fmt.Printf("***is-json-value***: %v\n\n", govalidator.IsJSON(string(fVal)))
+					//fmt.Printf("toJson-value: %v\n\n", string(fVal))
+					recFieldValues = append(recFieldValues, "'" + string(fVal) + "'" )
 				}
 			}
 		}

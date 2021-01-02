@@ -39,7 +39,7 @@ type TaskPermissionType struct {
 
 // TaskPermission method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
 func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
-	// TaskType: "create"/"insert", "update", "delete"/"remove", "read"
+	// Task: "create"/"insert", "update", "delete"/"remove", "read"
 	// permit crud task: by owner, role/group (on coll/table or doc/record(s)) or admin
 	// task permission access variables
 	var (

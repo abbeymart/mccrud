@@ -153,11 +153,11 @@ func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{})
 	}
 	// perform crud-task action
 	// include options: skip && limit TODO: sort?
-	if crud.Skip > 0 {
-		getQuery += getQuery + fmt.Sprintf(" SKIP %v", crud.Skip)
-	}
 	if crud.Limit > 0 {
 		getQuery += getQuery + fmt.Sprintf(" LIMIT %v", crud.Limit)
+	}
+	if crud.Skip > 0 {
+		getQuery += getQuery + fmt.Sprintf(" OFFSET %v", crud.Skip)
 	}
 	// exit if currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
