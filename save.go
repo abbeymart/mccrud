@@ -57,7 +57,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 
 	if len(createRecs) > 0 {
 		// save-record(s): create/insert new record(s), recordIds = @[], if len(createRecs) > 0
-		return crud.Create(createRecs, tableFields)
+		return crud.CreateBatch(createRecs, tableFields)
 	}
 
 	// update each record by it's recordId
@@ -109,6 +109,77 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 	insertCount := 0
 	for _, insertQuery := range createQuery {
 		commandTag, insertErr := tx.Exec(context.Background(), insertQuery)
+		if insertErr != nil {
+			_ = tx.Rollback(context.Background())
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error updating record(s): %v", insertErr.Error()),
+				Value:   nil,
+			})
+		}
+		insertCount += int(commandTag.RowsAffected())
+	}
+	//fmt.Printf("before-commit\n\n")
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new record(s): %v", txcErr.Error()),
+			Value:   nil,
+		})
+	}
+	//fmt.Println("before-log")
+	//fmt.Println("")
+	// perform audit-log
+	logMessage := ""
+	if crud.LogCreate {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:  crud.TableName,
+			LogRecords: crud.ActionParams,
+		}
+		//fmt.Printf("\n***Audit-Table***: %v\n\n", crud.AuditTable)
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: logMessage,
+		Value:   insertCount,
+	})
+}
+
+// CreateBatch method creates new record(s) by placeholder values from copy-create-query
+func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+	// create from createRecs (actionParams)
+	fmt.Printf("action-params: %#v \n\n", createRecs)
+	// compute query
+	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, tableFields, createRecs)
+	if qErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
+			Value:   nil,
+		})
+	}
+	fmt.Printf("create-batch-query: %v \n", createQuery)
+	// perform create/insert action, via transaction/copy-protocol:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error creating new record(s): %v", txErr.Error()),
+			Value:   nil,
+		})
+	}
+	//fmt.Printf("transaction-start\n\n")
+	defer tx.Rollback(context.Background())
+
+	// perform records' creation
+	insertCount := 0
+	for _, insertValues := range createQuery.FieldValues {
+		fmt.Printf("query: %v\n\n", createQuery.CreateQuery)
+		fmt.Printf("query-value: %v \n\n", insertValues)
+		commandTag, insertErr := tx.Exec(context.Background(), createQuery.CreateQuery, insertValues...)
 		if insertErr != nil {
 			_ = tx.Rollback(context.Background())
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
