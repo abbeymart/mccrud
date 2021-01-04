@@ -57,7 +57,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 
 	if len(createRecs) > 0 {
 		// save-record(s): create/insert new record(s), recordIds = @[], if len(createRecs) > 0
-		return crud.CreateBatch(createRecs, tableFields)
+		return crud.Create(createRecs, tableFields)
 	}
 
 	// update each record by it's recordId
@@ -171,7 +171,7 @@ func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []
 			Value:   nil,
 		})
 	}
-	//fmt.Printf("transaction-start\n\n")
+	fmt.Printf("transaction-start\n\n")
 	defer tx.Rollback(context.Background())
 
 	// perform records' creation
@@ -189,7 +189,7 @@ func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []
 		}
 		insertCount += int(commandTag.RowsAffected())
 	}
-	//fmt.Printf("before-commit\n\n")
+	fmt.Printf("before-commit\n\n")
 	// commit
 	txcErr := tx.Commit(context.Background())
 	if txcErr != nil {

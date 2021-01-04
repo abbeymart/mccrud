@@ -310,7 +310,7 @@ func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, 
 					if fieldValue, ok := recordFieldValue.(string); ok {
 						if recordFieldDesc.FieldLength > 0 {
 							fieldLength := len(fieldValue)
-							if uint(fieldLength) > recordFieldDesc.FieldLength {
+							if fieldLength > recordFieldDesc.FieldLength {
 								errMsg := fmt.Sprintf("Size of %v cannot be longer than %v", key, recordFieldDesc.FieldLength)
 								if recordFieldDesc.ValidateMessage != "" {
 									validateErrorMessage[key+"-lengthValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
@@ -331,21 +331,21 @@ func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, 
 					}
 				case int:
 					if fieldValue, ok := recordFieldValue.(int); ok {
-						if uint(fieldValue) < recordFieldDesc.MinValue && uint(fieldValue) > recordFieldDesc.MaxValue {
+						if fieldValue < recordFieldDesc.MinValue && fieldValue > recordFieldDesc.MaxValue {
 							errMsg := fmt.Sprintf("Value of: %v must be greater than %v, and less than %v", key, recordFieldDesc.MinValue, recordFieldDesc.MaxValue)
 							if recordFieldDesc.ValidateMessage != "" {
 								validateErrorMessage[key+"-minMaxValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
 							} else {
 								validateErrorMessage[key+"-minMaxValidation"] = errMsg
 							}
-						} else if uint(fieldValue) < recordFieldDesc.MinValue {
+						} else if fieldValue < recordFieldDesc.MinValue {
 							errMsg := fmt.Sprintf("Value of: %v must be greater than %v", key, recordFieldDesc.MinValue)
 							if recordFieldDesc.ValidateMessage != "" {
 								validateErrorMessage[key+"-minValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
 							} else {
 								validateErrorMessage[key+"-minValidation"] = errMsg
 							}
-						} else if uint(fieldValue) > recordFieldDesc.MaxValue {
+						} else if fieldValue > recordFieldDesc.MaxValue {
 							errMsg := fmt.Sprintf("Value of: %v must be less than %v", key, recordFieldDesc.MaxValue)
 							if recordFieldDesc.ValidateMessage != "" {
 								validateErrorMessage[key+"-maxValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
@@ -365,21 +365,21 @@ func (model Model) ValidateRecordValue(modelRecordValue mctypes.ValueParamType, 
 					}
 				case float32, float64:
 					if fieldValue, ok := recordFieldValue.(float64); ok {
-						if uint(fieldValue) < recordFieldDesc.MinValue && uint(fieldValue) > recordFieldDesc.MaxValue {
+						if fieldValue < float64(recordFieldDesc.MinValue) && fieldValue > float64(recordFieldDesc.MaxValue) {
 							errMsg := fmt.Sprintf("Value of: %v must be greater than %v, and less than %v", key, recordFieldDesc.MinValue, recordFieldDesc.MaxValue)
 							if recordFieldDesc.ValidateMessage != "" {
 								validateErrorMessage[key+"-minMaxValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
 							} else {
 								validateErrorMessage[key+"-minMaxValidation"] = errMsg
 							}
-						} else if uint(fieldValue) < recordFieldDesc.MinValue {
+						} else if fieldValue < float64(recordFieldDesc.MinValue) {
 							errMsg := fmt.Sprintf("Value of: %v must be greater than %v", key, recordFieldDesc.MinValue)
 							if recordFieldDesc.ValidateMessage != "" {
 								validateErrorMessage[key+"-minValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
 							} else {
 								validateErrorMessage[key+"-minValidation"] = errMsg
 							}
-						} else if uint(fieldValue) > recordFieldDesc.MaxValue {
+						} else if fieldValue > float64(recordFieldDesc.MaxValue) {
 							errMsg := fmt.Sprintf("Value of: %v must be less than %v", key, recordFieldDesc.MaxValue)
 							if recordFieldDesc.ValidateMessage != "" {
 								validateErrorMessage[key+"-maxValidation"] = recordFieldDesc.ValidateMessage + " :: " + errMsg
