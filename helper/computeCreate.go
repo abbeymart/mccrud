@@ -22,17 +22,19 @@ func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
 	}, errors.New(errMsg)
 }
 
-// ComputeCreateQuery function computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
+// ComputeCreateQuery function computes insert SQL scripts. It returns createScripts []string and err error
 func ComputeCreateQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) ([]string, error) {
 	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
 		return nil, errors.New("table-name, action-params and table-fields are required for the create operation")
 	}
+	// declare slice variable for create/insert queries
 	var insertQuery []string
-	// value-computation for each of the actionParams' records must match the tableFields
+
 	// compute create script for all the records in actionParams
 	var itemQuery = fmt.Sprintf("INSERT INTO %v(%v)", tableName, strings.Join(tableFields, ", "))
 
 	// compute create values from actionParams/records
+	// value-computation for each of the actionParams' records must match the tableFields
 	for recNum, rec := range actionParams {
 		// initial item-values-computation variables
 		var itemValues = " VALUES("
@@ -64,7 +66,6 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 							return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						} else {
-							fmt.Printf("string-toJson-value: %v\n\n", fValue)
 							currentFieldValue = "'" + fValue + "'"
 						}
 					} else {
@@ -184,8 +185,6 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 				if fVal, err := json.Marshal(fieldValue); err != nil {
 					return nil, errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 				} else {
-					//fmt.Printf("***is-json-value***: %v\n\n", govalidator.IsJSON(string(fVal)))
-					fmt.Printf("default-toJson-value: %v\n\n", string(fVal))
 					currentFieldValue = "'" + string(fVal) + "'"
 				}
 			}
@@ -197,8 +196,8 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 		}
 		// close itemValues for the current-record
 		itemValues += ")"
-		// update insertQuery with the recordItem
-		insertQuery = append(insertQuery, itemQuery+itemValues)
+		// update insertQuery with the recordItem, include return value(s)
+		insertQuery = append(insertQuery, itemQuery+itemValues + "RETURNING id")
 		// reset itemValues for the next record iteration
 		itemValues = " VALUES("
 	}
