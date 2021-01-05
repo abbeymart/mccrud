@@ -84,7 +84,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 // Create method creates new record(s)
 func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
-	fmt.Printf("action-params: %#v \n\n", createRecs)
+	//fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {
@@ -93,7 +93,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	fmt.Printf("create-query: %v \n", createQuery)
+	//fmt.Printf("create-query: %v \n", createQuery)
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
