@@ -26,12 +26,12 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 		fieldLen := len(rec)
 		for _, fieldName := range tableFields {
 			fieldValue, ok := rec[fieldName]
-			// check for the required field in each record
+			// check for the required fields in each record
 			if !ok {
 				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] is missing", recNum, rec, fieldName))
 			}
 			fieldCount += 1
-			itemScript += fmt.Sprintf("%v=%v", fieldName, fieldValue)
+			itemScript += fmt.Sprintf(" %v=%v", fieldName, fieldValue)
 
 			if fieldLen > 1 && fieldCount < fieldLen {
 				itemScript += ", "
@@ -39,18 +39,18 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 		}
 
 		// add where condition by id
-		itemScript += fmt.Sprintf("WHERE id=%v", rec["id"])
+		itemScript += fmt.Sprintf(" WHERE id=%v", rec["id"])
 		//validate/update script content based on valid field specifications
-		if fieldCount > 0 {
+		if fieldCount > 0 && fieldCount == fieldLen {
 			validUpdateItemCount += 1
 			updateQuery = append(updateQuery, itemScript)
 		} else {
 			invalidUpdateItemCount += 1
 		}
 	}
-	// check is there was no valid update items
-	if invalidUpdateItemCount == len(actionParams) {
-		return nil, errors.New(fmt.Sprintf("Invalid action-params"))
+	// check is there was invalid update items
+	if invalidUpdateItemCount > 0 {
+		return nil, errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
 	}
 	return updateQuery, nil
 }
@@ -61,48 +61,31 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 	}
 	// compute update script from query-ids
 	var updateQuery string
-	whereQuery := " WHERE id IN(" + strings.Join(recordIds, ", ") + ")"
+	itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
+	whereQuery := fmt.Sprintf(" WHERE id IN(%v)", strings.Join(recordIds, ", "))
 	invalidUpdateItemCount := 0
-	updateItemCount := 0 // valid update item count
+	validUpdateItemCount := 0
 
 	// only one actionParams record is required for update by docIds
 	rec := actionParams[0]
-	itemScript := "UPDATE " + tableName + " SET"
 	fieldCount := 0
 	fieldLen := len(rec)
-
 	for _, fieldName := range tableFields {
 		fieldValue := rec[fieldName]
-		// check for non-required field in each record | TODO: check optional fieldValue == nil for not-null filed-value
+		// check for the required fields in each record
 		if fieldValue == nil {
-			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] has field_value of %v", rec, fieldName, fieldValue))
+			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
 		}
 		fieldCount += 1
-		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
-
-		if fieldLen > 1 && fieldCount < fieldLen {
-			itemScript += ", "
-		}
-	}
-	for fieldName, fieldValue := range rec {
-		// check for missing field in each record
-		if !ArrayStringContains(tableFields, fieldName) {
-			return "", errors.New(fmt.Sprintf("Unrecognised field: %v from record %v", fieldName, rec))
-		}
-		// TODO: check optional fieldValue == nil for not-null filed-value
-		//if fieldValue == nil {
-		//	return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
-		//}
-		fieldCount += 1
-		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
+		itemScript += fmt.Sprintf(" %v=%v", fieldName, fieldValue)
 
 		if fieldLen > 1 && fieldCount < fieldLen {
 			itemScript += ", "
 		}
 	}
 	//validate/update script content based on valid field specifications
-	if fieldCount > 0 {
-		updateItemCount += 1
+	if fieldCount > 0 && fieldCount == fieldLen {
+		validUpdateItemCount += 1
 		updateQuery = itemScript + whereQuery
 	} else {
 		invalidUpdateItemCount += 1
@@ -110,7 +93,7 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 
 	// check is there was invalid update items
 	if invalidUpdateItemCount > 0 {
-		return "", errors.New(fmt.Sprintf("Invalid action-params"))
+		return "", errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
 	}
 	return updateQuery, nil
 }
@@ -122,45 +105,29 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 	// compute update script from queryParams
 	var updateQuery string
 	invalidUpdateItemCount := 0
-	updateItemCount := 0 // valid update item count
+	validUpdateItemCount := 0
 
 	// only one actionParams record is required for update by where-params
 	rec := actionParams[0]
-	itemScript := "UPDATE " + tableName + " SET"
+	itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
 	fieldCount := 0
 	fieldLen := len(rec)
 	for _, fieldName := range tableFields {
-		fieldValue := rec[fieldName]
-		// check for non-required field in each record | TODO: check optional fieldValue == nil for not-null filed-value
-		if fieldValue == nil {
-			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] has field_value of %v", rec, fieldName, fieldValue))
+		fieldValue, ok := rec[fieldName]
+		// check for the required fields in each record
+		if !ok {
+			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
 		}
 		fieldCount += 1
-		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
-
-		if fieldLen > 1 && fieldCount < fieldLen {
-			itemScript += ", "
-		}
-	}
-	for fieldName, fieldValue := range rec {
-		// check for missing field in each record
-		if !ArrayStringContains(tableFields, fieldName) {
-			return "", errors.New(fmt.Sprintf("Unrecognised field: %v from record %v", fieldName, rec))
-		}
-		// TODO: check optional fieldValue == nil for not-null filed-value
-		//if fieldValue == nil {
-		//	return "", errors.New(fmt.Sprintf("Missing field-value: %v from record %v", fieldName, rec))
-		//}
-		fieldCount += 1
-		itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
+		itemScript += fmt.Sprintf(" %v=%v", fieldName, fieldValue)
 
 		if fieldLen > 1 && fieldCount < fieldLen {
 			itemScript += ", "
 		}
 	}
 	//validate/update script content based on valid field specifications
-	if fieldCount > 0 {
-		updateItemCount += 1
+	if fieldCount > 0 && fieldCount == fieldLen {
+		validUpdateItemCount += 1
 		updateQuery = itemScript
 	} else {
 		invalidUpdateItemCount += 1
@@ -168,11 +135,11 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 
 	// check is there was invalid update items
 	if invalidUpdateItemCount > 0 {
-		return "", errors.New(fmt.Sprintf("Invalid action-params"))
+		return "", errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
 	}
 
 	if whereScript, err := ComputeWhereQuery(where, tableFields); err == nil {
-		updateQuery += updateQuery + whereScript
+		updateQuery += whereScript
 		return updateQuery, nil
 	} else {
 		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
