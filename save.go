@@ -324,15 +324,17 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []strin
 			var rowCount = 0
 			for rows.Next() {
 				var id string
+				//var getRecords []interface{}
 				if err := rows.Scan(&id); err == nil {
 					rowCount += 1
-					// crud.CurrentRecords = append(crud.CurrentRecords, id)
 					// parse the current-records for audit-log
 					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
-						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
-							Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
-							Value:   nil,
-						})
+						// capture recordId
+						crud.CurrentRecords = append(crud.CurrentRecords, id)
+						//return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
+						//	Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
+						//	Value:   nil,
+						//})
 					} else {
 						// update instance CurrentRecords
 						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
@@ -398,8 +400,11 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []strin
 	logMessage := ""
 	if crud.LogUpdate {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: crud.CurrentRecords,
+			},
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -506,8 +511,11 @@ func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []s
 	logMessage := ""
 	if crud.LogUpdate {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: crud.CurrentRecords,
+			},
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -611,8 +619,11 @@ func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields 
 	logMessage := ""
 	if crud.LogUpdate {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: crud.CurrentRecords,
+			},
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {

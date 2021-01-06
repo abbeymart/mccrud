@@ -25,3 +25,8 @@ type DeletedResultType struct {
 	RecordIds   []string               `json:"record_ids"`
 	RecordCount int                    `json:"record_count"`
 }
+
+type LogRecordsType struct {
+	TableFields  []string
+	TableRecords []interface{}
+}

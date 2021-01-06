@@ -24,12 +24,9 @@ var CreateTableFields = []string{
 }
 
 var UpdateTableFields = []string{
-	"id",
 	"table_name",
-	"log_records",
 	"new_log_records",
 	"log_type",
-	"log_by",
 	"log_at",
 }
 
@@ -135,23 +132,23 @@ var UpdateRecordA = UpdateRecordType{
 	LogRecords:    TableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
-	LogType:       mcauditlog.CreateLog,
+	LogType:       mcauditlog.UpdateLog,
 	LogAt:         time.Now(),
 }
 
 var UpdateRecordB = UpdateRecordType{
 	Id:            "record-id",
-	TableName:     "services",
+	TableName:     "services2",
 	LogRecords:    TableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
-	LogType:       mcauditlog.CreateLog,
+	LogType:       mcauditlog.UpdateLog,
 	LogAt:         time.Now(),
 }
 
 var UpdateRecordById = UpdateRecordType{
 	Id:            "record-id",
-	TableName:     "services",
+	TableName:     "services2",
 	LogRecords:   TableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
@@ -160,7 +157,7 @@ var UpdateRecordById = UpdateRecordType{
 }
 
 var UpdateRecordByParam = mcauditlog.AuditRecord{
-	TableName:     "services",
+	TableName:     "services3",
 	LogRecords:    TableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,

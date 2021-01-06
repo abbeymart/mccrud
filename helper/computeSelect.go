@@ -17,10 +17,7 @@ func ComputeSelectQueryAll(tableName string, tableFields []string) (string, erro
 	if tableName == "" || len(tableFields) < 1 {
 		return "", errors.New("table-name and table-fields/columns are required to perform the select operation")
 	}
-	selectQuery := ""
-	//fieldLen := len(tableFields)
-	selectQuery = "SELECT " + strings.Join(tableFields, ", ")
-	selectQuery += fmt.Sprintf(" FROM %v ", tableName)
+	selectQuery := fmt.Sprintf("SELECT %v FROM %v", strings.Join(tableFields, ", "), tableName)
 	return selectQuery, nil
 }
 
@@ -29,26 +26,22 @@ func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []
 	if tableName == "" || len(recordIds) < 1 || len(tableFields) < 1 {
 		return "", errors.New("table-name, record-ids and table-fields/columns are required to perform the select operation")
 	}
-	selectQuery := ""
 	// get record(s) based on projected/provided field names ([]string)
 	// select field/column-names
-	selectQuery = "SELECT " + strings.Join(tableFields, ", ")
-	// from / where condition
-	selectQuery += fmt.Sprintf(" FROM %v WHERE id IN(", tableName)
-	// where-in-values
-	selectQuery += strings.Join(recordIds, ", ") + ")"
+	selectQuery := fmt.Sprintf("SELECT %v", strings.Join(tableFields, ", "))
+	// from / where condition (where-in-values)
+	selectQuery += fmt.Sprintf(" FROM %v WHERE id IN(%v)", tableName, strings.Join(recordIds, ", "))
 	return selectQuery, nil
 }
 
 // ComputeSelectQueryByParam compose SELECT query from the where-parameters
-func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, tableFields []string ) (string, error) {
+func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, tableFields []string) (string, error) {
 	if tableName == "" || len(where) < 1 || len(tableFields) < 1 {
 		return "", errors.New("table-name, where-params and table-fields/columns are required to perform the select operation")
 	}
-	selectQuery := ""
 	// get record(s) based on projected/provided field names ([]string)
 	// select field/column-names
-	selectQuery = "SELECT " + strings.Join(tableFields, ", ")
+	selectQuery := fmt.Sprintf("SELECT %v", strings.Join(tableFields, ", "))
 	// from
 	selectQuery += fmt.Sprintf(" FROM %v", tableName)
 	// add where-params condition
@@ -61,4 +54,3 @@ func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, t
 }
 
 // TODO: select-query functions for relational tables (eager & lazy queries) and data aggregation
-

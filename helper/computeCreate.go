@@ -43,8 +43,8 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 		for _, fieldName := range tableFields {
 			fieldValue, ok := rec[fieldName]
 			// check for the required field in each record
-			if !ok || fieldValue == nil {
-				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recNum, rec, fieldName, fieldValue))
+			if !ok {
+				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] is missing ", recNum, rec, fieldName))
 			}
 			fieldCount += 1
 			// update recFieldValues by fieldValue-type
@@ -195,7 +195,7 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 		// close itemValues for the current-record
 		itemValues += ")"
 		// update insertQuery with the recordItem, include return value(s)
-		insertQuery = append(insertQuery, itemQuery+itemValues + "RETURNING id")
+		insertQuery = append(insertQuery, itemQuery+itemValues+" RETURNING id")
 		// reset itemValues for the next record iteration
 		itemValues = " VALUES("
 	}
@@ -229,7 +229,7 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 	itemQuery += " )"
 	itemValuePlaceholder += " )"
 	// add/append item-script & value-placeholder to the createScripts
-	insertQuery = itemQuery + itemValuePlaceholder + "RETURNING id"
+	insertQuery = itemQuery + itemValuePlaceholder + " RETURNING id"
 
 	// compute create values from actionParams
 	for recNum, rec := range actionParams {

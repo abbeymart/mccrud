@@ -17,21 +17,21 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 	}
 	// compute update script from queryParams
 	var updateQuery []string
+	validUpdateItemCount := 0
 	invalidUpdateItemCount := 0
-	updateItemCount := 0 // valid update item count
 
 	for recNum, rec := range actionParams {
-		itemScript := "UPDATE " + tableName + " SET"
+		itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
 		fieldCount := 0
 		fieldLen := len(rec)
 		for _, fieldName := range tableFields {
-			fieldValue := rec[fieldName]
-			// check for non-required field in each record | TODO: check optional fieldValue == nil for not-null filed-value
-			if fieldValue == nil {
-				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v", recNum, rec, fieldName, fieldValue))
+			fieldValue, ok := rec[fieldName]
+			// check for the required field in each record
+			if !ok {
+				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] is missing", recNum, rec, fieldName))
 			}
 			fieldCount += 1
-			itemScript += itemScript + " " + fieldName + "=" + fmt.Sprintf("%v", fieldValue)
+			itemScript += fmt.Sprintf("%v=%v", fieldName, fieldValue)
 
 			if fieldLen > 1 && fieldCount < fieldLen {
 				itemScript += ", "
@@ -39,10 +39,10 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 		}
 
 		// add where condition by id
-		itemScript += itemScript + fmt.Sprintf("WHERE id=%v", rec["id"])
+		itemScript += fmt.Sprintf("WHERE id=%v", rec["id"])
 		//validate/update script content based on valid field specifications
 		if fieldCount > 0 {
-			updateItemCount += 1
+			validUpdateItemCount += 1
 			updateQuery = append(updateQuery, itemScript)
 		} else {
 			invalidUpdateItemCount += 1
