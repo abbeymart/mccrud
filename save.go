@@ -152,6 +152,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 
 // CreateBatch method creates new record(s) by placeholder values from copy-create-query
 // TODO: resolve sql-values parsing error, for create_batch & create_copy
+// Error updating information/record(s) | Error updating record(s): ERROR: invalid input syntax for type json (SQLSTATE 22P02) 304
 func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	fmt.Printf("action-params: %#v \n\n", createRecs)
@@ -177,10 +178,12 @@ func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []
 
 	// perform records' creation
 	insertCount := 0
+	var insertIds []string
+	var insertId string
 	for _, insertValues := range createQuery.FieldValues {
 		fmt.Printf("query: %v\n\n", createQuery.CreateQuery)
 		fmt.Printf("query-value: %v \n\n", insertValues)
-		commandTag, insertErr := tx.Exec(context.Background(), createQuery.CreateQuery, insertValues...)
+		insertErr := tx.QueryRow(context.Background(), createQuery.CreateQuery, insertValues...).Scan(&insertId)
 		if insertErr != nil {
 			_ = tx.Rollback(context.Background())
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -188,7 +191,8 @@ func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []
 				Value:   nil,
 			})
 		}
-		insertCount += int(commandTag.RowsAffected())
+		insertCount += 1
+		insertIds = append(insertIds, insertId)
 	}
 	fmt.Printf("before-commit\n\n")
 	// commit
@@ -218,7 +222,11 @@ func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   insertCount,
+		Value: InsertedResultType{
+			TableName:   crud.TableName,
+			RecordIds:   insertIds,
+			RecordCount: insertCount,
+		},
 	})
 }
 

@@ -38,16 +38,15 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 	for recNum, rec := range actionParams {
 		// initial item-values-computation variables
 		var itemValues = " VALUES("
-		//recLength := len(rec)
 		fieldLength := len(tableFields)
-		recCount := 0
+		fieldCount := 0
 		for _, fieldName := range tableFields {
 			fieldValue, ok := rec[fieldName]
 			// check for the required field in each record
 			if !ok || fieldValue == nil {
 				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recNum, rec, fieldName, fieldValue))
 			}
-			recCount += 1
+			fieldCount += 1
 			// update recFieldValues by fieldValue-type
 			var currentFieldValue interface{}
 			switch fieldValue.(type) {
@@ -55,7 +54,6 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 				if fVal, ok := fieldValue.(time.Time); !ok {
 					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					//currentFieldValue = fmt.Sprintf("'%v'", fVal)
 					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 				}
 			case string:
@@ -190,7 +188,7 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 			}
 			// add itemValue
 			itemValues += fmt.Sprintf("%v", currentFieldValue)
-			if fieldLength > 1 && recCount < fieldLength {
+			if fieldLength > 1 && fieldCount < fieldLength {
 				itemValues += ", "
 			}
 		}
@@ -231,7 +229,7 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 	itemQuery += " )"
 	itemValuePlaceholder += " )"
 	// add/append item-script & value-placeholder to the createScripts
-	insertQuery = itemQuery + itemValuePlaceholder
+	insertQuery = itemQuery + itemValuePlaceholder + "RETURNING id"
 
 	// compute create values from actionParams
 	for recNum, rec := range actionParams {
@@ -244,12 +242,14 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 				return errMessage(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recNum, rec, fieldName, fieldValue))
 			}
 			// update recFieldValues by fieldValue-type
+			var currentFieldValue interface{}
 			switch fieldValue.(type) {
 			case time.Time:
 				if fVal, ok := fieldValue.(time.Time); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'")
+					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
+					//recFieldValues = append(recFieldValues, "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'")
 				}
 			case string:
 				if fVal, ok := fieldValue.(string); !ok {
@@ -260,128 +260,132 @@ func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams
 							return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						} else {
 							fmt.Printf("string-toJson-value: %v\n\n", fValue)
-							recFieldValues = append(recFieldValues, "'" + fValue + "'")
+							currentFieldValue = "'" + fValue + "'"
+							//recFieldValues = append(recFieldValues, "'" + fValue + "'")
 						}
 					} else {
-						recFieldValues = append(recFieldValues, "'" + fVal + "'")
+						currentFieldValue = "'" + fVal + "'"
+						//recFieldValues = append(recFieldValues, "'" + fVal + "'")
 					}
 				}
 			case bool:
 				if fVal, ok := fieldValue.(bool); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case int8:
 				if fVal, ok := fieldValue.(int8); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case int16:
 				if fVal, ok := fieldValue.(int16); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case int32:
 				if fVal, ok := fieldValue.(int32); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case int64:
 				if fVal, ok := fieldValue.(int64); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case int:
 				if fVal, ok := fieldValue.(int); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case uint8:
 				if fVal, ok := fieldValue.(uint8); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case uint16:
 				if fVal, ok := fieldValue.(uint16); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case uint32:
 				if fVal, ok := fieldValue.(uint32); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case uint64:
 				if fVal, ok := fieldValue.(uint64); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case uint:
 				if fVal, ok := fieldValue.(uint); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case float32:
 				if fVal, ok := fieldValue.(float32); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case float64:
 				if fVal, ok := fieldValue.(float64); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case []string:
 				if fVal, ok := fieldValue.([]string); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case []int:
 				if fVal, ok := fieldValue.([]int); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case []float32:
 				if fVal, ok := fieldValue.([]float32); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case []float64:
 				if fVal, ok := fieldValue.([]float64); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			case []struct{}:
 				if fVal, ok := fieldValue.([]struct{}); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					recFieldValues = append(recFieldValues, fVal)
+					currentFieldValue = fVal
 				}
 			default:
 				// json-stringify fieldValue
 				if fVal, err := json.Marshal(fieldValue); err != nil {
 					return errMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 				} else {
-					recFieldValues = append(recFieldValues, "'" + string(fVal) + "'")
+					currentFieldValue = "'" + string(fVal) + "'"
 				}
 			}
+			// add itemValue
+			recFieldValues = append(recFieldValues, currentFieldValue)
 		}
 		// update fieldValues
 		fValues = append(fValues, recFieldValues)
