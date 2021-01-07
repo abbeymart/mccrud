@@ -69,7 +69,10 @@ func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPoint
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: crud.RecordIds,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: []interface{}{crud.RecordIds},
+			},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -137,7 +140,10 @@ func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPo
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: crud.QueryParams,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: []interface{}{crud.QueryParams},
+			},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -207,7 +213,10 @@ func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointe
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: []string{"all-records"},
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: []interface{}{"all-records"},
+			},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

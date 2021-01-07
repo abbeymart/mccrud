@@ -89,8 +89,11 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 	logMessage := ""
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
-			LogRecords: crud.CurrentRecords,
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  []string{},
+				TableRecords: crud.CurrentRecords,
+			},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -173,8 +176,11 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 	logMessage := ""
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
-			LogRecords: crud.CurrentRecords,
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  []string{},
+				TableRecords: crud.CurrentRecords,
+			},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -195,7 +201,7 @@ func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT *****
 	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING *****
 	// compute delete query
-	delQuery := fmt.Sprintf("DELETE * FROM %v", crud.TableName)
+	delQuery := fmt.Sprintf("DELETE FROM %v", crud.TableName)
 	commandTag, delErr := crud.AppDb.Exec(context.Background(), delQuery)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
@@ -208,8 +214,10 @@ func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
 	logMessage := ""
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
-			LogRecords: fmt.Sprintf("All records deleted from %v table, by user: %v [id: %v, email: %v], at %v", crud.TableName, crud.UserInfo.LoginName, crud.UserInfo.UserId, crud.UserInfo.Email, time.Now()),
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableRecords: []interface{}{fmt.Sprintf("All records deleted from %v table, by user: %v [id: %v, email: %v], at %v", crud.TableName, crud.UserInfo.LoginName, crud.UserInfo.UserId, crud.UserInfo.Email, time.Now())},
+			},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
