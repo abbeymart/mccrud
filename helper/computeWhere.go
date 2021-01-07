@@ -35,8 +35,8 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 	whereQuery := " WHERE "
 	for _, group := range where {
 		var (
-			unspecifiedGroupItemCount = 0 // variable to determine unspecified/invalid fieldName or fieldValue
-			groupItemCount            = 0 // valid gItem count, i.e. group item with valid name and value
+			emptyGroupItemCount = 0 // variable to determine empty/unspecified fieldName/Op/Value
+			groupItemCount      = 0 // valid gItem count, i.e. group item with valid name and value
 		)
 		groupItemsLen := len(group.GroupItems) // total items in a group
 		// check groupItems length, if 0 continue to the next group
@@ -81,7 +81,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			}
 			if fieldName == "" || fieldOperator == "" || fieldValue == nil {
 				// skip missing field/continue to the next gItem, or return error?
-				unspecifiedGroupItemCount += 1
+				emptyGroupItemCount += 1
 				continue
 				//return "", errors.New("field-name, operator and/or value are required")
 			}
@@ -206,7 +206,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.NotEquals):
@@ -327,7 +327,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.LessThan):
@@ -430,7 +430,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.LessThanOrEquals):
@@ -527,7 +527,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.GreaterThan):
@@ -624,7 +624,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.GreaterThanOrEquals):
@@ -721,7 +721,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.In):
@@ -801,7 +801,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			case strings.ToLower(operators.NotIn):
@@ -881,7 +881,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				if groupItemOp == "" || !ArrayStringContains(groupItemOps, strings.ToLower(groupItemOp)) {
 					groupItemOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 				}
-				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 					gItemQuery = gItemQuery + " " + strings.ToUpper(gItem.GroupItemOp) + " "
 				}
 			default:
@@ -894,12 +894,12 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 				gItemLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 			}
 			// add groupLinkOp, if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount)
-			if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+			if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 				gItemQuery += " " + strings.ToUpper(gItemLinkOp) + " "
 			}
 		}
 		// continue to the next group iteration, if fieldItems is empty for the current group
-		if unspecifiedGroupItemCount == groupItemsLen {
+		if emptyGroupItemCount == groupItemsLen {
 			continue
 		}
 		// add closing bracket to complete the group-items query/script
