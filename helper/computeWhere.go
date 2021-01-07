@@ -32,7 +32,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 	})
 	// compute where script from where
 	// iterate through where (groups)
-	whereQuery := " WHERE "
+	whereQuery := " WHERE"
 	for _, group := range where {
 		var (
 			emptyGroupItemCount = 0 // variable to determine empty/unspecified fieldName/Op/Value
@@ -891,9 +891,9 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			gItemLinkOp := gItem.GroupItemOp
 			gItemLinkOps := []string{"and", "or"}
 			if gItemLinkOp == "" || !ArrayStringContains(gItemLinkOps, strings.ToLower(gItemLinkOp)) {
-				gItemLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
+				gItemLinkOp = groupOperators.AND // default operator
 			}
-			// add groupLinkOp, if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount)
+			// add gItemLinkOp, if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount)
 			if groupItemsLen > 1 && groupItemCount < (groupItemsLen-emptyGroupItemCount) {
 				gItemQuery += " " + strings.ToUpper(gItemLinkOp) + " "
 			}
@@ -904,13 +904,13 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 		}
 		// add closing bracket to complete the group-items query/script
 		gItemQuery += " ) "
-		// compute where-script from the group-script, append in sequence by groupOrder
+		// add group-item-query to the group/where-script, append in sequence by groupOrder
 		whereQuery += " " + gItemQuery
 		//validate acceptable groupLinkOperators (and || or)
 		grpLinkOp := group.GroupLinkOp
 		groupLnOps := []string{"and", "or"}
 		if grpLinkOp == "" || !ArrayStringContains(groupLnOps, strings.ToLower(grpLinkOp)) {
-			grpLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
+			grpLinkOp = groupOperators.AND // default operator
 		}
 		// add groupLinkOp, if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount)
 		if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount) {

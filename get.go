@@ -15,9 +15,15 @@ import (
 
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
 // constrained by optional skip and limit parameters
-func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// TODO: SELECT/scan to tableFieldPointers, in order specified by the tableFields
-	// i.e. tableFields and tableFieldPointers order must match
+	// tableFields and tableFieldPointers length and order must match
+	if len(tableFields) != len(tableFieldPointers) {
+		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("tableFields Count [%v] and tableFieldPointer Count [%v] must be the same", len(tableFields), len(tableFieldPointers)),
+			Value:   nil,
+		})
+	}
 	logMessage := ""
 	getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, tableFields)
 	if err != nil {
@@ -34,19 +40,21 @@ func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}
 	// exit of currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
 	if err != nil {
-		errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-			Message: errMsg,
+			Message: fmt.Sprintf("Db query Error: %v", err.Error()),
 			Value:   nil,
 		})
 	}
 	defer rows.Close()
 	// check rows count
+	//var getRecords []interface{}
 	var rowCount = 0
 	for rows.Next() {
 		//var id string
 		if err := rows.Scan(tableFieldPointers...); err == nil {
+			getChan <- rowCount		// pass the scanned result alert to getChan | will block until read
 			rowCount += 1
+			//getRecords = append(getRecords, tableFieldPointers)
 		}
 	}
 
@@ -78,9 +86,14 @@ func (crud Crud) GetById(tableFields []string, tableFieldPointers ...interface{}
 
 // GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
 // constrained by optional skip and limit parameters
-func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
-	// i.e. tableFields and tableFieldPointers order must match
+	if len(tableFields) != len(tableFieldPointers) {
+		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("tableFields Count [%v] and tableFieldPointer Count [%v] must be the same", len(tableFields), len(tableFieldPointers)),
+			Value:   nil,
+		})
+	}
 	logMessage := ""
 	getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, tableFields)
 	if err != nil {
@@ -97,9 +110,8 @@ func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interfac
 	// exit of currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
 	if err != nil {
-		errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-			Message: errMsg,
+			Message: fmt.Sprintf("Db query Error: %v", err.Error()),
 			Value:   nil,
 		})
 	}
@@ -109,6 +121,7 @@ func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interfac
 	for rows.Next() {
 		//var id string
 		if err := rows.Scan(tableFieldPointers...); err == nil {
+			getChan <- rowCount		// pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}
@@ -140,9 +153,14 @@ func (crud Crud) GetByParam(tableFields []string, tableFieldPointers ...interfac
 }
 
 // GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
-func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
-	// i.e. tableFields and tableFieldPointers order must match
+	if len(tableFields) != len(tableFieldPointers) {
+		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("tableFields Count [%v] and tableFieldPointer Count [%v] must be the same", len(tableFields), len(tableFieldPointers)),
+			Value:   nil,
+		})
+	}
 	logMessage := ""
 	getQuery, err := helper.ComputeSelectQueryAll(crud.TableName, tableFields)
 	if err != nil {
@@ -162,9 +180,8 @@ func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{})
 	// exit if currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
 	if err != nil {
-		errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-			Message: errMsg,
+			Message: fmt.Sprintf("Db query Error: %v", err.Error()),
 			Value:   nil,
 		})
 	}
@@ -174,6 +191,7 @@ func (crud Crud) GetAll(tableFields []string, tableFieldPointers ...interface{})
 	for rows.Next() {
 		//var id string
 		if err := rows.Scan(tableFieldPointers...); err == nil {
+			getChan <- rowCount		// pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}

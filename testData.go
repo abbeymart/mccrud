@@ -149,7 +149,7 @@ var UpdateRecordB = UpdateRecordType{
 var UpdateRecordById = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services2",
-	LogRecords:   TableRecords,
+	LogRecords:    TableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
@@ -189,6 +189,52 @@ var TestUpdateByParams = mctypes.QueryParamType{
 }
 
 // get record(s)
+type GetRecordType struct {
+	Id            string
+	TableName     string
+	LogRecords    interface{}
+	NewLogRecords interface{}
+	LogBy         string
+	LogType       string
+	LogAt         time.Time
+}
+
+var (
+	id            string
+	tableName     string
+	logRecords    interface{}
+	newLogRecords interface{}
+	logBy         string
+	logType       string
+	logAt         time.Time
+)
+
+// tablePointers for scanning
+var tableFieldPointers = []interface{}{
+	&id,
+	&tableName,
+	&logRecords,
+	&newLogRecords,
+	&logBy,
+	&logType,
+	&logAt,
+}
+
+var getResults []GetRecordType
+// synchronize get records, via a buffered channel
+var getChan = make(chan int, 1)
+// TODO: check getChan to update getResults one at a time
+var getResult = GetRecordType{
+	Id:            id,
+	TableName:     tableName,
+	LogRecords:    logRecords,
+	NewLogRecords: newLogRecords,
+	LogBy:         logBy,
+	LogType:       logType,
+	LogAt:         logAt,
+}
+
+
 // by id
 var TestGetRecordIds = []string{
 	"abc",
