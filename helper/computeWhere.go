@@ -887,24 +887,34 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			default:
 				return "", errors.New(fmt.Sprintf("Unknown or unsupported field(%v) operator: %v", fieldName, fieldOperator))
 			}
-			// continue to the next group iteration, if fieldItems is empty for the current group
-			if unspecifiedGroupItemCount == groupItemsLen {
-				continue
+			//validate acceptable groupItemLinkOperators (and || or)
+			gItemLinkOp := gItem.GroupItemOp
+			gItemLinkOps := []string{"and", "or"}
+			if gItemLinkOp == "" || !ArrayStringContains(gItemLinkOps, strings.ToLower(gItemLinkOp)) {
+				gItemLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
 			}
-			// add closing bracket to complete the group-items query/script
-			gItemQuery = gItemQuery + " ) "
-			//validate acceptable groupLinkOperators (and || or)
-			grpLinkOp := group.GroupLinkOp
-			groupLnOps := []string{"and", "or"}
-			if grpLinkOp == "" || !ArrayStringContains(groupLnOps, strings.ToLower(grpLinkOp)) {
-				grpLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
+			// add groupLinkOp, if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount)
+			if groupItemsLen > 1 && groupItemCount < (groupItemsLen-unspecifiedGroupItemCount) {
+				gItemQuery += " " + strings.ToUpper(gItemLinkOp) + " "
 			}
-			// add groupLinkOp, if groupsLen > 1
-			if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount) {
-				gItemQuery = gItemQuery + " " + strings.ToUpper(grpLinkOp) + " "
-			}
-			// compute where-script from the group-script, append in sequence by groupOrder
-			whereQuery = whereQuery + " " + gItemQuery
+		}
+		// continue to the next group iteration, if fieldItems is empty for the current group
+		if unspecifiedGroupItemCount == groupItemsLen {
+			continue
+		}
+		// add closing bracket to complete the group-items query/script
+		gItemQuery += " ) "
+		// compute where-script from the group-script, append in sequence by groupOrder
+		whereQuery += " " + gItemQuery
+		//validate acceptable groupLinkOperators (and || or)
+		grpLinkOp := group.GroupLinkOp
+		groupLnOps := []string{"and", "or"}
+		if grpLinkOp == "" || !ArrayStringContains(groupLnOps, strings.ToLower(grpLinkOp)) {
+			grpLinkOp = groupOperators.AND // use GroupOpTypes.AND as default operator
+		}
+		// add groupLinkOp, if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount)
+		if groupsLen > 1 && groupCount < (groupsLen-emptyGroupCount) {
+			whereQuery += " " + strings.ToUpper(grpLinkOp) + " "
 		}
 		// check WHERE script contains at least one condition, otherwise raise an exception
 		if emptyGroupCount == groupsLen {
