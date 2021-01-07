@@ -39,7 +39,6 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 				var id string
 				if err := rows.Scan(&id); err == nil {
 					rowCount += 1
-					// crud.CurrentRecords = append(crud.CurrentRecords, id)
 					// parse the current-records for audit-log
 					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
 						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
@@ -133,7 +132,6 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 				var id string
 				if err := rows.Scan(&id); err == nil {
 					rowCount += 1
-					// crud.CurrentRecords = append(crud.CurrentRecords, id)
 					// parse the current-records for audit-log
 					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
 						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{

@@ -71,9 +71,9 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 	fieldCount := 0
 	fieldLen := len(rec)
 	for _, fieldName := range tableFields {
-		fieldValue := rec[fieldName]
+		fieldValue, ok := rec[fieldName]
 		// check for the required fields in each record
-		if fieldValue == nil {
+		if !ok {
 			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
 		}
 		fieldCount += 1

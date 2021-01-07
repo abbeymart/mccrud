@@ -11,14 +11,6 @@ import (
 	"strings"
 )
 
-//func deleteScriptErr(errMsg string) (mccrud.DeleteQueryResponseType, error) {
-//	return mccrud.DeleteQueryResponseType{
-//		DeleteQuery: nil,
-//		WhereQuery:  nil,
-//		FieldValues: nil,
-//	}, errors.New(errMsg)
-//}
-
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
 func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error) {
 	if tableName == "" || len(recordIds) < 1 {

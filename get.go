@@ -16,7 +16,7 @@ import (
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
 // constrained by optional skip and limit parameters
 func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
-	// TODO: SELECT/scan to tableFieldPointers, in order specified by the tableFields
+	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// tableFields and tableFieldPointers length and order must match
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -35,7 +35,7 @@ func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPoint
 	// perform crud-task action
 	// include options: limit... TODO: sort?
 	if crud.Limit > 0 {
-		getQuery += getQuery + fmt.Sprintf(" LIMIT %v", crud.Limit)
+		getQuery += fmt.Sprintf(" LIMIT %v", crud.Limit)
 	}
 	// exit of currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
@@ -47,14 +47,12 @@ func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPoint
 	}
 	defer rows.Close()
 	// check rows count
-	//var getRecords []interface{}
 	var rowCount = 0
 	for rows.Next() {
 		//var id string
 		if err := rows.Scan(tableFieldPointers...); err == nil {
-			getChan <- rowCount		// pass the scanned result alert to getChan | will block until read
+			getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
-			//getRecords = append(getRecords, tableFieldPointers)
 		}
 	}
 
@@ -68,7 +66,7 @@ func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPoint
 	// perform audit-log
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
+			TableName: crud.TableName,
 			LogRecords: LogRecordsType{
 				TableFields:  tableFields,
 				TableRecords: []interface{}{crud.RecordIds},
@@ -83,7 +81,7 @@ func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPoint
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   nil, // handle result on requester-side (i.e. struct-spec)... tableFieldPointers
+		Value:   nil, // handle result on requester-side via the getChan
 	})
 }
 
@@ -108,7 +106,7 @@ func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPo
 	// perform crud-task action
 	// include options: limit TODO: sort?
 	if crud.Limit > 0 {
-		getQuery += getQuery + fmt.Sprintf(" LIMIT %v", crud.Limit)
+		getQuery += fmt.Sprintf(" LIMIT %v", crud.Limit)
 	}
 	// exit of currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
@@ -124,7 +122,7 @@ func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPo
 	for rows.Next() {
 		//var id string
 		if err := rows.Scan(tableFieldPointers...); err == nil {
-			getChan <- rowCount		// pass the scanned result alert to getChan | will block until read
+			getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}
@@ -139,7 +137,7 @@ func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPo
 	// perform audit-log
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
+			TableName: crud.TableName,
 			LogRecords: LogRecordsType{
 				TableFields:  tableFields,
 				TableRecords: []interface{}{crud.QueryParams},
@@ -154,7 +152,7 @@ func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPo
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   nil, // handle result on requester-side (i.e. struct-spec)... tableFieldPointers
+		Value:   nil, // handle result on requester-side via the getChan
 	})
 }
 
@@ -178,10 +176,10 @@ func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointe
 	// perform crud-task action
 	// include options: skip && limit TODO: sort?
 	if crud.Limit > 0 {
-		getQuery += getQuery + fmt.Sprintf(" LIMIT %v", crud.Limit)
+		getQuery += fmt.Sprintf(" LIMIT %v", crud.Limit)
 	}
 	if crud.Skip > 0 {
-		getQuery += getQuery + fmt.Sprintf(" OFFSET %v", crud.Skip)
+		getQuery += fmt.Sprintf(" OFFSET %v", crud.Skip)
 	}
 	// exit if currentRec-length is less than recordIds-length
 	rows, err := crud.AppDb.Query(context.Background(), getQuery)
@@ -197,7 +195,7 @@ func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointe
 	for rows.Next() {
 		//var id string
 		if err := rows.Scan(tableFieldPointers...); err == nil {
-			getChan <- rowCount		// pass the scanned result alert to getChan | will block until read
+			getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}
@@ -212,7 +210,7 @@ func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointe
 	// perform audit-log
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
+			TableName: crud.TableName,
 			LogRecords: LogRecordsType{
 				TableFields:  tableFields,
 				TableRecords: []interface{}{"all-records"},
@@ -227,6 +225,6 @@ func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointe
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   nil, // handle result on requester-side (i.e. struct-spec)... tableFieldPointers
+		Value:   nil, // handle result on requester-side via the getChan
 	})
 }

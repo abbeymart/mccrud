@@ -101,7 +101,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, "'" + fVal + "'")
+						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, "'"+fVal+"'")
 					}
 				case bool:
 					if fVal, ok := fieldValue.(bool); !ok {
@@ -221,7 +221,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, "'" + fVal + "'")
+						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, "'"+fVal+"'")
 					}
 				case bool:
 					if fVal, ok := fieldValue.(bool); !ok {
@@ -331,18 +331,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, currentFieldValue)
 					}
-				case string:
-					if fVal, ok := fieldValue.(string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, "'" + fVal + "'")
-					}
-				case bool:
-					if fVal, ok := fieldValue.(bool); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
-					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
@@ -426,12 +414,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, currentFieldValue)
-					}
-				case string:
-					if fVal, ok := fieldValue.(string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, "'" + fVal + "'")
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
@@ -525,12 +507,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, currentFieldValue)
 					}
-				case string:
-					if fVal, ok := fieldValue.(string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, "'" + fVal + "'")
-					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
@@ -614,12 +590,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, currentFieldValue)
-					}
-				case string:
-					if fVal, ok := fieldValue.(string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, "'" + fVal + "'")
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
@@ -712,7 +682,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -727,7 +697,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -742,7 +712,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -757,7 +727,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -784,7 +754,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -799,7 +769,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -814,7 +784,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
@@ -829,13 +799,80 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						inValues := "("
 						fValLen := len(fVal)
 						for i, v := range fVal {
-							inValues += inValues + fmt.Sprintf("%v", v)
+							inValues += fmt.Sprintf("%v", v)
 							if fValLen > 1 && i < fValLen-1 {
 								inValues += inValues + ", "
 							}
 						}
 						inValues += ")"
 						gItemQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+					}
+				default:
+					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
+				}
+			case strings.ToLower(operators.StartsWith):
+				switch fieldValue.(type) {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						//gItemQuery += fmt.Sprintf(" %v LIKE %%v", fieldName, fVal)
+						gItemQuery += " " + fieldName + " LIKE " + fVal + "%"
+					}
+				default:
+					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
+				}
+			case strings.ToLower(operators.EndsWith):
+				switch fieldValue.(type) {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						gItemQuery += " " + fieldName + " LIKE %" + fVal
+					}
+				default:
+					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
+				}
+			case strings.ToLower(operators.NotStartsWith):
+				switch fieldValue.(type) {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						gItemQuery += " " + fieldName + " NOT LIKE " + fVal + "%"
+					}
+				default:
+					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
+				}
+			case strings.ToLower(operators.NotEndsWith):
+				switch fieldValue.(type) {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						gItemQuery += " " + fieldName + " NOT LIKE %" + fVal
+					}
+				default:
+					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
+				}
+			case strings.ToLower(operators.Includes):
+				switch fieldValue.(type) {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						gItemQuery += " " + fieldName + " LIKE %" + fVal + "%"
+					}
+				default:
+					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
+				}
+			case strings.ToLower(operators.NotIncludes):
+				switch fieldValue.(type) {
+				case string:
+					if fVal, ok := fieldValue.(string); !ok {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						gItemQuery += " " + fieldName + " NOT LIKE %" + fVal + "%"
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))

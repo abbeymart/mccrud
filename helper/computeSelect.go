@@ -46,7 +46,7 @@ func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, t
 	selectQuery += fmt.Sprintf(" FROM %v", tableName)
 	// add where-params condition
 	if whereScript, err := ComputeWhereQuery(where, tableFields); err == nil {
-		selectQuery += selectQuery + whereScript
+		selectQuery += whereScript
 		return selectQuery, nil
 	} else {
 		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))

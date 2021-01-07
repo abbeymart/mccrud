@@ -444,7 +444,6 @@ func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []s
 				var id string
 				if err := rows.Scan(&id); err == nil {
 					rowCount += 1
-					// crud.CurrentRecords = append(crud.CurrentRecords, id)
 					// parse the current-records for audit-log
 					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
 						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
@@ -558,7 +557,6 @@ func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields 
 				var id string
 				if err := rows.Scan(&id); err == nil {
 					rowCount += 1
-					// crud.CurrentRecords = append(crud.CurrentRecords, id)
 					// parse the current-records for audit-log
 					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
 						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
