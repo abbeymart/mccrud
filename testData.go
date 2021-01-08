@@ -134,7 +134,6 @@ var UpdateRecordA = UpdateRecordType{
 	LogType:       mcauditlog.UpdateLog,
 	LogAt:         time.Now(),
 }
-
 var UpdateRecordB = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services2",
@@ -178,15 +177,15 @@ var updateRec2, _ = helper.DataToValueParam(UpdateRecordB)
 var updateRecId, _ = helper.DataToValueParam(UpdateRecordById)
 var updateRecParam, _ = helper.DataToValueParam(UpdateRecordByParam)
 
-var TestUpdateRecords = mctypes.ActionParamsType{
+var UpdateActionParams = mctypes.ActionParamsType{
 	updateRec1,
 	updateRec2,
 }
 
-var TestUpdateRecordIds = mctypes.ActionParamsType{
+var UpdateActionParamsById = mctypes.ActionParamsType{
 	updateRecId,
 }
-var TestUpdateRecordParam = mctypes.ActionParamsType{
+var UpdateActionParamsByParam = mctypes.ActionParamsType{
 	updateRecParam,
 }
 
