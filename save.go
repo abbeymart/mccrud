@@ -83,7 +83,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 }
 
 // Create method creates new record(s)
-func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
 	if qErr != nil {
@@ -153,7 +153,7 @@ func (crud Crud) Create(createRecs mctypes.ActionParamsType, tableFields []strin
 // CreateBatch method creates new record(s) by placeholder values from copy-create-query
 // TODO: resolve sql-values parsing error, for create_batch & create_copy
 // Error updating information/record(s) | Error updating record(s): ERROR: invalid input syntax for type json (SQLSTATE 22P02) 304
-func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
@@ -231,7 +231,7 @@ func (crud Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []
 }
 
 // CreateCopy method creates new record(s) using Pg CopyFrom
-func (crud Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	//fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
@@ -302,7 +302,7 @@ func (crud Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []s
 }
 
 // Update method updates existing record(s)
-func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string, recordIds []string) mcresponse.ResponseMessage {
+func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string, recordIds []string) mcresponse.ResponseMessage {
 	// get current records, for audit-log
 	if crud.LogUpdate {
 		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, recordIds, tableFields); err != nil {
@@ -420,7 +420,7 @@ func (crud Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []strin
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
-func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// get current records, for audit-log
 	if crud.LogUpdate {
 		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, tableFields); err != nil {
@@ -532,7 +532,7 @@ func (crud Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []s
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
-func (crud Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// get current records, for audit-log
 	if crud.LogUpdate {
 		if getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, tableFields); err != nil {

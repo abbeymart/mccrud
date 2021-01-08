@@ -539,14 +539,14 @@ func (model Model) Save(params mctypes.CrudParamsType, options mctypes.CrudOptio
 
 // Get method query the DB by record-id, defined query-parameter or all records, constrained
 // by skip, limit and projected-field-parameters
-func (model Model) Get(params mctypes.CrudParamsType, options mctypes.CrudOptionsType, tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (model Model) Get(params mctypes.CrudParamsType, options mctypes.CrudOptionsType, tableFields []string, getChan chan int,  tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// model specific params
 	params.TableName = model.TableName
 
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform get-task
-	return crud.GetById(tableFields, tableFieldPointers)
+	return crud.GetById(tableFields, getChan, tableFieldPointers)
 }
 
 // GetStream method query the DB by record-ids, defined query-parameter or all records, constrained

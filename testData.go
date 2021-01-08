@@ -24,7 +24,6 @@ var CreateTableFields = []string{
 }
 
 var UpdateTableFields = []string{
-	"table_name",
 	"new_log_records",
 	"log_type",
 	"log_at",
@@ -49,7 +48,6 @@ type TestParam struct {
 }
 
 const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de"
-
 var TestUserInfo = mctypes.UserInfoType{
 	UserId:    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
 	LoginName: "abbeymart",
@@ -98,7 +96,6 @@ var CreateRecordA = mcauditlog.AuditRecord{
 	LogType:    mcauditlog.CreateLog,
 	LogAt:      time.Now(),
 }
-
 var CreateRecordB = mcauditlog.AuditRecord{
 	TableName:  "services",
 	LogRecords: TableRecords,
@@ -106,10 +103,8 @@ var CreateRecordB = mcauditlog.AuditRecord{
 	LogType:    mcauditlog.CreateLog,
 	LogAt:      time.Now(),
 }
-
 var valParam1, _ = helper.DataToValueParam(CreateRecordA)
 var valParam2, _ = helper.DataToValueParam(CreateRecordB)
-
 var CreateActionParams = mctypes.ActionParamsType{
 	valParam1,
 	valParam2,
@@ -126,10 +121,14 @@ type UpdateRecordType struct {
 	LogAt         time.Time
 }
 
+var upRecs = TestParam{Name: "Abi100", Desc: "Testing only100", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
+var upTableRecords, _ = helper.DataToValueParam(upRecs)
+var upRecs2 = TestParam{Name: "Abi200", Desc: "Testing only200", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
+var upTableRecords2, _ = helper.DataToValueParam(upRecs2)
 var UpdateRecordA = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services",
-	LogRecords:    TableRecords,
+	LogRecords:    upTableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
@@ -139,7 +138,7 @@ var UpdateRecordA = UpdateRecordType{
 var UpdateRecordB = UpdateRecordType{
 	Id:            "record-id",
 	TableName:     "services2",
-	LogRecords:    TableRecords,
+	LogRecords:    upTableRecords2,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
@@ -147,9 +146,8 @@ var UpdateRecordB = UpdateRecordType{
 }
 
 var UpdateRecordById = UpdateRecordType{
-	Id:            "record-id",
 	TableName:     "services2",
-	LogRecords:    TableRecords,
+	LogRecords:    upTableRecords,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
@@ -158,11 +156,21 @@ var UpdateRecordById = UpdateRecordType{
 
 var UpdateRecordByParam = mcauditlog.AuditRecord{
 	TableName:     "services3",
-	LogRecords:    TableRecords,
+	LogRecords:    upTableRecords2,
 	NewLogRecords: NewTableRecords,
 	LogBy:         UserId,
 	LogType:       mcauditlog.UpdateLog,
 	LogAt:         time.Now(),
+}
+
+var UpdateIds = []string{"id1", "id2"}
+var UpdateParams = mctypes.QueryParamType{
+	mctypes.QueryGroupType{
+
+	},
+	mctypes.QueryGroupType{
+
+	},
 }
 
 var updateRec1, _ = helper.DataToValueParam(UpdateRecordA)
@@ -178,14 +186,8 @@ var TestUpdateRecords = mctypes.ActionParamsType{
 var TestUpdateRecordIds = mctypes.ActionParamsType{
 	updateRecId,
 }
-
-var TestUpdateByIds = []string{
-	"id1",
-	"id2",
-}
-
-var TestUpdateByParams = mctypes.QueryParamType{
-
+var TestUpdateRecordParam = mctypes.ActionParamsType{
+	updateRecParam,
 }
 
 // get record(s)
@@ -234,20 +236,24 @@ var getResult = GetRecordType{
 	LogAt:         logAt,
 }
 
+// get by ids & params
+var GetIds = []string{"id1", "id2"}
+var GetParams = mctypes.QueryParamType{
+	mctypes.QueryGroupType{
 
-// by id
-var TestGetRecordIds = []string{
-	"abc",
-	"xyz",
+	},
+	mctypes.QueryGroupType{
+
+	},
 }
 
-// by param
+// delete record(s) by ids & params
+var DeleteIds = []string{"id1", "id2"}
+var DeleteParams = mctypes.QueryParamType{
+	mctypes.QueryGroupType{
 
-// delete record(s)
-// by id
-var TestDeleteRecordIds = []string{
-	"abc",
-	"xyz",
+	},
+	mctypes.QueryGroupType{
+
+	},
 }
-
-// by param

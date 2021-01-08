@@ -21,8 +21,8 @@ type Crud struct {
 }
 
 // NewCrud constructor returns a new crud-instance
-func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (crudInstance Crud) {
-	// crudInstance = Crud{}
+func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (crudInstance *Crud) {
+	crudInstance = &Crud{}
 	// compute crud params
 	crudInstance.AppDb = params.AppDb
 	crudInstance.TableName = params.TableName

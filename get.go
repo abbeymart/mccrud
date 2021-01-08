@@ -15,7 +15,7 @@ import (
 
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
 // constrained by optional skip and limit parameters
-func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetById(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// tableFields and tableFieldPointers length and order must match
 	if len(tableFields) != len(tableFieldPointers) {
@@ -87,7 +87,7 @@ func (crud Crud) GetById(tableFields []string, getChan chan int, tableFieldPoint
 
 // GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
 // constrained by optional skip and limit parameters
-func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -157,7 +157,7 @@ func (crud Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPo
 }
 
 // GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
-func (crud Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{

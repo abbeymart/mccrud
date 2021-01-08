@@ -15,7 +15,7 @@ import (
 )
 
 // DeleteById method deletes or removes record(s) by record-id(s)
-func (crud Crud) DeleteById() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
 	if crud.LogDelete {
 		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, []string{}); err != nil {
@@ -108,7 +108,7 @@ func (crud Crud) DeleteById() mcresponse.ResponseMessage {
 }
 
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
-func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
 	if crud.LogDelete {
 		if getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, []string{}); err != nil {
@@ -195,7 +195,7 @@ func (crud Crud) DeleteByParam() mcresponse.ResponseMessage {
 
 // DeleteAll method deletes or removes all records in the tables. Recommended for admin-users only
 // Use if and only if you know what you are doing
-func (crud Crud) DeleteAll() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT *****
 	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING *****
 	// compute delete query
