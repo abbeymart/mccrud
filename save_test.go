@@ -140,11 +140,10 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := updateCrud.Save(UpdateTableFields)
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value := res.Value
+			delCnt, _ := value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "update should return code: success")
+			mctest.AssertEquals(t, delCnt > 20, true, "updated records should be 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -152,11 +151,10 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := updateIdCrud.Save(UpdateTableFields)
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value := res.Value
+			delCnt, _ := value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-id should return code: success")
+			mctest.AssertEquals(t, delCnt > 20, true, "updated-by-id records should be 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -164,11 +162,10 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := updateParamCrud.Save(UpdateTableFields)
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value := res.Value
+			delCnt, _ := value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
+			mctest.AssertEquals(t, delCnt > 20, true, "updated-by-params records should be 2")
 		},
 	})
 
@@ -324,11 +321,10 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := deleteCrud.DeleteById()
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value := res.Value
+			delCnt, _ := value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
+			mctest.AssertEquals(t, delCnt > 20, true, "delete-by-id records should be 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -336,11 +332,10 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := deleteCrud.DeleteByParam()
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value := res.Value
+			delCnt, _ := value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-params should return code: success")
+			mctest.AssertEquals(t, delCnt == 2, true, "deleted records should be 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -349,11 +344,10 @@ func TestSave(t *testing.T) {
 			//deleteAllCrud.TableName = "audits_test2"
 			res := deleteAllCrud.DeleteAll()
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value := res.Value
+			delCnt, _ := value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "delete-all should return code: success")
+			mctest.AssertEquals(t, delCnt > 20, true, "deleted records should be more than 20")
 		},
 	})
 
