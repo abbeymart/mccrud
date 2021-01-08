@@ -89,152 +89,169 @@ func TestSave(t *testing.T) {
 		},
 	})
 
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should update two records and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should update two records by Ids and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should update two records by query-params and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should delete two records by Ids and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should delete two records by query-params and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should get records by Ids and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should get records by query-params and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should get all records and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should get all records by limit/skip(offset) and return success:",
-	//	TestFunc: func() {
-	//		crud, ok := crud.(Crud)
-	//		if !ok {
-	//			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-	//		}
-	//		res := crud.Save(CreateTableFields)
-	//		fmt.Println(res.Message, res.ResCode)
-	//		value, _ := res.Value.(InsertedResultType)
-	//		mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-	//		mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
-	//		mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-	//		mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-	//	},
-	//})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records by Ids and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records by query-params and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete two records by Ids and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete two records by query-params and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete all table records and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			// change crud-table-name
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get records by Ids and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get records by query-params and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get all records and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get all records by limit/skip(offset) and return success:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			res := crud.Save(CreateTableFields)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: " + TestTable)
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
 
 	mctest.PostTestResult()
 
