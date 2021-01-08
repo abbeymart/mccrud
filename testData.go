@@ -24,6 +24,7 @@ var CreateTableFields = []string{
 }
 
 var UpdateTableFields = []string{
+	"table_name",
 	"log_records",
 	"log_type",
 	"log_at",
@@ -166,23 +167,6 @@ var UpdateRecordByParam = mcauditlog.AuditRecord{
 var UpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
 var UpdateParams = mctypes.WhereParamType{
 	mctypes.QueryGroupType{
-		GroupName: "id_table",
-		GroupOrder: 2,
-		GroupLinkOp: "and",
-		GroupItems: []mctypes.QueryItemType{
-			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
-				GroupItemOrder: 1,
-				GroupItemOp: "and",
-			},
-			{
-				GroupItem: 	map[string]map[string]interface{}{"table_name": {"eq": "services"}},
-				GroupItemOrder: 2,
-				GroupItemOp: "and",
-			},
-		},
-	},
-	mctypes.QueryGroupType{
 		GroupName: "id_logtype",
 		GroupOrder: 1,
 		GroupLinkOp: "or",
@@ -198,7 +182,6 @@ var UpdateParams = mctypes.WhereParamType{
 				GroupItemOp: "and",
 			},
 		},
-
 	},
 }
 
@@ -230,45 +213,8 @@ type GetRecordType struct {
 	LogAt         time.Time
 }
 
-var (
-	id            string
-	tableName     string
-	logRecords    interface{}
-	newLogRecords interface{}
-	logBy         string
-	logType       string
-	logAt         time.Time
-)
-
-// tablePointers for scanning
-var tableFieldPointers = []interface{}{
-	&id,
-	&tableName,
-	&logRecords,
-	&newLogRecords,
-	&logBy,
-	&logType,
-	&logAt,
-}
-
-var getResults []GetRecordType
-
-// synchronize get records, via a buffered channel
-var getChan = make(chan int, 1)
-
-// TODO: check getChan to update getResults one at a time
-var getResult = GetRecordType{
-	Id:            id,
-	TableName:     tableName,
-	LogRecords:    logRecords,
-	NewLogRecords: newLogRecords,
-	LogBy:         logBy,
-	LogType:       logType,
-	LogAt:         logAt,
-}
-
 // get by ids & params
-var GetIds = []string{"id1", "id2"}
+var GetIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
 var GetParams = mctypes.WhereParamType{
 	mctypes.QueryGroupType{
 		GroupName: "id_table",
@@ -276,7 +222,7 @@ var GetParams = mctypes.WhereParamType{
 		GroupLinkOp: "and",
 		GroupItems: []mctypes.QueryItemType{
 			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
+				GroupItem: 	map[string]map[string]interface{}{"id": {"in": []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}},
 				GroupItemOrder: 1,
 				GroupItemOp: "and",
 			},
@@ -286,24 +232,6 @@ var GetParams = mctypes.WhereParamType{
 				GroupItemOp: "and",
 			},
 		},
-	},
-	mctypes.QueryGroupType{
-		GroupName: "id_logtype",
-		GroupOrder: 1,
-		GroupLinkOp: "or",
-		GroupItems: []mctypes.QueryItemType{
-			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
-				GroupItemOrder: 1,
-				GroupItemOp: "and",
-			},
-			{
-				GroupItem: 	map[string]map[string]interface{}{"log_type": {"eq": "create"}},
-				GroupItemOrder: 2,
-				GroupItemOp: "and",
-			},
-		},
-
 	},
 }
 
