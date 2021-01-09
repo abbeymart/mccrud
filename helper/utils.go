@@ -13,6 +13,23 @@ import (
 	"reflect"
 )
 
+
+func ParseRawValues(rawValues [][]byte) ([]interface{}, error) {
+	// variables
+	var v interface{}
+	var va []interface{}
+	// parse the current-raw-values
+	for _, val := range rawValues {
+		if err := json.Unmarshal(val, &v); err != nil {
+			return nil, errors.New(fmt.Sprintf("Error parsing raw-row-value: %v", err.Error()))
+		} else {
+			va = append(va, v)
+		}
+	}
+	return va, nil
+}
+
+
 func ArrayStringContains(arr []string, val string) bool {
 	for _, a := range arr {
 		if a == val {
