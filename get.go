@@ -55,6 +55,8 @@ func (crud *Crud) GetById(tableFields []string, getChan chan int, tableFieldPoin
 			rowCount += 1
 		}
 	}
+	// close channel
+	close(getChan)
 
 	if err := rows.Err(); err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -126,6 +128,8 @@ func (crud *Crud) GetByParam(tableFields []string, getChan chan int, tableFieldP
 			rowCount += 1
 		}
 	}
+	// close channel
+	close(getChan)
 
 	if err := rows.Err(); err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -199,6 +203,8 @@ func (crud *Crud) GetAll(tableFields []string, getChan chan int, tableFieldPoint
 			rowCount += 1
 		}
 	}
+	// close channel
+	close(getChan)
 
 	if err := rows.Err(); err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
