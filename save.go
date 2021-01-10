@@ -26,8 +26,9 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 		recIds     []string                 // capture recordIds for separate/multiple updates
 	)
 	for _, rec := range crud.ActionParams {
+		fmt.Printf("act-param: %#v", rec)
 		// determine if record existed (update) or is new (create)
-		if fieldValue, ok := rec["id"]; ok && fieldValue != nil {
+		if fieldValue, ok := rec["id"]; ok && fieldValue != "" {
 			// validate fieldValue as string
 			switch fieldValue.(type) {
 			case string:
@@ -61,7 +62,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 	}
 
 	// update each record by it's recordId
-	if len(updateRecs) >= 1 && len(recIds) == len(updateRecs) {
+	if len(updateRecs) >= 1 && (len(recIds) == len(updateRecs)) {
 		return crud.Update(updateRecs, recIds, tableFields)
 	}
 
@@ -303,6 +304,7 @@ func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []
 
 // Update method updates existing record(s)
 func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, recordIds []string, tableFields []string) mcresponse.ResponseMessage {
+	//fmt.Printf("update-params: %v, %v, %v\n", len(updateRecs), len(recordIds), len(tableFields))
 	// get current records, for audit-log
 	if crud.LogUpdate {
 		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, recordIds, tableFields); err != nil {
@@ -377,7 +379,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, recordIds []string
 	defer tx.Rollback(context.Background())
 	// perform records' updates
 	updateCount := 0
-	fmt.Printf("update-by-params-queries: %v\n", updateQuery)
+	//fmt.Printf("update-queries: %v\n", updateQuery)
 	for _, upQuery := range updateQuery {
 		commandTag, updateErr := tx.Exec(context.Background(), upQuery)
 		if updateErr != nil {
@@ -423,6 +425,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, recordIds []string
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
 func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+	//fmt.Printf("update-id-params: %v, %v\n", len(updateRecs), len(tableFields))
 	// get current records, for audit-log
 	if crud.LogUpdate {
 		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, tableFields); err != nil {
@@ -600,7 +603,7 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 		})
 	}
 	defer tx.Rollback(context.Background())
-	fmt.Printf("update-by-params-query: %v\n", updateQuery)
+	//fmt.Printf("update-by-params-query: %v\n", updateQuery)
 	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())

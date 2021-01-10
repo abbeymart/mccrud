@@ -113,10 +113,7 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := updateCrud.Save(UpdateTableFields)
 			fmt.Printf("updates: %v : %v \n", res.Message, res.ResCode)
-			value := res.Value
-			delCnt, _ := value.(int)
 			mctest.AssertEquals(t, res.Code, "success", "update should return code: success")
-			mctest.AssertEquals(t, delCnt > 20, true, "updated records should be 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -124,10 +121,7 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := updateIdCrud.Save(UpdateTableFields)
 			fmt.Printf("update-by-ids: %v : %v \n", res.Message, res.ResCode)
-			value := res.Value
-			delCnt, _ := value.(int)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-id should return code: success")
-			mctest.AssertEquals(t, delCnt > 20, true, "updated-by-id records should be 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -135,10 +129,7 @@ func TestSave(t *testing.T) {
 		TestFunc: func() {
 			res := updateParamCrud.Save(UpdateTableFields)
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
-			value := res.Value
-			delCnt, _ := value.(int)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
-			mctest.AssertEquals(t, delCnt > 20, true, "updated-by-params records should be 2")
 		},
 	})
 

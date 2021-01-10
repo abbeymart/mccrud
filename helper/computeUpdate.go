@@ -21,6 +21,9 @@ func ComputeUpdateQuery(tableName string, actionParams mctypes.ActionParamsType,
 	if len(tableFields) == 0 {
 		actRec := actionParams[0]
 		for fName := range actRec {
+			if fName == "id" {
+				continue
+			}
 			tableFields = append(tableFields, fName)
 		}
 	}
@@ -32,7 +35,7 @@ func ComputeUpdateQuery(tableName string, actionParams mctypes.ActionParamsType,
 	for recNum, rec := range actionParams {
 		itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
 		fieldCount := 0
-		fieldLen := len(rec)
+		fieldLen := len(tableFields)
 		for _, fieldName := range tableFields {
 			fieldValue, ok := rec[fieldName]
 			// check for the required fields in each record
@@ -82,7 +85,7 @@ func ComputeUpdateQuery(tableName string, actionParams mctypes.ActionParamsType,
 		}
 
 		// add where condition by id
-		itemScript += fmt.Sprintf(" WHERE id=%v", rec["id"])
+		itemScript += fmt.Sprintf(" WHERE id='%v'", rec["id"])
 		//validate/update script content based on valid field specifications
 		if fieldCount > 0 && fieldCount == fieldLen {
 			validUpdateItemCount += 1
@@ -106,6 +109,9 @@ func ComputeUpdateQueryById(tableName string, actionParams mctypes.ActionParamsT
 	if len(tableFields) == 0 {
 		actRec := actionParams[0]
 		for fName := range actRec {
+			if fName == "id" {
+				continue
+			}
 			tableFields = append(tableFields, fName)
 		}
 	}
@@ -129,7 +135,7 @@ func ComputeUpdateQueryById(tableName string, actionParams mctypes.ActionParamsT
 	// only one actionParams record is required for update by docIds
 	rec := actionParams[0]
 	fieldCount := 0
-	fieldLen := len(rec)
+	fieldLen := len(tableFields)
 	for _, fieldName := range tableFields {
 		fieldValue, ok := rec[fieldName]
 		// check for the required fields in each record
@@ -199,6 +205,9 @@ func ComputeUpdateQueryByParam(tableName string, actionParams mctypes.ActionPara
 	if len(tableFields) == 0 {
 		actRec := actionParams[0]
 		for fName := range actRec {
+			if fName == "id" {
+				continue
+			}
 			tableFields = append(tableFields, fName)
 		}
 	}
@@ -212,7 +221,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParams mctypes.ActionPara
 	rec := actionParams[0]
 	itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
 	fieldCount := 0
-	fieldLen := len(rec)
+	fieldLen := len(tableFields)
 	for _, fieldName := range tableFields {
 		fieldValue, ok := rec[fieldName]
 		// check for the required fields in each record
