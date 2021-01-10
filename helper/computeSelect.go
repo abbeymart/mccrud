@@ -35,12 +35,20 @@ func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []
 	selectQuery := ""
 	if len(tableFields) > 0 {
 		// get record(s) based on projected/provided field names ([]string)
-		selectQuery = fmt.Sprintf("SELECT %v", strings.Join(tableFields, ", "))
+		selectQuery = fmt.Sprintf("SELECT %v FROM %v ", strings.Join(tableFields, ", "), tableName)
 	} else {
-		selectQuery = fmt.Sprintf("SELECT * FROM %v", tableName)
+		selectQuery = fmt.Sprintf("SELECT * FROM %v ", tableName)
 	}
 	// from / where condition (where-in-values)
-	selectQuery += fmt.Sprintf(" FROM %v WHERE id IN(%v)", tableName, strings.Join(recordIds, ", "))
+	whereIds := ""
+	idLen := len(recordIds)
+	for idCount, id := range recordIds {
+		whereIds += "'" + id + "'"
+		if idLen > 1 && idCount < idLen-1 {
+			whereIds += ", "
+		}
+	}
+	selectQuery += fmt.Sprintf(" WHERE id IN( %v )", whereIds)
 	return selectQuery, nil
 }
 
@@ -52,14 +60,12 @@ func ComputeSelectQueryByParam(tableName string, where mctypes.WhereParamType, t
 	selectQuery := ""
 	if len(tableFields) > 0 {
 		// get record(s) based on projected/provided field names ([]string)
-		selectQuery = fmt.Sprintf("SELECT %v", strings.Join(tableFields, ", "))
-		// from
-		selectQuery += fmt.Sprintf(" FROM %v", tableName)
+		selectQuery = fmt.Sprintf("SELECT %v FROM %v ", strings.Join(tableFields, ", "), tableName)
 	} else {
-		selectQuery = fmt.Sprintf("SELECT * FROM %v", tableName)
+		selectQuery = fmt.Sprintf("SELECT * FROM %v ", tableName)
 	}
 	// add where-params condition
-	if whereScript, err := ComputeWhereQuery(where, tableFields); err == nil {
+	if whereScript, err := ComputeWhereQuery(where); err == nil {
 		selectQuery += whereScript
 		return selectQuery, nil
 	} else {

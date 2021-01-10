@@ -17,16 +17,18 @@ import (
 // DeleteById method deletes or removes record(s) by record-id(s)
 func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
+	tabFields := []string{"id"}
 	if crud.LogDelete {
-		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, []string{}); err != nil {
+		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, crud.RecordIds, tabFields); err != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
 				Value:   getQuery,
 			})
 		} else {
-			rows, err := crud.AppDb.Query(context.Background(), getQuery)
-			if err != nil {
-				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+			fmt.Printf("delete-by-id-get-query: %v\n", getQuery)
+			rows, rqErr := crud.AppDb.Query(context.Background(), getQuery)
+			if rqErr != nil {
+				errMsg := fmt.Sprintf("Db query Error: %v", rqErr.Error())
 				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 					Message: errMsg,
 					Value:   nil,
@@ -37,18 +39,22 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 			var rowCount = 0
 			for rows.Next() {
 				var id string
-				if err := rows.Scan(&id); err == nil {
-					rowCount += 1
-					// parse the current-records for audit-log
-					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
-						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
-							Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
-							Value:   nil,
-						})
-					} else {
-						// update instance CurrentRecords
-						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
-					}
+				if getErr := rows.Scan(&id); getErr != nil {
+					return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Error getting records: %v", getErr.Error()),
+						Value:   nil,
+					})
+				}
+				rowCount += 1
+				// parse the current-records for audit-log
+				if parseVal, parseErr := helper.ParseRawValues(rows.RawValues()); parseErr != nil {
+					return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Error parsing raw-record-values: %v", parseErr.Error()),
+						Value:   nil,
+					})
+				} else {
+					// update instance CurrentRecords
+					crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
 				}
 			}
 			// exit if currentRec-length is less than recordIds-length
@@ -58,9 +64,9 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 					Value:   nil,
 				})
 			}
-			if err := rows.Err(); err != nil {
+			if rowErr := rows.Err(); rowErr != nil {
 				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("Error reading/getting records: %v", err.Error()),
+					Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
 					Value:   nil,
 				})
 			}
@@ -110,16 +116,18 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
 func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
+	var tabFields []string
 	if crud.LogDelete {
-		if getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, []string{}); err != nil {
+		if getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, tabFields); err != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
 				Value:   getQuery,
 			})
 		} else {
-			rows, err := crud.AppDb.Query(context.Background(), getQuery)
-			if err != nil {
-				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+			fmt.Printf("delete-by-params-get-query: %v\n", getQuery)
+			rows, rqErr := crud.AppDb.Query(context.Background(), getQuery)
+			if rqErr != nil {
+				errMsg := fmt.Sprintf("Db query Error: %v", rqErr.Error())
 				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 					Message: errMsg,
 					Value:   nil,
@@ -130,23 +138,27 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 			var rowCount = 0
 			for rows.Next() {
 				var id string
-				if err := rows.Scan(&id); err == nil {
-					rowCount += 1
-					// parse the current-records for audit-log
-					if parseVal, err := helper.ParseRawValues(rows.RawValues()); err != nil {
-						return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
-							Message: fmt.Sprintf("Error parsing raw-record-values: %v", err.Error()),
-							Value:   nil,
-						})
-					} else {
-						// update instance CurrentRecords
-						crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
-					}
+				if getErr := rows.Scan(&id); getErr != nil {
+					return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Error getting records: %v", getErr.Error()),
+						Value:   nil,
+					})
+				}
+				rowCount += 1
+				// parse the current-records for audit-log
+				if parseVal, parseErr := helper.ParseRawValues(rows.RawValues()); parseErr != nil {
+					return mcresponse.GetResMessage("parseError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Error parsing raw-record-values: %v", parseErr.Error()),
+						Value:   nil,
+					})
+				} else {
+					// update instance CurrentRecords
+					crud.CurrentRecords = append(crud.CurrentRecords, parseVal)
 				}
 			}
-			if err := rows.Err(); err != nil {
+			if rowErr := rows.Err(); rowErr != nil {
 				return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("Error reading/getting records: %v", err.Error()),
+					Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
 					Value:   nil,
 				})
 			}
@@ -226,6 +238,6 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   commandTag.RowsAffected(),
+		Value:   commandTag.Delete(),
 	})
 }

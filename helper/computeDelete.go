@@ -28,7 +28,7 @@ func ComputeDeleteQueryByParam(tableName string, where mctypes.WhereParamType, t
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}
-	if whereParam, err := ComputeWhereQuery(where, tableFields); err == nil {
+	if whereParam, err := ComputeWhereQuery(where); err == nil {
 		deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
 		return deleteScript, nil
 	} else {

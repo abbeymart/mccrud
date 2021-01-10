@@ -60,9 +60,10 @@ func TestDelete(t *testing.T) {
 			value := res.Value
 			delCnt, _ := value.(int)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
-			mctest.AssertEquals(t, delCnt > 20, true, "delete-by-id records should be 2")
+			mctest.AssertEquals(t, delCnt == 2, true, "delete-by-id records should be 2")
 		},
 	})
+
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by query-params and return success:",
 		TestFunc: func() {
@@ -74,16 +75,16 @@ func TestDelete(t *testing.T) {
 			mctest.AssertEquals(t, delCnt == 2, true, "deleted records should be 2")
 		},
 	})
+
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete all table records and return success:",
 		TestFunc: func() {
-			//deleteAllCrud.TableName = "audits_test2"
 			res := deleteAllCrud.DeleteAll()
 			fmt.Printf("delete-all: %v : %v \n", res.Message, res.ResCode)
 			value := res.Value
-			delCnt, _ := value.(int)
+			deleted, _ := value.(bool)
 			mctest.AssertEquals(t, res.Code, "success", "delete-all should return code: success")
-			mctest.AssertEquals(t, delCnt > 20, true, "deleted records should be more than 20")
+			mctest.AssertEquals(t, deleted, true, "deleted() must be true")
 		},
 	})
 

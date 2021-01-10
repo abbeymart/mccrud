@@ -23,10 +23,19 @@ func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
 }
 
 // ComputeCreateQuery function computes insert SQL scripts. It returns createScripts []string and err error
-func ComputeCreateQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) ([]string, error) {
-	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
+func ComputeCreateQuery(tableName string, actionParams mctypes.ActionParamsType, tableFields []string) ([]string, error) {
+	if tableName == "" || len(actionParams) < 1 {
 		return nil, errors.New("table-name, action-params and table-fields are required for the create operation")
 	}
+
+	// compute tableFields from the first record, if len(tableFields) == 0
+	if len(tableFields) == 0 {
+		actRec := actionParams[0]
+		for fName := range actRec {
+			tableFields = append(tableFields, fName)
+		}
+	}
+
 	// declare slice variable for create/insert queries
 	var insertQuery []string
 
@@ -204,10 +213,18 @@ func ComputeCreateQuery(tableName string, tableFields []string, actionParams mct
 }
 
 // ComputeCreateCopyQuery function computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
-func ComputeCreateCopyQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) (mctypes.CreateQueryResponseType, error) {
-	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
-		return errMessage("table-name, action-params and table-fields are required for the create operation")
+func ComputeCreateCopyQuery(tableName string, actionParams mctypes.ActionParamsType, tableFields []string) (mctypes.CreateQueryResponseType, error) {
+	if tableName == "" || len(actionParams) < 1 {
+		return errMessage("table-name and action-params are required for the create operation")
 	}
+	// compute tableFields from the first record, if len(tableFields) == 0
+	if len(tableFields) == 0 {
+		actRec := actionParams[0]
+		for fName := range actRec {
+			tableFields = append(tableFields, fName)
+		}
+	}
+
 	var insertQuery string
 	var fValues [][]interface{} // fieldValues array of arrays of values
 	// value-computation for each of the actionParams' records must match the tableFields

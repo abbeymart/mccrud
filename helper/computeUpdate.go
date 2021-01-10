@@ -5,15 +5,24 @@
 package helper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mctypes"
-	"strings"
+	"github.com/asaskevich/govalidator"
+	"time"
 )
 
-func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mctypes.ActionParamsType) ([]string, error) {
-	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 {
-		return nil, errors.New("table-name, table-fields and action-params are required for the update operation")
+func ComputeUpdateQuery(tableName string, actionParams mctypes.ActionParamsType, tableFields []string) ([]string, error) {
+	if tableName == "" || len(actionParams) < 1 {
+		return nil, errors.New("table-name and action-params are required for the update operation")
+	}
+	// compute tableFields from the first record, if len(tableFields) == 0
+	if len(tableFields) == 0 {
+		actRec := actionParams[0]
+		for fName := range actRec {
+			tableFields = append(tableFields, fName)
+		}
 	}
 	// compute update script from queryParams
 	var updateQuery []string
@@ -31,8 +40,42 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] is missing", recNum, rec, fieldName))
 			}
 			fieldCount += 1
-			itemScript += fmt.Sprintf(" %v=%v", fieldName, fieldValue)
+			// update/set recFieldValues by fieldValue-type
+			var currentFieldValue interface{}
+			switch fieldValue.(type) {
+			case time.Time:
+				if fVal, ok := fieldValue.(time.Time); !ok {
+					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
+				}
+			case string:
+				if fVal, ok := fieldValue.(string); !ok {
+					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					if govalidator.IsJSON(fVal) {
+						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
+							return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						} else {
+							currentFieldValue = "'" + fValue + "'"
+						}
+					} else {
+						currentFieldValue = "'" + fVal + "'"
+					}
+				}
+			case int, uint, float64, bool:
+				currentFieldValue = fieldValue
+			default:
+				// json-stringify fieldValue
+				if fVal, err := json.Marshal(fieldValue); err != nil {
+					return nil, errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+				} else {
+					currentFieldValue = "'" + string(fVal) + "'"
+				}
+			}
 
+			// add itemValue
+			itemScript += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
 			if fieldLen > 1 && fieldCount < fieldLen {
 				itemScript += ", "
 			}
@@ -55,14 +98,31 @@ func ComputeUpdateQuery(tableName string, tableFields []string, actionParams mct
 	return updateQuery, nil
 }
 
-func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams mctypes.ActionParamsType, recordIds []string) (string, error) {
-	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(recordIds) < 1 {
+func ComputeUpdateQueryById(tableName string, actionParams mctypes.ActionParamsType, recordIds []string, tableFields []string) (string, error) {
+	if tableName == "" || len(actionParams) < 1 || len(recordIds) < 1 {
 		return "", errors.New("table-name, table-fields, action-params and record/doc-Ids are required for the update-by-id operation")
+	}
+	// compute tableFields from the first record, if len(tableFields) == 0
+	if len(tableFields) == 0 {
+		actRec := actionParams[0]
+		for fName := range actRec {
+			tableFields = append(tableFields, fName)
+		}
 	}
 	// compute update script from query-ids
 	var updateQuery string
 	itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
-	whereQuery := fmt.Sprintf(" WHERE id IN(%v)", strings.Join(recordIds, ", "))
+	// from / where condition (where-in-values)
+	whereIds := ""
+	idLen := len(recordIds)
+	for idCount, id := range recordIds {
+		whereIds += "'" + id + "'"
+		if idLen > 1 && idCount < idLen-1 {
+			whereIds += ", "
+		}
+	}
+	whereQuery := fmt.Sprintf(" WHERE id IN(%v)", whereIds)
+
 	invalidUpdateItemCount := 0
 	validUpdateItemCount := 0
 
@@ -77,8 +137,41 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
 		}
 		fieldCount += 1
-		itemScript += fmt.Sprintf(" %v=%v", fieldName, fieldValue)
-
+		// update/set recFieldValues by fieldValue-type
+		var currentFieldValue interface{}
+		switch fieldValue.(type) {
+		case time.Time:
+			if fVal, ok := fieldValue.(time.Time); !ok {
+				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
+			}
+		case string:
+			if fVal, ok := fieldValue.(string); !ok {
+				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				if govalidator.IsJSON(fVal) {
+					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						currentFieldValue = "'" + fValue + "'"
+					}
+				} else {
+					currentFieldValue = "'" + fVal + "'"
+				}
+			}
+		case int, uint, float64, bool:
+			currentFieldValue = fieldValue
+		default:
+			// json-stringify fieldValue
+			if fVal, err := json.Marshal(fieldValue); err != nil {
+				return "", errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+			} else {
+				currentFieldValue = "'" + string(fVal) + "'"
+			}
+		}
+		// add itemValue
+		itemScript += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
 		if fieldLen > 1 && fieldCount < fieldLen {
 			itemScript += ", "
 		}
@@ -98,10 +191,18 @@ func ComputeUpdateQueryById(tableName string, tableFields []string, actionParams
 	return updateQuery, nil
 }
 
-func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionParams mctypes.ActionParamsType, where mctypes.WhereParamType) (string, error) {
-	if tableName == "" || len(actionParams) < 1 || len(tableFields) < 1 || len(where) < 1 {
-		return "", errors.New("table-name, table-fields, action-params and where-params are required for the update-by-params operation")
+func ComputeUpdateQueryByParam(tableName string, actionParams mctypes.ActionParamsType, where mctypes.WhereParamType, tableFields []string) (string, error) {
+	if tableName == "" || len(actionParams) < 1 || len(where) < 1 {
+		return "", errors.New("table-name, action-params and where-params are required for the update-by-params operation")
 	}
+	// compute tableFields from the first record, if len(tableFields) == 0
+	if len(tableFields) == 0 {
+		actRec := actionParams[0]
+		for fName := range actRec {
+			tableFields = append(tableFields, fName)
+		}
+	}
+
 	// compute update script from queryParams
 	var updateQuery string
 	invalidUpdateItemCount := 0
@@ -119,7 +220,41 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
 		}
 		fieldCount += 1
-		itemScript += fmt.Sprintf(" %v=%v", fieldName, fieldValue)
+		// update/set recFieldValues by fieldValue-type
+		var currentFieldValue interface{}
+		switch fieldValue.(type) {
+		case time.Time:
+			if fVal, ok := fieldValue.(time.Time); !ok {
+				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
+			}
+		case string:
+			if fVal, ok := fieldValue.(string); !ok {
+				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				if govalidator.IsJSON(fVal) {
+					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
+						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						currentFieldValue = "'" + fValue + "'"
+					}
+				} else {
+					currentFieldValue = "'" + fVal + "'"
+				}
+			}
+		case int, uint, float64, bool:
+			currentFieldValue = fieldValue
+		default:
+			// json-stringify fieldValue
+			if fVal, err := json.Marshal(fieldValue); err != nil {
+				return "", errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+			} else {
+				currentFieldValue = "'" + string(fVal) + "'"
+			}
+		}
+		// add itemValue
+		itemScript += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
 
 		if fieldLen > 1 && fieldCount < fieldLen {
 			itemScript += ", "
@@ -138,8 +273,8 @@ func ComputeUpdateQueryByParam(tableName string, tableFields []string, actionPar
 		return "", errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
 	}
 
-	if whereScript, err := ComputeWhereQuery(where, tableFields); err == nil {
-		updateQuery += whereScript
+	if whereScript, err := ComputeWhereQuery(where); err == nil {
+		updateQuery += " " + whereScript
 		return updateQuery, nil
 	} else {
 		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))

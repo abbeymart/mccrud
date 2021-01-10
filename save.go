@@ -62,7 +62,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 
 	// update each record by it's recordId
 	if len(updateRecs) >= 1 && len(recIds) == len(updateRecs) {
-		return crud.Update(updateRecs, tableFields, recIds)
+		return crud.Update(updateRecs, recIds, tableFields)
 	}
 
 	// update record(s) by recordIds | CONTROL ACCESS (by api-user)
@@ -85,7 +85,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 // Create method creates new record(s)
 func (crud *Crud) Create(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// compute query
-	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, tableFields, createRecs)
+	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs, tableFields)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -157,7 +157,7 @@ func (crud *Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields [
 	// create from createRecs (actionParams)
 	fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
-	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, tableFields, createRecs)
+	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -235,7 +235,7 @@ func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []
 	// create from createRecs (actionParams)
 	//fmt.Printf("action-params: %#v \n\n", createRecs)
 	// compute query
-	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, tableFields, createRecs)
+	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -302,7 +302,7 @@ func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []string, recordIds []string) mcresponse.ResponseMessage {
+func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, recordIds []string, tableFields []string) mcresponse.ResponseMessage {
 	// get current records, for audit-log
 	if crud.LogUpdate {
 		if getQuery, err := helper.ComputeSelectQueryById(crud.TableName, recordIds, tableFields); err != nil {
@@ -311,6 +311,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []stri
 				Value:   getQuery,
 			})
 		} else {
+			fmt.Printf("update-get-query: %v\n", getQuery)
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -358,7 +359,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []stri
 	}
 
 	// create from updatedRecs (actionParams)
-	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, tableFields, updateRecs)
+	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, updateRecs, tableFields)
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -376,6 +377,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []stri
 	defer tx.Rollback(context.Background())
 	// perform records' updates
 	updateCount := 0
+	fmt.Printf("update-by-params-queries: %v\n", updateQuery)
 	for _, upQuery := range updateQuery {
 		commandTag, updateErr := tx.Exec(context.Background(), upQuery)
 		if updateErr != nil {
@@ -429,6 +431,7 @@ func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []
 				Value:   getQuery,
 			})
 		} else {
+			fmt.Printf("update-by-id-get-query: %v\n", getQuery)
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -473,7 +476,7 @@ func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []
 	}
 
 	// create from updatedRecs (actionParams)
-	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, tableFields, updateRecs, crud.RecordIds)
+	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, updateRecs, crud.RecordIds, []string{})
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -489,6 +492,7 @@ func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []
 		})
 	}
 	defer tx.Rollback(context.Background())
+	fmt.Printf("update-by-id-query: %v\n", updateQuery)
 	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
@@ -542,6 +546,7 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 			})
 		} else {
 			// exit if currentRec-length is less than recordIds-length
+			fmt.Printf("update-by-params-get-query: %v\n", getQuery)
 			rows, err := crud.AppDb.Query(context.Background(), getQuery)
 			if err != nil {
 				errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
@@ -579,7 +584,7 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 	}
 
 	// create from updatedRecs (actionParams)
-	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, tableFields, updateRecs, crud.QueryParams)
+	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRecs, crud.QueryParams, []string{})
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -595,6 +600,7 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 		})
 	}
 	defer tx.Rollback(context.Background())
+	fmt.Printf("update-by-params-query: %v\n", updateQuery)
 	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())

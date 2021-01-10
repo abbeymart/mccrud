@@ -16,7 +16,7 @@ import (
 )
 
 // ComputeWhereQuery function computes the multi-cases where-conditions for crud-operations
-func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (string, error) {
+func ComputeWhereQuery(where mctypes.WhereParamType) (string, error) {
 	if len(where) < 1 {
 		return "", errors.New("where condition is required")
 	}
@@ -32,7 +32,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 	})
 	// compute where script from where
 	// iterate through where (groups)
-	whereQuery := " WHERE"
+	whereQuery := "WHERE "
 	for _, group := range where {
 		var (
 			emptyGroupItemCount = 0 // variable to determine empty/unspecified fieldName/Op/Value
@@ -52,7 +52,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			return gItems[i].GroupItemOrder < gItems[j].GroupItemOrder
 		})
 		// compute the group-items query/script
-		gItemQuery := " ("
+		gItemQuery := "("
 		for _, gItem := range gItems {
 			// check gItem's fieldName, fieldOperator and fieldValue
 			fieldName := ""
@@ -75,10 +75,6 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					fieldValue = val
 				}
 			}
-			// validate fieldName, if tableFields param is provided
-			if len(tableFields) > 0 && !ArrayStringContains(tableFields, fieldName) {
-				return "", errors.New(fmt.Sprintf("invalid field name [%v] specified in where condition", fieldName))
-			}
 			if fieldName == "" || fieldOperator == "" || fieldValue == nil {
 				// skip missing field/continue to the next gItem, or return error?
 				emptyGroupItemCount += 1
@@ -95,115 +91,115 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, currentFieldValue)
 					}
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						return "", errors.New(fmt.Sprintf("field_name:%v | field_value:%v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, "'"+fVal+"'")
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, "'"+fVal+"'")
 					}
 				case bool:
 					if fVal, ok := fieldValue.(bool); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case int16:
 					if fVal, ok := fieldValue.(int16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case int32:
 					if fVal, ok := fieldValue.(int32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case int64:
 					if fVal, ok := fieldValue.(int64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case int:
 					if fVal, ok := fieldValue.(int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case uint8:
 					if fVal, ok := fieldValue.(uint8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case uint16:
 					if fVal, ok := fieldValue.(uint16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case uint32:
 					if fVal, ok := fieldValue.(uint32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case uint64:
 					if fVal, ok := fieldValue.(uint64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case uint:
 					if fVal, ok := fieldValue.(uint); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case float32:
 					if fVal, ok := fieldValue.(float32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case []string:
 					if fVal, ok := fieldValue.([]string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case []float64:
 					if fVal, ok := fieldValue.([]float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				case []struct{}:
 					if fVal, ok := fieldValue.([]struct{}); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v=%v", fieldName, fVal)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -215,109 +211,109 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, currentFieldValue)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, currentFieldValue)
 					}
 				case string:
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, "'"+fVal+"'")
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, "'"+fVal+"'")
 					}
 				case bool:
 					if fVal, ok := fieldValue.(bool); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case int16:
 					if fVal, ok := fieldValue.(int16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case int32:
 					if fVal, ok := fieldValue.(int32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case int64:
 					if fVal, ok := fieldValue.(int64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case int:
 					if fVal, ok := fieldValue.(int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case uint8:
 					if fVal, ok := fieldValue.(uint8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case uint16:
 					if fVal, ok := fieldValue.(uint16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case uint32:
 					if fVal, ok := fieldValue.(uint32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case uint64:
 					if fVal, ok := fieldValue.(uint64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case uint:
 					if fVal, ok := fieldValue.(uint); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case float32:
 					if fVal, ok := fieldValue.(float32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case []string:
 					if fVal, ok := fieldValue.([]string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				case []struct{}:
 					if fVal, ok := fieldValue.([]struct{}); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<>%v", fieldName, fVal)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -329,79 +325,79 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, currentFieldValue)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, currentFieldValue)
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case int16:
 					if fVal, ok := fieldValue.(int16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case int32:
 					if fVal, ok := fieldValue.(int32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case int64:
 					if fVal, ok := fieldValue.(int64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case int:
 					if fVal, ok := fieldValue.(int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case uint8:
 					if fVal, ok := fieldValue.(uint8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case uint16:
 					if fVal, ok := fieldValue.(uint16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case uint32:
 					if fVal, ok := fieldValue.(uint32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case uint64:
 					if fVal, ok := fieldValue.(uint64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case uint:
 					if fVal, ok := fieldValue.(uint); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case float32:
 					if fVal, ok := fieldValue.(float32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<%v", fieldName, fVal)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value: %v", fieldName, fieldValue))
@@ -413,79 +409,79 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, currentFieldValue)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, currentFieldValue)
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case int16:
 					if fVal, ok := fieldValue.(int16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case int32:
 					if fVal, ok := fieldValue.(int32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case int64:
 					if fVal, ok := fieldValue.(int64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case int:
 					if fVal, ok := fieldValue.(int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case uint8:
 					if fVal, ok := fieldValue.(uint8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case uint16:
 					if fVal, ok := fieldValue.(uint16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case uint32:
 					if fVal, ok := fieldValue.(uint32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case uint64:
 					if fVal, ok := fieldValue.(uint64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case uint:
 					if fVal, ok := fieldValue.(uint); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case float32:
 					if fVal, ok := fieldValue.(float32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v<=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v<=%v", fieldName, fVal)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field[%v], type for field-value %v", fieldName, fieldValue))
@@ -505,79 +501,79 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, currentFieldValue)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, currentFieldValue)
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case int16:
 					if fVal, ok := fieldValue.(int16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case int32:
 					if fVal, ok := fieldValue.(int32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case int64:
 					if fVal, ok := fieldValue.(int64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case int:
 					if fVal, ok := fieldValue.(int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case uint8:
 					if fVal, ok := fieldValue.(uint8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case uint16:
 					if fVal, ok := fieldValue.(uint16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case uint32:
 					if fVal, ok := fieldValue.(uint32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case uint64:
 					if fVal, ok := fieldValue.(uint64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case uint:
 					if fVal, ok := fieldValue.(uint); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case float32:
 					if fVal, ok := fieldValue.(float32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>%v", fieldName, fVal)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -589,79 +585,79 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						currentFieldValue := "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, currentFieldValue)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, currentFieldValue)
 					}
 				case int8:
 					if fVal, ok := fieldValue.(int8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case int16:
 					if fVal, ok := fieldValue.(int16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case int32:
 					if fVal, ok := fieldValue.(int32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case int64:
 					if fVal, ok := fieldValue.(int64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case int:
 					if fVal, ok := fieldValue.(int); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case uint8:
 					if fVal, ok := fieldValue.(uint8); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case uint16:
 					if fVal, ok := fieldValue.(uint16); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case uint32:
 					if fVal, ok := fieldValue.(uint32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case uint64:
 					if fVal, ok := fieldValue.(uint64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case uint:
 					if fVal, ok := fieldValue.(uint); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case float32:
 					if fVal, ok := fieldValue.(float32); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				case float64:
 					if fVal, ok := fieldValue.(float64); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += fmt.Sprintf(" %v>=%v", fieldName, fVal)
+						gItemQuery += fmt.Sprintf("%v>=%v", fieldName, fVal)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -673,7 +669,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						inValues := strings.Join(fVal, ", ")
-						gItemQuery += fmt.Sprintf(" %v IN (%v)", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v IN (%v)", fieldName, inValues)
 					}
 				case []bool:
 					if fVal, ok := fieldValue.([]bool); !ok {
@@ -688,7 +684,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v IN %v", fieldName, inValues)
 					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
@@ -703,7 +699,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v IN %v", fieldName, inValues)
 					}
 				case []float32:
 					if fVal, ok := fieldValue.([]float32); !ok {
@@ -718,7 +714,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v IN %v", fieldName, inValues)
 					}
 				case []float64:
 					if fVal, ok := fieldValue.([]float64); !ok {
@@ -733,7 +729,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v IN %v", fieldName, inValues)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -745,7 +741,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
 						inValues := strings.Join(fVal, ", ")
-						gItemQuery += fmt.Sprintf(" %v NOT IN (%v)", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v NOT IN (%v)", fieldName, inValues)
 					}
 				case []bool:
 					if fVal, ok := fieldValue.([]bool); !ok {
@@ -760,7 +756,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v NOT IN %v", fieldName, inValues)
 					}
 				case []int:
 					if fVal, ok := fieldValue.([]int); !ok {
@@ -775,7 +771,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v NOT IN %v", fieldName, inValues)
 					}
 				case []float32:
 					if fVal, ok := fieldValue.([]float32); !ok {
@@ -790,7 +786,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v NOT IN %v", fieldName, inValues)
 					}
 				case []float64:
 					if fVal, ok := fieldValue.([]float64); !ok {
@@ -805,7 +801,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 							}
 						}
 						inValues += ")"
-						gItemQuery += fmt.Sprintf(" %v NOT IN %v", fieldName, inValues)
+						gItemQuery += fmt.Sprintf("%v NOT IN %v", fieldName, inValues)
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -816,8 +812,8 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						//gItemQuery += fmt.Sprintf(" %v LIKE %%v", fieldName, fVal)
-						gItemQuery += " " + fieldName + " LIKE " + fVal + "%"
+						//gItemQuery += fmt.Sprintf("%v LIKE %%v", fieldName, fVal)
+						gItemQuery += fieldName + " LIKE " + fVal + "%"
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -828,7 +824,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += " " + fieldName + " LIKE %" + fVal
+						gItemQuery += fieldName + " LIKE %" + fVal
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -839,7 +835,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += " " + fieldName + " NOT LIKE " + fVal + "%"
+						gItemQuery += fieldName + " NOT LIKE " + fVal + "%"
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -850,7 +846,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += " " + fieldName + " NOT LIKE %" + fVal
+						gItemQuery += fieldName + " NOT LIKE %" + fVal
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -861,7 +857,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += " " + fieldName + " LIKE %" + fVal + "%"
+						gItemQuery += fieldName + " LIKE %" + fVal + "%"
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -872,7 +868,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 					if fVal, ok := fieldValue.(string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						gItemQuery += " " + fieldName + " NOT LIKE %" + fVal + "%"
+						gItemQuery += fieldName + " NOT LIKE %" + fVal + "%"
 					}
 				default:
 					return "", errors.New(fmt.Sprintf("Unsupported field-name[%v] type for field-value %v", fieldName, fieldValue))
@@ -896,7 +892,7 @@ func ComputeWhereQuery(where mctypes.WhereParamType, tableFields []string) (stri
 			continue
 		}
 		// add closing bracket to complete the group-items query/script
-		gItemQuery += " ) "
+		gItemQuery += ")"
 		// add group-item-query to the group/where-script, append in sequence by groupOrder
 		whereQuery += " " + gItemQuery
 		//validate acceptable groupLinkOperators (and || or)

@@ -98,7 +98,7 @@ func TestSave(t *testing.T) {
 			if !ok {
 				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
 			}
-			res := crud.Save(CreateTableFields)
+			res := crud.Save([]string{})
 			fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(InsertedResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
