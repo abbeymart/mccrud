@@ -13,6 +13,25 @@ import (
 	"reflect"
 )
 
+type EmailUserNameType struct {
+	Email    string
+	Username string
+}
+
+func EmailUsername(loginName string) EmailUserNameType {
+	if govalidator.IsEmail(loginName) {
+		return EmailUserNameType{
+			Email:    loginName,
+			Username: "",
+		}
+	}
+
+	return EmailUserNameType{
+		Email:    "",
+		Username: loginName,
+	}
+
+}
 
 func ParseRawValues(rawValues [][]byte) ([]interface{}, error) {
 	// variables
@@ -28,7 +47,6 @@ func ParseRawValues(rawValues [][]byte) ([]interface{}, error) {
 	}
 	return va, nil
 }
-
 
 func ArrayStringContains(arr []string, val string) bool {
 	for _, a := range arr {

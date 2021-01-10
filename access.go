@@ -470,3 +470,65 @@ func (crud Crud) CheckUserAccess(params mctypes.CheckAccessParamsType) mcrespons
 		},
 	})
 }
+
+func (crud *Crud) AccessAuth(params mctypes.UserInfoType) mcresponse.ResponseMessage {
+	// check if user exists, from users table
+	emailUsername := helper.EmailUsername(params.LoginName)
+	email := emailUsername.Email
+	username := emailUsername.Username
+	var uId string
+	if email != "" {
+		query := fmt.Sprintf("SELECT id from $1 WHERE id=$2 AND email=$3")
+		row := crud.AccessDb.QueryRow(context.Background(), query, crud.UserTable, params.UserId, email)
+		err := row.Scan(&uId)
+		if err != nil {
+			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Record not found for %v. Register a new account", params.LoginName),
+				Value:   nil,
+			})
+		}
+	} else if username != "" {
+		query := fmt.Sprintf("SELECT id from $1 WHERE id=$2 AND username=$3")
+		row := crud.AccessDb.QueryRow(context.Background(), query, crud.UserTable, params.UserId, username)
+		err := row.Scan(&uId)
+		if err != nil {
+			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Record not found for %v. Register a new account", params.LoginName),
+				Value:   nil,
+			})
+		}
+	} else {
+		// invalid user-information provided
+		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+			Message: "Invalid user-information provided.",
+			Value:   nil,
+		})
+	}
+
+	// check loginName, userId and token validity... from access_keys table
+	var expire int64
+	query := fmt.Sprintf("SELECT expire from $1 WHERE id=$2 AND login_name=$3 AND token=$4")
+	row := crud.AccessDb.QueryRow(context.Background(), query, crud.AccessTable, params.UserId, params.LoginName, params.Token)
+	err := row.Scan(&expire)
+	if err != nil {
+		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Access information for %v not found. Login first, or contact system administrator", params.LoginName),
+			Value:   nil,
+		})
+	}
+	if (time.Now().Unix() * 1000) > expire {
+		// Delete the expired access_keys | remove access-info from access_keys table
+		delQuery := fmt.Sprintf("DELETE FROM %v WHERE id=$1 AND token=$2", crud.AccessTable)
+		_, _ = crud.AppDb.Exec(context.Background(), delQuery, params.UserId, params.Token)
+		return mcresponse.GetResMessage("tokenExpired", mcresponse.ResponseMessageOptions{
+			Message: "Access expired: please login to continue",
+			Value:   nil,
+		})
+	}
+
+	// if all went well
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "Action authorised / Access permitted.",
+		Value:   uId,
+	})
+}
