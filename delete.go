@@ -116,7 +116,7 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
 func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// get current records, for audit-log | for delete tableFields = []string{}
-	var tabFields []string
+	tabFields := []string{"id"}
 	if crud.LogDelete {
 		if getQuery, err := helper.ComputeSelectQueryByParam(crud.TableName, crud.QueryParams, tabFields); err != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{

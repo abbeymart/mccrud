@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mctypes"
-	"strings"
 )
 
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
@@ -16,10 +15,17 @@ func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error
 	if tableName == "" || len(recordIds) < 1 {
 		return "", errors.New("table/collection name and doc-Ids are required for the delete-by-id operation")
 	}
-	deleteQuery := "DELETE FROM " + tableName + " WHERE id IN("
 	// validated recordIds, strictly contains string/UUID values, to avoid SQL-injection
-	deleteIdValues := strings.Join(recordIds, ", ")
-	deleteQuery += deleteIdValues + " )"
+	// from / where condition (where-in-values)
+	whereIds := ""
+	idLen := len(recordIds)
+	for idCount, id := range recordIds {
+		whereIds += "'" + id + "'"
+		if idLen > 1 && idCount < idLen-1 {
+			whereIds += ", "
+		}
+	}
+	deleteQuery := "DELETE FROM " + tableName + " WHERE id IN(" + whereIds + ")"
 	return deleteQuery, nil
 }
 

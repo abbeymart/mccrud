@@ -28,7 +28,6 @@ func TestDelete(t *testing.T) {
 
 	// db-connection
 	dbc, err := myDb.OpenPgxDbPool()
-	//fmt.Printf("*****dbc-info: %v\n", dbc)
 	// defer dbClose
 	defer myDb.ClosePgxDbPool()
 	// check db-connection-error
@@ -57,10 +56,7 @@ func TestDelete(t *testing.T) {
 		TestFunc: func() {
 			res := deleteCrud.DeleteById()
 			fmt.Printf("delete-by-ids: %v : %v \n", res.Message, res.ResCode)
-			value := res.Value
-			delCnt, _ := value.(int)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
-			mctest.AssertEquals(t, delCnt == 2, true, "delete-by-id records should be 2")
 		},
 	})
 
@@ -69,10 +65,7 @@ func TestDelete(t *testing.T) {
 		TestFunc: func() {
 			res := deleteCrud.DeleteByParam()
 			fmt.Printf("delete-by-params: %v : %v \n", res.Message, res.ResCode)
-			value := res.Value
-			delCnt, _ := value.(int)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params should return code: success")
-			mctest.AssertEquals(t, delCnt == 2, true, "deleted records should be 2")
 		},
 	})
 
