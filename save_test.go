@@ -127,7 +127,7 @@ func TestSave(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two records by query-params and return success:",
 		TestFunc: func() {
-			res := updateParamCrud.Save(UpdateTableFields)
+			res := updateParamCrud.Save([]string{})
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
 		},

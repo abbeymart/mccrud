@@ -1,0 +1,16 @@
+Running Test:  should create two new records and return success:
+================================================
+create-query: {INSERT INTO audits_test1( log_by,  log_at,  log_records,  new_log_records,  table_name,  log_type ) VALUES( $1,  $2,
+$3,  $4,  $5,  $6 ) RETURNING id [log_by log_at log_records new_log_records table_name log_type] [[085f48c5-8763-4e22-a1c6-ac1a68ba07
+de '2021-01-10 14:26:09.703826' {"cost":1000,"desc":"Testing only","name":"Abi","priority":1,"url":"localhost:9000"} null 'services'
+'create'] [085f48c5-8763-4e22-a1c6-ac1a68ba07de '2021-01-10 14:26:09.703826' {"cost":1000,"desc":"Testing only","name":"Abi","priorit
+y":1,"url":"localhost:9000"} null 'services' 'create']]}
+create-query-fields: [log_by log_at log_records new_log_records table_name log_type]
+create-query-values: [[085f48c5-8763-4e22-a1c6-ac1a68ba07de '2021-01-10 14:26:09.703826' {"cost":1000,"desc":"Testing only","name":"A
+bi","priority":1,"url":"localhost:9000"} null 'services' 'create'] [085f48c5-8763-4e22-a1c6-ac1a68ba07de '2021-01-10 14:26:09.703826'
+ {"cost":1000,"desc":"Testing only","name":"Abi","priority":1,"url":"localhost:9000"} null 'services' 'create']]
+
+transaction-start
+
+Error inserting/creating new information/record | Error creating new record(s): ERROR: incorrect binary data format (SQLSTATE 22P03)
+304

@@ -255,7 +255,7 @@ func ComputeCreateCopyQuery(tableName string, actionParams mctypes.ActionParamsT
 		for _, fieldName := range tableFields {
 			fieldValue, ok := rec[fieldName]
 			// check for required field in each record
-			if !ok || fieldValue == nil {
+			if !ok {
 				return errMessage(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recNum, rec, fieldName, fieldValue))
 			}
 			// update recFieldValues by fieldValue-type
@@ -272,12 +272,14 @@ func ComputeCreateCopyQuery(tableName string, actionParams mctypes.ActionParamsT
 				if fVal, ok := fieldValue.(string); !ok {
 					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					if govalidator.IsJSON(fVal) {
+					if govalidator.IsUUID(fVal) {
+						currentFieldValue = fVal
+					} else if govalidator.IsJSON(fVal) {
 						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 							return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						} else {
 							fmt.Printf("string-toJson-value: %v\n\n", fValue)
-							currentFieldValue = "'" + fValue + "'"
+							currentFieldValue = fValue
 							//recFieldValues = append(recFieldValues, "'" + fValue + "'")
 						}
 					} else {
@@ -398,7 +400,7 @@ func ComputeCreateCopyQuery(tableName string, actionParams mctypes.ActionParamsT
 				if fVal, err := json.Marshal(fieldValue); err != nil {
 					return errMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 				} else {
-					currentFieldValue = "'" + string(fVal) + "'"
+					currentFieldValue = string(fVal)
 				}
 			}
 			// add itemValue

@@ -40,7 +40,7 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// perform crud-task action, include where-query(params):
 	// compute delete query by query-params
-	deleteQuery, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams, []string{})
+	deleteQuery, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
