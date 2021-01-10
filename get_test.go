@@ -80,11 +80,9 @@ func TestGet(t *testing.T) {
 				getResults = append(getResults, getResult)
 			}
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value, _ := res.Value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value, 2, "get-task-count should be: 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -117,11 +115,9 @@ func TestGet(t *testing.T) {
 				getResults = append(getResults, getResult)
 			}
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value, _ := res.Value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value > 1, true, "get-count should be > 1")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -154,11 +150,9 @@ func TestGet(t *testing.T) {
 				getResults = append(getResults, getResult)
 			}
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value, _ := res.Value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value > 2, true, "get-task-count should > 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -193,11 +187,9 @@ func TestGet(t *testing.T) {
 				getResults = append(getResults, getResult)
 			}
 			//fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			value, _ := res.Value.(int)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value > 2, true, "get-task-count should > 2")
 		},
 	})
 
