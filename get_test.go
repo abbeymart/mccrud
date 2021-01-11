@@ -5,6 +5,7 @@
 package mccrud
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
@@ -64,7 +65,8 @@ func TestGet(t *testing.T) {
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetById(GetTableFields, tableFieldPointers)
-			fmt.Printf("get-by-id-response: %#v\n", res)
+			fmt.Printf("get-by-id-response: %#v\n\n", res)
+
 			// compute get-records
 			//for <-getChan >= 0 {
 			//	getResult := GetRecordType{
@@ -80,6 +82,8 @@ func TestGet(t *testing.T) {
 			//}
 			//fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(GetResultType)
+			jsonRecs, _ := json.Marshal(value.RecordValues)
+			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "get-task-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordValues), 2, "get-result-count should be: 2")

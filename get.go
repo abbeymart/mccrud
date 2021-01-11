@@ -11,6 +11,7 @@ import (
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
+	"time"
 )
 
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
@@ -47,6 +48,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 	// check rows count
 	var rowCount = 0
 	var getResults []interface{}
+	var getResult = map[string]interface{}{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -54,10 +56,32 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 				Value:   nil,
 			})
 		} else {
-			// TODO: extract values from tableFieldPointers
-			val1 := tableFieldPointers[0]
-			fmt.Printf("rec-field1: %v \n", val1)
-			getResults = append(getResults, tableFieldPointers)
+			// extract values from tableFieldPointers
+			for i, fieldPointer := range tableFieldPointers {
+				switch fieldPointer.(type) {
+				case *time.Time:
+					val := fieldPointer.(*time.Time)
+					getResult[tableFields[i]] = *val
+				case *string:
+					val := fieldPointer.(*string)
+					getResult[tableFields[i]] = *val
+				case *int:
+					val := fieldPointer.(*int)
+					getResult[tableFields[i]] = *val
+				case *float64:
+					val := fieldPointer.(*float64)
+					getResult[tableFields[i]] = *val
+				case *interface{}:
+					val := fieldPointer.(*interface{})
+					getResult[tableFields[i]] = *val
+				default:
+					val := fieldPointer.(*string)
+					getResult[tableFields[i]] = *val
+				}
+			}
+			getResults = append(getResults, getResult)
+			//val1 := tableFieldPointers[0].(*string)
+			//fmt.Printf("rec-field1: %v \n", *val1)
 			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
@@ -136,6 +160,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	// check rows count
 	var rowCount = 0
 	var getResults []interface{}
+	var getResult = map[string]interface{}{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -143,8 +168,30 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 				Value:   nil,
 			})
 		} else {
-			getResults = append(getResults, tableFieldPointers)
-			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
+			// extract values from tableFieldPointers
+			for i, fieldPointer := range tableFieldPointers {
+				switch fieldPointer.(type) {
+				case *time.Time:
+					val := fieldPointer.(*time.Time)
+					getResult[tableFields[i]] = *val
+				case *string:
+					val := fieldPointer.(*string)
+					getResult[tableFields[i]] = *val
+				case *int:
+					val := fieldPointer.(*int)
+					getResult[tableFields[i]] = *val
+				case *float64:
+					val := fieldPointer.(*float64)
+					getResult[tableFields[i]] = *val
+				case *interface{}:
+					val := fieldPointer.(*interface{})
+					getResult[tableFields[i]] = *val
+				default:
+					val := fieldPointer.(*string)
+					getResult[tableFields[i]] = *val
+				}
+			}
+			getResults = append(getResults, getResult)
 			rowCount += 1
 		}
 	}
@@ -228,6 +275,7 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 	// check rows count
 	var rowCount = 0
 	var getResults []interface{}
+	var getResult = map[string]interface{}{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -235,8 +283,30 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 				Value:   nil,
 			})
 		} else {
-			getResults = append(getResults, tableFieldPointers)
-			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
+			// extract values from tableFieldPointers
+			for i, fieldPointer := range tableFieldPointers {
+				switch fieldPointer.(type) {
+				case *time.Time:
+					val := fieldPointer.(*time.Time)
+					getResult[tableFields[i]] = *val
+				case *string:
+					val := fieldPointer.(*string)
+					getResult[tableFields[i]] = *val
+				case *int:
+					val := fieldPointer.(*int)
+					getResult[tableFields[i]] = *val
+				case *float64:
+					val := fieldPointer.(*float64)
+					getResult[tableFields[i]] = *val
+				case *interface{}:
+					val := fieldPointer.(*interface{})
+					getResult[tableFields[i]] = *val
+				default:
+					val := fieldPointer.(*string)
+					getResult[tableFields[i]] = *val
+				}
+			}
+			getResults = append(getResults, getResult)
 			rowCount += 1
 		}
 	}

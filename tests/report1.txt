@@ -33,8 +33,6 @@ Total Test:  4
 ***** Test Completed *****
 Running Test:  should get records by Ids and return success:
 ================================================
-rec-field1: 0xc0002e7a50
-rec-field1: 0xc0002e7a50
 get-by-id-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfully
  | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:mccrud.GetResultType{Table
 Name:"audits_test1", QueryParam:mctypes.WhereParamType{mctypes.QueryGroupType{GroupName:"id_table", GroupItems:[]mctypes.QueryItemTyp
@@ -42,10 +40,24 @@ e{mctypes.QueryItemType{GroupItem:map[string]map[string]interface {}{"id":map[st
 a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}}, GroupItemOrder:1, GroupItemOp:"and"}, mctypes.QueryItemType{GroupItem:m
 ap[string]map[string]interface {}{"table_name":map[string]interface {}{"eq":"services"}}, GroupItemOrder:2, GroupItemOp:"and"}}, Grou
 pOrder:2, GroupLinkOp:"and"}}, RecordIds:[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}, Re
-cordCount:2, RecordValues:[]interface {}{[]interface {}{(*string)(0xc0002e7a50), (*string)(0xc0002e7a60), (*interface {})(0xc0002e7a7
-0), (*interface {})(0xc0002e7a80), (*string)(0xc0002e7a90), (*string)(0xc0002e7aa0), (*time.Time)(0xc00048e500)}, []interface {}{(*st
-ring)(0xc0002e7a50), (*string)(0xc0002e7a60), (*interface {})(0xc0002e7a70), (*interface {})(0xc0002e7a80), (*string)(0xc0002e7a90),
-(*string)(0xc0002e7aa0), (*time.Time)(0xc00048e500)}}}}
+cordCount:2, RecordValues:[]interface {}{map[string]interface {}{"id":"122d0f0e-3111-41a5-9103-24fa81004550", "log_at":time.Time{wall
+:0x1d067738, ext:63745940310, loc:(*time.Location)(0x1868a40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[st
+ring]interface {}{"cost":1000, "desc":"Testing only100", "name":"Abi100", "priority":1, "url":"localhost:9000"}, "log_type":"update",
+ "new_log_records":map[string]interface {}{"cost":2000, "desc":"Testing only - updated", "name":"Abi Akindele", "priority":1, "url":"
+localhost:9900"}, "table_name":"services2"}, map[string]interface {}{"id":"122d0f0e-3111-41a5-9103-24fa81004550", "log_at":time.Time{
+wall:0x1d067738, ext:63745940310, loc:(*time.Location)(0x1868a40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":ma
+p[string]interface {}{"cost":1000, "desc":"Testing only100", "name":"Abi100", "priority":1, "url":"localhost:9000"}, "log_type":"upda
+te", "new_log_records":map[string]interface {}{"cost":2000, "desc":"Testing only - updated", "name":"Abi Akindele", "priority":1, "ur
+l":"localhost:9900"}, "table_name":"services2"}}}}
+
+json-records: [{"id":"122d0f0e-3111-41a5-9103-24fa81004550","log_at":"2021-01-11T00:38:30.486963-05:00","log_by":"085f48c5-8763-4e22-
+a1c6-ac1a68ba07de","log_records":{"cost":1000,"desc":"Testing only100","name":"Abi100","priority":1,"url":"localhost:9000"},"log_type
+":"update","new_log_records":{"cost":2000,"desc":"Testing only - updated","name":"Abi Akindele","priority":1,"url":"localhost:9900"},
+"table_name":"services2"},{"id":"122d0f0e-3111-41a5-9103-24fa81004550","log_at":"2021-01-11T00:38:30.486963-05:00","log_by":"085f48c5
+-8763-4e22-a1c6-ac1a68ba07de","log_records":{"cost":1000,"desc":"Testing only100","name":"Abi100","priority":1,"url":"localhost:9000"
+},"log_type":"update","new_log_records":{"cost":2000,"desc":"Testing only - updated","name":"Abi Akindele","priority":1,"url":"localh
+ost:9900"},"table_name":"services2"}]
+
 Passed
 Passed
 Passed
@@ -139,4 +151,4 @@ Test Failed:  0
 Total Test:  10
 ***** Test Completed *****
 PASS
-ok      github.com/abbeymart/mccrud     11.093s
+ok      github.com/abbeymart/mccrud     3.270s
