@@ -1,0 +1,142 @@
+C:\Users\abbey\mConnect\Apps\go\packages\mccrud>go test
+Running Test:  should delete two records by Ids and return success:
+================================================
+delete-by-ids: Request completed successfully | Record(s) deleted successfully : 200
+Passed
+Summary for Test  should delete two records by Ids and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should delete two records by query-params and return success:
+================================================
+delete-by-params: Request completed successfully | Record(s) deleted successfully : 200
+Passed
+Summary for Test  should delete two records by query-params and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should delete all table records and return success:
+================================================
+delete-all: Request completed successfully | Record(s) deleted successfully : 200
+Passed
+Passed
+Summary for Test  should delete all table records and return success: :
+Test Passed:  2
+Test Failed:  0
+Total Test:  2
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  4
+Test Failed:  0
+Total Test:  4
+***** Test Completed *****
+Running Test:  should get records by Ids and return success:
+================================================
+rec-field1: 0xc0002e7a50
+rec-field1: 0xc0002e7a50
+get-by-id-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfully
+ | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:mccrud.GetResultType{Table
+Name:"audits_test1", QueryParam:mctypes.WhereParamType{mctypes.QueryGroupType{GroupName:"id_table", GroupItems:[]mctypes.QueryItemTyp
+e{mctypes.QueryItemType{GroupItem:map[string]map[string]interface {}{"id":map[string]interface {}{"in":[]string{"6900d9f9-2ceb-450f-9
+a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}}, GroupItemOrder:1, GroupItemOp:"and"}, mctypes.QueryItemType{GroupItem:m
+ap[string]map[string]interface {}{"table_name":map[string]interface {}{"eq":"services"}}, GroupItemOrder:2, GroupItemOp:"and"}}, Grou
+pOrder:2, GroupLinkOp:"and"}}, RecordIds:[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}, Re
+cordCount:2, RecordValues:[]interface {}{[]interface {}{(*string)(0xc0002e7a50), (*string)(0xc0002e7a60), (*interface {})(0xc0002e7a7
+0), (*interface {})(0xc0002e7a80), (*string)(0xc0002e7a90), (*string)(0xc0002e7aa0), (*time.Time)(0xc00048e500)}, []interface {}{(*st
+ring)(0xc0002e7a50), (*string)(0xc0002e7a60), (*interface {})(0xc0002e7a70), (*interface {})(0xc0002e7a80), (*string)(0xc0002e7a90),
+(*string)(0xc0002e7aa0), (*time.Time)(0xc00048e500)}}}}
+Passed
+Passed
+Passed
+Summary for Test  should get records by Ids and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+Running Test:  should get records by query-params and return success:
+================================================
+getQuery-param: SELECT id, table_name, log_records, new_log_records, log_by, log_type, log_at FROM audits_test1 WHERE  (id IN ('6900d
+9f9-2ceb-450f-9a9e-527eb66c962f', '122d0f0e-3111-41a5-9103-24fa81004550') AND table_name='services')
+get-by-param-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfu
+lly | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:mccrud.GetResultType{Ta
+bleName:"audits_test1", QueryParam:mctypes.WhereParamType{mctypes.QueryGroupType{GroupName:"id_table", GroupItems:[]mctypes.QueryItem
+Type{mctypes.QueryItemType{GroupItem:map[string]map[string]interface {}{"id":map[string]interface {}{"in":[]string{"6900d9f9-2ceb-450
+f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}}, GroupItemOrder:1, GroupItemOp:"and"}, mctypes.QueryItemType{GroupIte
+m:map[string]map[string]interface {}{"table_name":map[string]interface {}{"eq":"services"}}, GroupItemOrder:2, GroupItemOp:"and"}}, G
+roupOrder:2, GroupLinkOp:"and"}}, RecordIds:[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"},
+ RecordCount:0, RecordValues:[]interface {}(nil)}}
+Passed
+Passed
+Passed
+Summary for Test  should get records by query-params and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  6
+Test Failed:  0
+Total Test:  6
+***** Test Completed *****
+Running Test:  should connect to the Audit-DB and return an instance object:
+================================================
+Passed
+Passed
+Summary for Test  should connect to the Audit-DB and return an instance object: :
+Test Passed:  2
+Test Failed:  0
+Total Test:  2
+Running Test:  should connect to the CRUD-object and return an instance object:
+================================================
+Passed
+Summary for Test  should connect to the CRUD-object and return an instance object: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should create two new records and return success:
+================================================
+before log-insert
+after log-insert: result => INSERT 0 1 | err => <nil>
+Request completed successfully | Audit-log-code: success | Message: Request completed successfully | successful audit-log action 200
+Passed
+Passed
+Passed
+Passed
+Summary for Test  should create two new records and return success: :
+Test Passed:  4
+Test Failed:  0
+Total Test:  4
+Running Test:  should update two records and return success:
+================================================
+updates: Request completed successfully | Record(s) update completed successfully : 200
+Passed
+Summary for Test  should update two records and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records by Ids and return success:
+================================================
+update-by-ids: Request completed successfully | Record(s) update completed successfully : 200
+Passed
+Summary for Test  should update two records by Ids and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records by query-params and return success:
+================================================
+update-by-params: Request completed successfully | Record(s) update completed successfully : 200
+Passed
+Summary for Test  should update two records by query-params and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  10
+Test Failed:  0
+Total Test:  10
+***** Test Completed *****
+PASS
+ok      github.com/abbeymart/mccrud     11.093s

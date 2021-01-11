@@ -1,0 +1,50 @@
+Running Test:  should get records by Ids and return success:
+================================================
+rec-field1: 0xc000367a40
+rec-field1: 0xc000367a40
+get-by-id-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfully
+ | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:mccrud.GetResultType{Table
+Name:"audits_test1", QueryParam:mctypes.WhereParamType{mctypes.QueryGroupType{GroupName:"id_table", GroupItems:[]mctypes.QueryItemTyp
+e{mctypes.QueryItemType{GroupItem:map[string]map[string]interface {}{"id":map[string]interface {}{"in":[]string{"6900d9f9-2ceb-450f-9
+a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}}, GroupItemOrder:1, GroupItemOp:"and"}, mctypes.QueryItemType{GroupItem:m
+ap[string]map[string]interface {}{"table_name":map[string]interface {}{"eq":"services"}}, GroupItemOrder:2, GroupItemOp:"and"}}, Grou
+pOrder:2, GroupLinkOp:"and"}}, RecordIds:[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}, Re
+cordCount:2, RecordValues:[]interface {}{[]interface {}{(*string)(0xc000367a40), (*string)(0xc000367a50), (*interface {})(0xc000367a6
+0), (*interface {})(0xc000367a70), (*string)(0xc000367a80), (*string)(0xc000367a90), (*time.Time)(0xc00048e540)}, []interface {}{(*st
+ring)(0xc000367a40), (*string)(0xc000367a50), (*interface {})(0xc000367a60), (*interface {})(0xc000367a70), (*string)(0xc000367a80),
+(*string)(0xc000367a90), (*time.Time)(0xc00048e540)}}}}
+Passed
+Passed
+Passed
+Summary for Test  should get records by Ids and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+Running Test:  should get records by query-params and return success:
+================================================
+getQuery-param: SELECT id, table_name, log_records, new_log_records, log_by, log_type, log_at FROM audits_test1 WHERE  (id IN ('6900d
+9f9-2ceb-450f-9a9e-527eb66c962f', '122d0f0e-3111-41a5-9103-24fa81004550') AND table_name='services')
+get-by-param-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfu
+lly | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:0}
+Passed
+
+Failed [Test-Case: should get records by query-params and return success:]: get-task-count should be: 2 => Expected 2, Got 0
+
+Failed [Test-Case: should get records by query-params and return success:]: get-result-count should be: 2 => Expected 2, Got 0
+Summary for Test  should get records by query-params and return success: :
+Test Passed:  1
+Test Failed:  2
+Total Test:  3
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  4
+Test Failed:  2
+Total Test:  6
+***** Test Completed *****
+--- FAIL: TestGet (0.08s)
+    mcTest.go:43:
+        Failed [Test-Case: should get records by query-params and return success:]: get-task-count should be: 2 => Expected 2, Got 0
+    mcTest.go:43:
+        Failed [Test-Case: should get records by query-params and return success:]: get-result-count should be: 2 => Expected 2, Got
+0

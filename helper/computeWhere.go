@@ -668,7 +668,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType) (string, error) {
 					if fVal, ok := fieldValue.([]string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						inValues := strings.Join(fVal, ", ")
+						inValues := ""
+						idLen := len(fVal)
+						for idCount, id := range fVal {
+							inValues += "'" + id + "'"
+							if idLen > 1 && idCount < idLen-1 {
+								inValues += ", "
+							}
+						}
 						gItemQuery += fmt.Sprintf("%v IN (%v)", fieldName, inValues)
 					}
 				case []bool:
@@ -740,7 +747,14 @@ func ComputeWhereQuery(where mctypes.WhereParamType) (string, error) {
 					if fVal, ok := fieldValue.([]string); !ok {
 						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						inValues := strings.Join(fVal, ", ")
+						inValues := ""
+						idLen := len(fVal)
+						for idCount, id := range fVal {
+							inValues += "'" + id + "'"
+							if idLen > 1 && idCount < idLen-1 {
+								inValues += ", "
+							}
+						}
 						gItemQuery += fmt.Sprintf("%v NOT IN (%v)", fieldName, inValues)
 					}
 				case []bool:
