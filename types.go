@@ -14,16 +14,24 @@ type InsertedResultType struct {
 
 type UpdatedResultType struct {
 	TableName   string                 `json:"table_name"`
-	QueryParam  mctypes.QueryParamType `json:"query_param"`
+	QueryParam  mctypes.WhereParamType `json:"query_param"`
 	RecordIds   []string               `json:"record_ids"`
 	RecordCount int                    `json:"record_count"`
 }
 
 type DeletedResultType struct {
 	TableName   string                 `json:"table_name"`
-	QueryParam  mctypes.QueryParamType `json:"query_param"`
+	QueryParam  mctypes.WhereParamType `json:"query_param"`
 	RecordIds   []string               `json:"record_ids"`
 	RecordCount int                    `json:"record_count"`
+}
+
+type GetResultType struct {
+	TableName    string                 `json:"table_name"`
+	QueryParam   mctypes.WhereParamType `json:"query_param"`
+	RecordIds    []string               `json:"record_ids"`
+	RecordCount  int                    `json:"record_count"`
+	RecordValues []interface{}          `json:"record_values"`
 }
 
 type LogRecordsType struct {

@@ -15,7 +15,7 @@ import (
 
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
 // constrained by optional skip and limit parameters
-func (crud *Crud) GetById(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetById(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// tableFields and tableFieldPointers length and order must match
 	if len(tableFields) != len(tableFieldPointers) {
@@ -46,6 +46,7 @@ func (crud *Crud) GetById(tableFields []string, getChan chan int, tableFieldPoin
 	defer rows.Close()
 	// check rows count
 	var rowCount = 0
+	var getResults []interface{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -53,12 +54,13 @@ func (crud *Crud) GetById(tableFields []string, getChan chan int, tableFieldPoin
 				Value:   nil,
 			})
 		} else {
-			getChan <- rowCount // pass the scanned result alert to getChan | will block until read
+			getResults = append(getResults, tableFieldPointers)
+			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}
 	// close channel
-	close(getChan)
+	//close(getChan)
 
 	if err := rows.Err(); err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -86,13 +88,19 @@ func (crud *Crud) GetById(tableFields []string, getChan chan int, tableFieldPoin
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   rowCount,
+		Value:   GetResultType{
+			TableName: crud.TableName,
+			QueryParam: crud.QueryParams,
+			RecordIds: crud.RecordIds,
+			RecordCount: rowCount,
+			RecordValues: getResults,
+		},
 	})
 }
 
 // GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
 // constrained by optional skip and limit parameters
-func (crud *Crud) GetByParam(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -123,6 +131,7 @@ func (crud *Crud) GetByParam(tableFields []string, getChan chan int, tableFieldP
 	defer rows.Close()
 	// check rows count
 	var rowCount = 0
+	var getResults []interface{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -130,17 +139,24 @@ func (crud *Crud) GetByParam(tableFields []string, getChan chan int, tableFieldP
 				Value:   nil,
 			})
 		} else {
-			getChan <- rowCount // pass the scanned result alert to getChan | will block until read
+			getResults = append(getResults, tableFieldPointers)
+			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}
 	// close channel
-	close(getChan)
+	//close(getChan)
 
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value:   nil,
+			Value:   GetResultType{
+				TableName: crud.TableName,
+				QueryParam: crud.QueryParams,
+				RecordIds: crud.RecordIds,
+				RecordCount: rowCount,
+				RecordValues: getResults,
+			},
 		})
 	}
 
@@ -167,7 +183,7 @@ func (crud *Crud) GetByParam(tableFields []string, getChan chan int, tableFieldP
 }
 
 // GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
-func (crud *Crud) GetAll(tableFields []string, getChan chan int, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetAll(tableFields []string, tableFieldPointers ...interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -201,6 +217,7 @@ func (crud *Crud) GetAll(tableFields []string, getChan chan int, tableFieldPoint
 	defer rows.Close()
 	// check rows count
 	var rowCount = 0
+	var getResults []interface{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -208,12 +225,13 @@ func (crud *Crud) GetAll(tableFields []string, getChan chan int, tableFieldPoint
 				Value:   nil,
 			})
 		} else {
-			getChan <- rowCount // pass the scanned result alert to getChan | will block until read
+			getResults = append(getResults, tableFieldPointers)
+			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
 			rowCount += 1
 		}
 	}
 	// close channel
-	close(getChan)
+	//close(getChan)
 
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -240,6 +258,12 @@ func (crud *Crud) GetAll(tableFields []string, getChan chan int, tableFieldPoint
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value:   rowCount,
+		Value:   GetResultType{
+			TableName: crud.TableName,
+			QueryParam: crud.QueryParams,
+			RecordIds: crud.RecordIds,
+			RecordCount: rowCount,
+			RecordValues: getResults,
+		},
 	})
 }
