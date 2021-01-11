@@ -75,14 +75,15 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 					val := fieldPointer.(*interface{})
 					getResult[tableFields[i]] = *val
 				default:
-					val := fieldPointer.(*string)
-					getResult[tableFields[i]] = *val
+					// avoid panic, return unsupported type
+					return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Unsupportted fieldName [%v] type %v", tableFields[i], fieldPointer),
+						Value:   nil,
+					})
 				}
 			}
-			getResults = append(getResults, getResult)
-			//val1 := tableFieldPointers[0].(*string)
-			//fmt.Printf("rec-field1: %v \n", *val1)
 			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
+			getResults = append(getResults, getResult)
 			rowCount += 1
 		}
 	}
@@ -187,16 +188,17 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 					val := fieldPointer.(*interface{})
 					getResult[tableFields[i]] = *val
 				default:
-					val := fieldPointer.(*string)
-					getResult[tableFields[i]] = *val
+					// avoid panic, return unsupported type
+					return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Unsupportted fieldName [%v] type %v", tableFields[i], fieldPointer),
+						Value:   nil,
+					})
 				}
 			}
 			getResults = append(getResults, getResult)
 			rowCount += 1
 		}
 	}
-	// close channel
-	//close(getChan)
 
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -302,16 +304,17 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 					val := fieldPointer.(*interface{})
 					getResult[tableFields[i]] = *val
 				default:
-					val := fieldPointer.(*string)
-					getResult[tableFields[i]] = *val
+					// avoid panic, return unsupported type
+					return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+						Message: fmt.Sprintf("Unsupportted fieldName [%v] type %v", tableFields[i], fieldPointer),
+						Value:   nil,
+					})
 				}
 			}
 			getResults = append(getResults, getResult)
 			rowCount += 1
 		}
 	}
-	// close channel
-	//close(getChan)
 
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
