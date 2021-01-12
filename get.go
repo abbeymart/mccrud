@@ -6,6 +6,7 @@ package mccrud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
@@ -98,7 +99,11 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 				}
 			}
 			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
-			getResults = append(getResults, getResult)
+			// get snapshot value from the pointer
+			jByte, _ := json.Marshal(getResult)
+			var gValue map[string]interface{}
+			_ = json.Unmarshal(jByte, &gValue)
+			getResults = append(getResults, gValue)
 			rowCount += 1
 		}
 	}
@@ -222,7 +227,11 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 					})
 				}
 			}
-			getResults = append(getResults, getResult)
+			// get snapshot value from the pointer
+			jByte, _ := json.Marshal(getResult)
+			var gValue map[string]interface{}
+			_ = json.Unmarshal(jByte, &gValue)
+			getResults = append(getResults, gValue)
 			rowCount += 1
 		}
 	}
@@ -302,7 +311,7 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 	// check rows count
 	var rowCount = 0
 	var getResults []interface{}
-	var getResult = map[string]interface{}{}
+	getResult := map[string]interface{}{}
 	for rows.Next() {
 		if rowScanErr := rows.Scan(tableFieldPointers...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -336,7 +345,11 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 					})
 				}
 			}
-			getResults = append(getResults, getResult)
+			// get snapshot value from the pointer
+			jByte, _ := json.Marshal(getResult)
+			var gValue map[string]interface{}
+			_ = json.Unmarshal(jByte, &gValue)
+			getResults = append(getResults, gValue)
 			rowCount += 1
 		}
 	}

@@ -155,7 +155,6 @@ func (crud *Crud) Create(createRecs mctypes.ActionParamsType, tableFields []stri
 // CreateBatch method creates new record(s) by placeholder values from copy-create-query
 // resolve sql-values parsing error: only time.Time and String value requires '' wrapping
 // uuid, json and others (int/bool/float) should not be wrapped as placeholder values
-// Error updating information/record(s) | Error updating record(s): ERROR: invalid input syntax for type json (SQLSTATE 22P02) 304
 func (crud *Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
@@ -527,7 +526,7 @@ func (crud *Crud) UpdateByIdLog(updateRecs mctypes.ActionParamsType, tableFields
 func (crud *Crud) UpdateByParamLog(updateRecs mctypes.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
-		getRes := crud.GetById(tableFields, tableFieldPointers)
+		getRes := crud.GetByParam(tableFields, tableFieldPointers)
 		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.TableRecords
 	}

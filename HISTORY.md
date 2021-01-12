@@ -3,7 +3,7 @@
 ## Version 0.3.0
 
 - Release date: Jan 12, 2021
-- Added cache features
+- Added cache features & tested
 
 ## Version 0.2.0
 

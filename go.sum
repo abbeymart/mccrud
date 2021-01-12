@@ -1,6 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/abbeymart/mcauditlog v0.3.2 h1:TL9VMXGUBoAm/ozJ4ft31d0yRrwVtaLLUOfI2QITmfg=
 github.com/abbeymart/mcauditlog v0.3.2/go.mod h1:fx0lO3ihgCowAcP5EAiJm0y5t7Wj2zz+6WcwHhKHJws=
+github.com/abbeymart/mcauditlog v0.3.3 h1:Pu37y4hHdRxWMIj7dGLCl1VizvUJ2CYmgWpgOAIkR3U=
+github.com/abbeymart/mcauditlog v0.3.3/go.mod h1:C6Bmh8HsnJmT1mhzL8rwyqBCWRpGatffEXqaBC4hCmc=
 github.com/abbeymart/mccache v0.3.1 h1:7NomA3x786wqIgR0JqwUa3df1YWBu1MDvBGTarAzY/8=
 github.com/abbeymart/mccache v0.3.1/go.mod h1:D9VIl3ZatR7Wd52SuB/BQHsePqI8C/nDDSV5OXuMIC0=
 github.com/abbeymart/mcdb v0.2.2/go.mod h1:RlvWB3nq9O7CZTyywELqim2dlhJ39MTLHsf+NqVmcvY=

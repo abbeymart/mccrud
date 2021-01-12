@@ -83,7 +83,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 		})
 	}
 
-	// delete cache
+	// delete cache, by key (TableName)
 	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "key")
 
 	// perform audit-log

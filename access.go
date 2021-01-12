@@ -38,7 +38,7 @@ type TaskPermissionType struct {
 }
 
 // TaskPermission method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
-func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
+func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	// Task: "create"/"insert", "update", "delete"/"remove", "read"
 	// permit crud task: by owner, role/group (on coll/table or doc/record(s)) or admin
 	// task permission access variables
@@ -313,7 +313,7 @@ func (crud Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 }
 
 // CheckTaskAccess method determines the access by role-assignment
-func (crud Crud) CheckTaskAccess(params mctypes.CheckAccessParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) CheckTaskAccess(params mctypes.CheckAccessParamsType) mcresponse.ResponseMessage {
 	// validate current user active status: by token (API) and user/loggedIn-status
 	accessInfo := crud.CheckUserAccess(params)
 	if accessInfo.Code != "success" {
@@ -388,7 +388,7 @@ func (crud Crud) CheckTaskAccess(params mctypes.CheckAccessParamsType) mcrespons
 }
 
 // GetRoleServices method process and returns the permission to user / user-group for the specified service items
-func (crud Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, group string, serviceIds []string) []mctypes.RoleServiceType {
+func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, group string, serviceIds []string) []mctypes.RoleServiceType {
 	var roleServices []mctypes.RoleServiceType
 	roleScript := fmt.Sprintf("SELECT service_id, role_id, service_category, can_read, can_create, can_delete, can_update from %v WHERE service_id IN $1 AND group=$2 AND is_active=$3", roleTable)
 	inValues := fmt.Sprintf("(%v)", strings.Join(serviceIds, ", "))
@@ -420,7 +420,7 @@ func (crud Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, group
 }
 
 // CheckUserAccess method determines the user access status: active, valid login and admin
-func (crud Crud) CheckUserAccess(params mctypes.CheckAccessParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) CheckUserAccess(params mctypes.CheckAccessParamsType) mcresponse.ResponseMessage {
 	// validate current user active status: by token (API) and user/loggedIn-status
 	// get the accessKey information for the user
 	accessScript := fmt.Sprintf("SELECT expire from %v WHERE user_id=$1 AND token=$2 AND login_name=$3", params.AccessTable)
