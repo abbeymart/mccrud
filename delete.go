@@ -98,7 +98,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 
 func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
-	if crud.LogDelete && len(tableFields) >= 2 {
+	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers )
 		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.TableRecords
@@ -130,7 +130,7 @@ func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []inter
 
 func (crud *Crud) DeleteByParamLog(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
-	if crud.LogDelete && len(tableFields) >= 2 {
+	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetByParam(tableFields, tableFieldPointers )
 		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.TableRecords

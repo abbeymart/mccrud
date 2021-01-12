@@ -146,8 +146,8 @@ func TestSave(t *testing.T) {
 				logAt         time.Time
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			res := updateCrud.UpdateLog(updateCrud.ActionParams, UpdateTableFields, tableFieldPointers)
-			fmt.Printf("update-log: %v : %v \n", res.Message, res.ResCode)
+			res := updateCrud.UpdateLog(updateCrud.ActionParams, GetTableFields, UpdateTableFields, tableFieldPointers)
+			fmt.Printf("update-log: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "update-log should return code: success")
 		},
 	})
@@ -164,8 +164,8 @@ func TestSave(t *testing.T) {
 				logAt         time.Time
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			res := updateIdCrud.UpdateByIdLog(updateIdCrud.ActionParams, UpdateTableFields, tableFieldPointers)
-			fmt.Printf("update-by-ids-log: %v : %v \n", res.Message, res.ResCode)
+			res := updateIdCrud.UpdateByIdLog(updateIdCrud.ActionParams, GetTableFields, UpdateTableFields, tableFieldPointers)
+			fmt.Printf("update-by-ids-log: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-id-log should return code: success")
 		},
 	})
@@ -182,8 +182,8 @@ func TestSave(t *testing.T) {
 				logAt         time.Time
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			res := updateParamCrud.UpdateByParamLog(updateParamCrud.ActionParams, UpdateTableFields, tableFieldPointers)
-			fmt.Printf("update-by-params-log: %v : %v \n", res.Message, res.ResCode)
+			res := updateParamCrud.UpdateByParamLog(updateParamCrud.ActionParams, GetTableFields, UpdateTableFields, tableFieldPointers)
+			fmt.Printf("update-by-params-log: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params-log should return code: success")
 		},
 	})

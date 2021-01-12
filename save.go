@@ -438,16 +438,16 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 	})
 }
 
-func (crud *Crud) UpdateLog(updateRecs mctypes.ActionParamsType, tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateLog(updateRecs mctypes.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
-	if crud.LogUpdate && len(tableFields) >= 2 {
+	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
 		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
 	// perform update
-	updateRes := crud.Update(updateRecs, tableFields)
+	updateRes := crud.Update(updateRecs, upTableFields)
 
 	// perform audit-log
 	logMessage := ""
@@ -457,7 +457,7 @@ func (crud *Crud) UpdateLog(updateRecs mctypes.ActionParamsType, tableFields []s
 			LogRecords:    crud.CurrentRecords,
 			NewLogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -471,16 +471,16 @@ func (crud *Crud) UpdateLog(updateRecs mctypes.ActionParamsType, tableFields []s
 	})
 }
 
-func (crud *Crud) UpdateByIdLog(updateRecs mctypes.ActionParamsType, tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByIdLog(updateRecs mctypes.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
-	if crud.LogUpdate && len(tableFields) >= 2 {
+	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
 		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
 	// perform update-by-id
-	updateRes := crud.UpdateById(updateRecs, tableFields)
+	updateRes := crud.UpdateById(updateRecs, upTableFields)
 
 	// perform audit-log
 	logMessage := ""
@@ -490,7 +490,7 @@ func (crud *Crud) UpdateByIdLog(updateRecs mctypes.ActionParamsType, tableFields
 			LogRecords:    crud.CurrentRecords,
 			NewLogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -504,16 +504,16 @@ func (crud *Crud) UpdateByIdLog(updateRecs mctypes.ActionParamsType, tableFields
 	})
 }
 
-func (crud *Crud) UpdateByParamLog(updateRecs mctypes.ActionParamsType, tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParamLog(updateRecs mctypes.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
-	if crud.LogUpdate && len(tableFields) >= 2 {
+	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
 		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
 	// perform update-by-id
-	updateRes := crud.UpdateByParam(updateRecs, tableFields)
+	updateRes := crud.UpdateByParam(updateRecs, upTableFields)
 
 	// perform audit-log
 	logMessage := ""
@@ -523,7 +523,7 @@ func (crud *Crud) UpdateByParamLog(updateRecs mctypes.ActionParamsType, tableFie
 			LogRecords:    crud.CurrentRecords,
 			NewLogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)

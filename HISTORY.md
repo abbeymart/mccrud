@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.2.0
+
+- Release date: Jan 11, 2021
+- Added audit-log crud-methods for delete and update tasks/operations
+
 ## Version 0.1.0
 
 - Release date: Jan 11, 2021
