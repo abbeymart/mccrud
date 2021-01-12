@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
@@ -30,6 +31,9 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) deleted successfully",
@@ -55,6 +59,9 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 		})
 	}
 
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) deleted successfully",
 		Value:   commandTag.Delete(),
@@ -75,6 +82,9 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "key")
 
 	// perform audit-log
 	logMessage := ""

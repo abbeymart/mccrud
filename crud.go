@@ -53,6 +53,7 @@ func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (cr
 	crudInstance.LogUpdate = options.LogUpdate
 	crudInstance.LogDelete = options.LogDelete
 	crudInstance.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
+	crudInstance.CacheExpire = options.CacheExpire	// cache expire in secs
 	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
@@ -92,6 +93,10 @@ func NewCrud(params mctypes.CrudParamsType, options mctypes.CrudOptionsType) (cr
 
 	if crudInstance.Limit > crudInstance.MaxQueryLimit && crudInstance.MaxQueryLimit != 0 {
 		crudInstance.Limit = crudInstance.MaxQueryLimit
+	}
+
+	if crudInstance.CacheExpire <= 0 {
+		crudInstance.CacheExpire = 300		// 300 secs, 5 minutes
 	}
 
 	// Audit/TransLog instance

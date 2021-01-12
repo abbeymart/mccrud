@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
@@ -17,6 +18,20 @@ import (
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
 // constrained by optional skip and limit parameters
 func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+	// check cache
+	getCacheRes := mccache.GetHashCache(crud.TableName, crud.HashKey)
+	val, ok := getCacheRes.Value.([]interface{})
+	if getCacheRes.Ok && ok && len(val) > 0 {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "records successfully retrieved from the cache",
+			Value: GetResultType{
+				QueryParam:   crud.QueryParams,
+				RecordIds:    crud.RecordIds,
+				RecordCount:  len(val),
+				TableRecords: val,
+			},
+		})
+	}
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	// tableFields and tableFieldPointers length and order must match
 	if len(tableFields) != len(tableFieldPointers) {
@@ -96,12 +111,14 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 			Value:   nil,
 		})
 	}
+	// update cache
+	_ = mccache.SetHashCache(crud.TableName, crud.HashKey, getResults, uint(crud.CacheExpire))
 
 	// perform audit-log
 	logMessage := ""
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName: crud.TableName,
+			TableName:  crud.TableName,
 			LogRecords: crud.RecordIds,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -125,6 +142,20 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 // GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
 // constrained by optional skip and limit parameters
 func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+	// check cache
+	getCacheRes := mccache.GetHashCache(crud.TableName, crud.HashKey)
+	val, ok := getCacheRes.Value.([]interface{})
+	if getCacheRes.Ok && ok && len(val) > 0 {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "records successfully retrieved from the cache",
+			Value: GetResultType{
+				QueryParam:   crud.QueryParams,
+				RecordIds:    crud.RecordIds,
+				RecordCount:  len(val),
+				TableRecords: val,
+			},
+		})
+	}
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -208,10 +239,13 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 		})
 	}
 
+	// update cache
+	_ = mccache.SetHashCache(crud.TableName, crud.HashKey, getResults, uint(crud.CacheExpire))
+
 	// perform audit-log
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName: crud.TableName,
+			TableName:  crud.TableName,
 			LogRecords: crud.QueryParams,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -317,8 +351,8 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 	// perform audit-log
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName: crud.TableName,
-			LogRecords: map[string]string{"query_desc":"all-records"},
+			TableName:  crud.TableName,
+			LogRecords: map[string]string{"query_desc": "all-records"},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

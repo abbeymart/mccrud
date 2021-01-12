@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.3.0
+
+- Release date: Jan 12, 2021
+- Added cache features
+
 ## Version 0.2.0
 
 - Release date: Jan 11, 2021

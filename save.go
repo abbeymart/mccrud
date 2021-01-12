@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes"
@@ -126,6 +127,9 @@ func (crud *Crud) Create(createRecs mctypes.ActionParamsType, tableFields []stri
 			Value:   nil,
 		})
 	}
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
 	// perform audit-log
 	logMessage := ""
 	if crud.LogCreate {
@@ -199,6 +203,9 @@ func (crud *Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields [
 			Value:   nil,
 		})
 	}
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
 	// perform audit-log
 	logMessage := ""
 	if crud.LogCreate {
@@ -269,6 +276,10 @@ func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []
 			Value:   nil,
 		})
 	}
+
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
 	// perform audit-log
 	logMessage := ""
 	if crud.LogCreate {
@@ -334,6 +345,9 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []stri
 		})
 	}
 
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
 		Value: UpdatedResultType{
@@ -381,6 +395,9 @@ func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []
 		})
 	}
 
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
 		Value: UpdatedResultType{
@@ -427,6 +444,9 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 			Value:   nil,
 		})
 	}
+
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",

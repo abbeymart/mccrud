@@ -28,7 +28,7 @@ type GetResultType struct {
 	QueryParam   mctypes.WhereParamType `json:"query_param"`
 	RecordIds    []string               `json:"record_ids"`
 	RecordCount  int                    `json:"record_count"`
-	TableRecords []interface{}          `json:"table_records""`
+	TableRecords []interface{}          `json:"table_records"`
 }
 
 type LogRecordsType struct {
