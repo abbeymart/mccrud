@@ -7,13 +7,14 @@ package mccrud
 import (
 	"context"
 	"fmt"
+	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
+	"github.com/abbeymart/mctypes/tasks"
 )
 
 // DeleteById method deletes or removes record(s) by record-id(s)
 func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
-	// perform crud-task action, include where-
 	// compute delete query by record-ids
 	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, crud.RecordIds)
 	if dQErr != nil {
@@ -38,7 +39,6 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
 func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
-	// perform crud-task action, include where-query(params):
 	// compute delete query by query-params
 	deleteQuery, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if dQErr != nil {
@@ -76,8 +76,96 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 		})
 	}
 
+	// perform audit-log
+	logMessage := ""
+	if crud.LogDelete {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName:  crud.TableName,
+			LogRecords: []string{"all-records-deleted"},
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "Record(s) deleted successfully",
+		Message: "Record(s) deleted successfully | " + logMessage,
 		Value:   commandTag.Delete(),
+	})
+}
+
+func (crud *Crud) LogDeleteById(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+	// audit-log
+	if crud.LogDelete && len(tableFields) >= 2 {
+		// get records to delete
+		getRes := crud.GetById(tableFields, tableFieldPointers )
+		value, _ := getRes.Value.(GetResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
+
+	// perform delete-by-id
+	delRes := crud.DeleteById()
+
+	// perform audit-log
+	logMessage := ""
+	if crud.LogDelete {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: crud.CurrentRecords,
+				RecordIds:    crud.RecordIds,
+			},
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+
+	// overall response
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: delRes.Message + " | " + logMessage,
+		Value:   delRes.Value,
+	})
+}
+
+func (crud *Crud) LogDeleteByParams(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+	// audit-log
+	if crud.LogDelete && len(tableFields) >= 2 {
+		// get records to delete
+		getRes := crud.GetByParam(tableFields, tableFieldPointers )
+		value, _ := getRes.Value.(GetResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
+
+	// perform delete-by-param
+	delRes := crud.DeleteByParam()
+
+	// perform audit-log
+	logMessage := ""
+	if crud.LogDelete {
+		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+			TableName: crud.TableName,
+			LogRecords: LogRecordsType{
+				TableFields:  tableFields,
+				TableRecords: crud.CurrentRecords,
+				RecordIds:    crud.RecordIds,
+			},
+		}
+		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
+		} else {
+			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
+		}
+	}
+
+	// overall response
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: delRes.Message + " | " + logMessage,
+		Value:   delRes.Value,
 	})
 }

@@ -82,11 +82,11 @@ func TestGet(t *testing.T) {
 			//}
 			//fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(GetResultType)
-			jsonRecs, _ := json.Marshal(value.RecordValues)
+			jsonRecs, _ := json.Marshal(value.TableRecords)
 			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "get-task-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordValues), 2, "get-result-count should be: 2")
+			mctest.AssertEquals(t, len(value.TableRecords), 2, "get-result-count should be: 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -107,7 +107,7 @@ func TestGet(t *testing.T) {
 			value, _ := res.Value.(GetResultType)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordCount >= 0, true, "get-task-count should be >= 0")
-			mctest.AssertEquals(t, len(value.RecordValues) >= 0, true, "get-result-count should be >= 0")
+			mctest.AssertEquals(t, len(value.TableRecords) >= 0, true, "get-result-count should be >= 0")
 		},
 	})
 
@@ -126,11 +126,11 @@ func TestGet(t *testing.T) {
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetAll(GetTableFields, tableFieldPointers)
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("get-by-all-value[0]: %#v\n", value.RecordValues[0])
-			fmt.Printf("get-by-all-value[1]: %#v\n", value.RecordValues[1])
+			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
+			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordCount >= 10, true, "get-task-count should be >= 10")
-			mctest.AssertEquals(t, len(value.RecordValues) >= 10, true, "get-result-count should be >= 10")
+			mctest.AssertEquals(t, len(value.TableRecords) >= 10, true, "get-result-count should be >= 10")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -150,11 +150,11 @@ func TestGet(t *testing.T) {
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetAll(GetTableFields, tableFieldPointers)
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("get-by-all-value[0]: %#v\n", value.RecordValues[0])
-			fmt.Printf("get-by-all-value[1]: %#v\n", value.RecordValues[1])
+			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
+			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordCount == 20, true, "get-task-count should be = 20")
-			mctest.AssertEquals(t, len(value.RecordValues) == 20, true, "get-result-count should be = 20")
+			mctest.AssertEquals(t, len(value.TableRecords) == 20, true, "get-result-count should be = 20")
 		},
 	})
 

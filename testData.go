@@ -30,6 +30,16 @@ var UpdateTableFields = []string{
 	"log_at",
 }
 
+var DeleteSelectTableFields = []string{
+	"id",
+	"table_name",
+	"log_records",
+	"new_log_records",
+	"log_by",
+	"log_type",
+	"log_at",
+}
+
 var GetTableFields = []string{
 	"id",
 	"table_name",
@@ -167,19 +177,19 @@ var UpdateRecordByParam = mcauditlog.AuditRecord{
 var UpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
 var UpdateParams = mctypes.WhereParamType{
 	mctypes.QueryGroupType{
-		GroupName: "id_logtype",
-		GroupOrder: 1,
+		GroupName:   "id_logtype",
+		GroupOrder:  1,
 		GroupLinkOp: "or",
 		GroupItems: []mctypes.QueryItemType{
 			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
+				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
 				GroupItemOrder: 1,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 			{
-				GroupItem: 	map[string]map[string]interface{}{"log_type": {"eq": "create"}},
+				GroupItem:      map[string]map[string]interface{}{"log_type": {"eq": "create"}},
 				GroupItemOrder: 2,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 		},
 	},
@@ -217,19 +227,19 @@ type GetRecordType struct {
 var GetIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
 var GetParams = mctypes.WhereParamType{
 	mctypes.QueryGroupType{
-		GroupName: "id_table",
-		GroupOrder: 2,
+		GroupName:   "id_table",
+		GroupOrder:  2,
 		GroupLinkOp: "and",
 		GroupItems: []mctypes.QueryItemType{
 			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"in": []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}},
+				GroupItem:      map[string]map[string]interface{}{"id": {"in": []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}},
 				GroupItemOrder: 1,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 			{
-				GroupItem: 	map[string]map[string]interface{}{"table_name": {"eq": "services"}},
+				GroupItem:      map[string]map[string]interface{}{"table_name": {"eq": "services"}},
 				GroupItemOrder: 2,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 		},
 	},
@@ -239,38 +249,37 @@ var GetParams = mctypes.WhereParamType{
 var DeleteIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
 var DeleteParams = mctypes.WhereParamType{
 	mctypes.QueryGroupType{
-		GroupName: "id_table",
-		GroupOrder: 2,
+		GroupName:   "id_table",
+		GroupOrder:  2,
 		GroupLinkOp: "and",
 		GroupItems: []mctypes.QueryItemType{
 			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
+				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
 				GroupItemOrder: 1,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 			{
-				GroupItem: 	map[string]map[string]interface{}{"table_name": {"eq": "services"}},
+				GroupItem:      map[string]map[string]interface{}{"table_name": {"eq": "services"}},
 				GroupItemOrder: 2,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 		},
 	},
 	mctypes.QueryGroupType{
-		GroupName: "id_logtype",
-		GroupOrder: 1,
+		GroupName:   "id_logtype",
+		GroupOrder:  1,
 		GroupLinkOp: "or",
 		GroupItems: []mctypes.QueryItemType{
 			{
-				GroupItem: 	map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
+				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
 				GroupItemOrder: 1,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 			{
-				GroupItem: 	map[string]map[string]interface{}{"log_type": {"eq": "create"}},
+				GroupItem:      map[string]map[string]interface{}{"log_type": {"eq": "create"}},
 				GroupItemOrder: 2,
-				GroupItemOp: "and",
+				GroupItemOp:    "and",
 			},
 		},
-
 	},
 }

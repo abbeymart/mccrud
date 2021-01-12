@@ -580,7 +580,7 @@ func (model Model) DeleteByParam(params mctypes.CrudParamsType, options mctypes.
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform delete-task
-	return crud.DeleteById()
+	return crud.DeleteByParam()
 }
 
 // DeleteAll method delete all records from a table - ***** recommended for admin users only *****
@@ -591,5 +591,5 @@ func (model Model) DeleteAll(params mctypes.CrudParamsType, options mctypes.Crud
 	// instantiate Crud action
 	crud := NewCrud(params, options)
 	// perform delete-task
-	return crud.DeleteById()
+	return crud.DeleteAll()
 }

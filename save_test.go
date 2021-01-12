@@ -102,7 +102,6 @@ func TestSave(t *testing.T) {
 			fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(InsertedResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.TableName, TestTable, "save-create-table should be: "+TestTable)
 			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
 		},

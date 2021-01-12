@@ -117,11 +117,10 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
 		Value: GetResultType{
-			TableName:    crud.TableName,
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
-			RecordValues: getResults,
+			TableRecords: getResults,
 		},
 	})
 }
@@ -204,11 +203,10 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
 			Value: GetResultType{
-				TableName:    crud.TableName,
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  rowCount,
-				RecordValues: getResults,
+				TableRecords: getResults,
 			},
 		})
 	}
@@ -232,11 +230,10 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
 		Value: GetResultType{
-			TableName:    crud.TableName,
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
-			RecordValues: getResults,
+			TableRecords: getResults,
 		},
 	})
 }
@@ -342,11 +339,10 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
 		Value: GetResultType{
-			TableName:    crud.TableName,
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
-			RecordValues: getResults,
+			TableRecords: getResults,
 		},
 	})
 }

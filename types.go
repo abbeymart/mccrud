@@ -7,34 +7,33 @@ package mccrud
 import "github.com/abbeymart/mctypes"
 
 type InsertedResultType struct {
-	TableName   string   `json:"table_name"`
 	RecordIds   []string `json:"record_ids"`
 	RecordCount int      `json:"record_count"`
 }
 
 type UpdatedResultType struct {
-	TableName   string                 `json:"table_name"`
 	QueryParam  mctypes.WhereParamType `json:"query_param"`
 	RecordIds   []string               `json:"record_ids"`
 	RecordCount int                    `json:"record_count"`
 }
 
 type DeletedResultType struct {
-	TableName   string                 `json:"table_name"`
-	QueryParam  mctypes.WhereParamType `json:"query_param"`
-	RecordIds   []string               `json:"record_ids"`
-	RecordCount int                    `json:"record_count"`
-}
-
-type GetResultType struct {
-	TableName    string                 `json:"table_name"`
 	QueryParam   mctypes.WhereParamType `json:"query_param"`
 	RecordIds    []string               `json:"record_ids"`
 	RecordCount  int                    `json:"record_count"`
-	RecordValues []interface{}          `json:"record_values"`
+	TableRecords []interface{}          `json:"table_records"`
+}
+
+type GetResultType struct {
+	QueryParam   mctypes.WhereParamType `json:"query_param"`
+	RecordIds    []string               `json:"record_ids"`
+	RecordCount  int                    `json:"record_count"`
+	TableRecords []interface{}          `json:"table_records""`
 }
 
 type LogRecordsType struct {
-	TableFields  []string
-	TableRecords []interface{}
+	TableFields  []string               `json:"table_fields"`
+	TableRecords []interface{}          `json:"table_records"`
+	QueryParam   mctypes.WhereParamType `json:"query_param"`
+	RecordIds    []string               `json:"record_ids"`
 }
