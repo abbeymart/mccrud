@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.4.0
+
+- Release date: Jan 12, 2021
+- Refactored access-auth methods
+
 ## Version 0.3.0
 
 - Release date: Jan 12, 2021
