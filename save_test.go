@@ -11,6 +11,7 @@ import (
 	"github.com/abbeymart/mctest"
 	"github.com/abbeymart/mctypes"
 	"testing"
+	"time"
 )
 
 func TestSave(t *testing.T) {
@@ -129,6 +130,61 @@ func TestSave(t *testing.T) {
 			res := updateParamCrud.Save([]string{})
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records, log-task and return success:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			res := updateCrud.UpdateLog(updateCrud.ActionParams, UpdateTableFields, tableFieldPointers)
+			fmt.Printf("update-log: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "update-log should return code: success")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records by Ids, log-task and return success:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords   interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			res := updateIdCrud.UpdateByIdLog(updateIdCrud.ActionParams, UpdateTableFields, tableFieldPointers)
+			fmt.Printf("update-by-ids-log: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-id-log should return code: success")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records by query-params, log-task and return success:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			res := updateParamCrud.UpdateByParamLog(updateParamCrud.ActionParams, UpdateTableFields, tableFieldPointers)
+			fmt.Printf("update-by-params-log: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-params-log should return code: success")
 		},
 	})
 

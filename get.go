@@ -102,10 +102,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName: crud.TableName,
-			LogRecords: LogRecordsType{
-				TableFields:  tableFields,
-				TableRecords: []interface{}{crud.RecordIds},
-			},
+			LogRecords: crud.RecordIds,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -148,7 +145,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 		getQuery += fmt.Sprintf(" LIMIT %v", crud.Limit)
 	}
 	// perform crud-task action
-	fmt.Printf("getQuery-param: %v\n", getQuery)
+	//fmt.Printf("getQuery-param: %v\n", getQuery)
 	rows, qRowErr := crud.AppDb.Query(context.Background(), getQuery)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -215,10 +212,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName: crud.TableName,
-			LogRecords: LogRecordsType{
-				TableFields:  tableFields,
-				TableRecords: []interface{}{crud.QueryParams},
-			},
+			LogRecords: crud.QueryParams,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -324,10 +318,7 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 	if crud.LogRead {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName: crud.TableName,
-			LogRecords: LogRecordsType{
-				TableFields:  tableFields,
-				TableRecords: []interface{}{"all-records"},
-			},
+			LogRecords: map[string]string{"query_desc":"all-records"},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Read, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

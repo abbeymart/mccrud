@@ -10,6 +10,7 @@ import (
 	"github.com/abbeymart/mctest"
 	"github.com/abbeymart/mctypes"
 	"testing"
+	"time"
 )
 
 func TestDelete(t *testing.T) {
@@ -59,7 +60,6 @@ func TestDelete(t *testing.T) {
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
 		},
 	})
-
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by query-params and return success:",
 		TestFunc: func() {
@@ -68,7 +68,6 @@ func TestDelete(t *testing.T) {
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params should return code: success")
 		},
 	})
-
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete all table records and return success:",
 		TestFunc: func() {
@@ -78,6 +77,43 @@ func TestDelete(t *testing.T) {
 			deleted, _ := value.(bool)
 			mctest.AssertEquals(t, res.Code, "success", "delete-all should return code: success")
 			mctest.AssertEquals(t, deleted, true, "deleted() must be true")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete two records by Ids, log-task, and return success:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			res := deleteCrud.DeleteByIdLog(DeleteSelectTableFields, tableFieldPointers)
+			fmt.Printf("delete-by-ids-log: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-id-log should return code: success")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete two records by query-params, log-task and return success:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			res := deleteCrud.DeleteByParamLog(DeleteSelectTableFields, tableFieldPointers )
+			fmt.Printf("delete-by-params-log: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
 		},
 	})
 

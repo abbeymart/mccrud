@@ -1,0 +1,231 @@
+C:\Users\abbey\mConnect\Apps\go\packages\mccrud>go test
+Running Test:  should delete two records by Ids and return success:
+================================================
+delete-by-ids: Request completed successfully | Record(s) deleted successfully : 200
+Passed
+Summary for Test  should delete two records by Ids and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should delete two records by query-params and return success:
+================================================
+delete-by-params: Request completed successfully | Record(s) deleted successfully : 200
+Passed
+Summary for Test  should delete two records by query-params and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should delete all table records and return success:
+================================================
+delete-all: Request completed successfully | Record(s) deleted successfully |  : 200
+Passed
+Passed
+Summary for Test  should delete all table records and return success: :
+Test Passed:  2
+Test Failed:  0
+Total Test:  2
+Running Test:  should delete two records by Ids, log-task, and return success:
+================================================
+delete-by-ids-log: Request completed successfully | Request completed successfully | Record(s) deleted successfully |  : 200
+Passed
+Summary for Test  should delete two records by Ids, log-task, and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should delete two records by query-params, log-task and return success:
+================================================
+delete-by-params-log: Request completed successfully | Request completed successfully | Record(s) deleted successfully |  : 200
+Passed
+Summary for Test  should delete two records by query-params, log-task and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  6
+Test Failed:  0
+Total Test:  6
+***** Test Completed *****
+Running Test:  should get records by Ids and return success:
+================================================
+get-by-id-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfully
+ | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:mccrud.GetResultType{Query
+Param:mctypes.WhereParamType{mctypes.QueryGroupType{GroupName:"id_table", GroupItems:[]mctypes.QueryItemType{mctypes.QueryItemType{Gr
+oupItem:map[string]map[string]interface {}{"id":map[string]interface {}{"in":[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f
+0e-3111-41a5-9103-24fa81004550"}}}, GroupItemOrder:1, GroupItemOp:"and"}, mctypes.QueryItemType{GroupItem:map[string]map[string]inter
+face {}{"table_name":map[string]interface {}{"eq":"services"}}, GroupItemOrder:2, GroupItemOp:"and"}}, GroupOrder:2, GroupLinkOp:"and
+"}}, RecordIds:[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}, RecordCount:2, TableRecords:
+[]interface {}{map[string]interface {}{"id":"122d0f0e-3111-41a5-9103-24fa81004550", "log_at":time.Time{wall:0x26bbcd50, ext:637460159
+89, loc:(*time.Location)(0x1ddea40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[string]interface {}{"cost":1
+000, "desc":"Testing only100", "name":"Abi100", "priority":1, "url":"localhost:9000"}, "log_type":"update", "new_log_records":map[str
+ing]interface {}{"cost":2000, "desc":"Testing only - updated", "name":"Abi Akindele", "priority":1, "url":"localhost:9900"}, "table_n
+ame":"services2"}, map[string]interface {}{"id":"122d0f0e-3111-41a5-9103-24fa81004550", "log_at":time.Time{wall:0x26bbcd50, ext:63746
+015989, loc:(*time.Location)(0x1ddea40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[string]interface {}{"cos
+t":1000, "desc":"Testing only100", "name":"Abi100", "priority":1, "url":"localhost:9000"}, "log_type":"update", "new_log_records":map
+[string]interface {}{"cost":2000, "desc":"Testing only - updated", "name":"Abi Akindele", "priority":1, "url":"localhost:9900"}, "tab
+le_name":"services2"}}}}
+
+json-records: [{"id":"122d0f0e-3111-41a5-9103-24fa81004550","log_at":"2021-01-11T21:39:49.649842-05:00","log_by":"085f48c5-8763-4e22-
+a1c6-ac1a68ba07de","log_records":{"cost":1000,"desc":"Testing only100","name":"Abi100","priority":1,"url":"localhost:9000"},"log_type
+":"update","new_log_records":{"cost":2000,"desc":"Testing only - updated","name":"Abi Akindele","priority":1,"url":"localhost:9900"},
+"table_name":"services2"},{"id":"122d0f0e-3111-41a5-9103-24fa81004550","log_at":"2021-01-11T21:39:49.649842-05:00","log_by":"085f48c5
+-8763-4e22-a1c6-ac1a68ba07de","log_records":{"cost":1000,"desc":"Testing only100","name":"Abi100","priority":1,"url":"localhost:9000"
+},"log_type":"update","new_log_records":{"cost":2000,"desc":"Testing only - updated","name":"Abi Akindele","priority":1,"url":"localh
+ost:9900"},"table_name":"services2"}]
+
+Passed
+Passed
+Passed
+Summary for Test  should get records by Ids and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+Running Test:  should get records by query-params and return success:
+================================================
+get-by-param-response: mcresponse.ResponseMessage{Code:"success", ResCode:0xc8, ResMessage:"OK", Message:"Request completed successfu
+lly | Audit-log-code: success | Message: Request completed successfully | successful audit-log action", Value:mccrud.GetResultType{Qu
+eryParam:mctypes.WhereParamType{mctypes.QueryGroupType{GroupName:"id_table", GroupItems:[]mctypes.QueryItemType{mctypes.QueryItemType
+{GroupItem:map[string]map[string]interface {}{"id":map[string]interface {}{"in":[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122
+d0f0e-3111-41a5-9103-24fa81004550"}}}, GroupItemOrder:1, GroupItemOp:"and"}, mctypes.QueryItemType{GroupItem:map[string]map[string]in
+terface {}{"table_name":map[string]interface {}{"eq":"services"}}, GroupItemOrder:2, GroupItemOp:"and"}}, GroupOrder:2, GroupLinkOp:"
+and"}}, RecordIds:[]string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}, RecordCount:0, TableRecor
+ds:[]interface {}(nil)}}
+Passed
+Passed
+Passed
+Summary for Test  should get records by query-params and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+Running Test:  should get all records and return success:
+================================================
+get-by-all-value[0]: map[string]interface {}{"id":"122d0f0e-3111-41a5-9103-24fa81004550", "log_at":time.Time{wall:0x26bbcd50, ext:637
+46015989, loc:(*time.Location)(0x1ddea40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[string]interface {}{"c
+ost":1000, "desc":"Testing only100", "name":"Abi100", "priority":1, "url":"localhost:9000"}, "log_type":"update", "new_log_records":m
+ap[string]interface {}{"cost":2000, "desc":"Testing only - updated", "name":"Abi Akindele", "priority":1, "url":"localhost:9900"}, "t
+able_name":"services2"}
+get-by-all-value[1]: map[string]interface {}{"id":"122d0f0e-3111-41a5-9103-24fa81004550", "log_at":time.Time{wall:0x26bbcd50, ext:637
+46015989, loc:(*time.Location)(0x1ddea40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[string]interface {}{"c
+ost":1000, "desc":"Testing only100", "name":"Abi100", "priority":1, "url":"localhost:9000"}, "log_type":"update", "new_log_records":m
+ap[string]interface {}{"cost":2000, "desc":"Testing only - updated", "name":"Abi Akindele", "priority":1, "url":"localhost:9900"}, "t
+able_name":"services2"}
+Passed
+Passed
+Passed
+Summary for Test  should get all records and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+Running Test:  should get all records by limit/skip(offset) and return success:
+================================================
+get-by-all-value[0]: map[string]interface {}{"id":"bccc838a-d51e-4508-afbb-02d695c72ad3", "log_at":time.Time{wall:0x96ee6d8, ext:6374
+2955839, loc:(*time.Location)(0x1ddea40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[string]interface {}{"Co
+st":1000, "Desc":"Testing only", "Name":"Abi", "Priority":1, "Url":"localhost:9000"}, "log_type":"update", "new_log_records":map[stri
+ng]interface {}{"Cost":2000, "Desc":"Testing only - updated", "Name":"Abi Akindele", "Priority":1, "Url":"localhost:9900"}, "table_na
+me":"services"}
+get-by-all-value[1]: map[string]interface {}{"id":"bccc838a-d51e-4508-afbb-02d695c72ad3", "log_at":time.Time{wall:0x96ee6d8, ext:6374
+2955839, loc:(*time.Location)(0x1ddea40)}, "log_by":"085f48c5-8763-4e22-a1c6-ac1a68ba07de", "log_records":map[string]interface {}{"Co
+st":1000, "Desc":"Testing only", "Name":"Abi", "Priority":1, "Url":"localhost:9000"}, "log_type":"update", "new_log_records":map[stri
+ng]interface {}{"Cost":2000, "Desc":"Testing only - updated", "Name":"Abi Akindele", "Priority":1, "Url":"localhost:9900"}, "table_na
+me":"services"}
+Passed
+Passed
+Passed
+Summary for Test  should get all records by limit/skip(offset) and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  12
+Test Failed:  0
+Total Test:  12
+***** Test Completed *****
+Running Test:  should connect to the Audit-DB and return an instance object:
+================================================
+Passed
+Passed
+Summary for Test  should connect to the Audit-DB and return an instance object: :
+Test Passed:  2
+Test Failed:  0
+Total Test:  2
+Running Test:  should connect to the CRUD-object and return an instance object:
+================================================
+Passed
+Summary for Test  should connect to the CRUD-object and return an instance object: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should create two new records and return success:
+================================================
+before log-insert
+after log-insert: result => INSERT 0 1 | err => <nil>
+Request completed successfully | Audit-log-code: success | Message: Request completed successfully | successful audit-log action 200
+Passed
+Passed
+Passed
+Summary for Test  should create two new records and return success: :
+Test Passed:  3
+Test Failed:  0
+Total Test:  3
+Running Test:  should update two records and return success:
+================================================
+updates: Request completed successfully | Record(s) update completed successfully : 200
+Passed
+Summary for Test  should update two records and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records by Ids and return success:
+================================================
+update-by-ids: Request completed successfully | Record(s) update completed successfully : 200
+Passed
+Summary for Test  should update two records by Ids and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records by query-params and return success:
+================================================
+update-by-params: Request completed successfully | Record(s) update completed successfully : 200
+Passed
+Summary for Test  should update two records by query-params and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records, log-task and return success:
+================================================
+update-log: Request completed successfully | Request completed successfully | Record(s) update completed successfully |  : 200
+Passed
+Summary for Test  should update two records, log-task and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records by Ids, log-task and return success:
+================================================
+update-by-ids-log: Request completed successfully | Request completed successfully | Record(s) update completed successfully |  : 200
+
+Passed
+Summary for Test  should update two records by Ids, log-task and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+Running Test:  should update two records by query-params, log-task and return success:
+================================================
+update-by-params-log: Request completed successfully | Request completed successfully | Record(s) update completed successfully |  :
+200
+Passed
+Summary for Test  should update two records by query-params, log-task and return success: :
+Test Passed:  1
+Test Failed:  0
+Total Test:  1
+============================
+All Tests Summary Stats:
+============================
+Test Passed:  12
+Test Failed:  0
+Total Test:  12
+***** Test Completed *****
+PASS
+ok      github.com/abbeymart/mccrud     6.939s
