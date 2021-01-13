@@ -52,8 +52,6 @@ func TestGet(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by Ids and return success:",
 		TestFunc: func() {
-			//var getResults []GetRecordType
-			//getChan := make(chan int, 1)
 			var (
 				id            string
 				tableName     string
@@ -67,20 +65,6 @@ func TestGet(t *testing.T) {
 			res := getCrud.GetById(GetTableFields, tableFieldPointers)
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 
-			// compute get-records
-			//for <-getChan >= 0 {
-			//	getResult := GetRecordType{
-			//		Id:            id,
-			//		TableName:     tableName,
-			//		LogRecords:    logRecords,
-			//		NewLogRecords: newLogRecords,
-			//		LogBy:         logBy,
-			//		LogType:       logType,
-			//		LogAt:         logAt,
-			//	}
-			//	getResults = append(getResults, getResult)
-			//}
-			//fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(GetResultType)
 			fmt.Printf("get-by-id-value: %#v\n", value.TableRecords)
 			fmt.Printf("get-by-param-count: %v\n", value.RecordCount)
@@ -154,6 +138,97 @@ func TestGet(t *testing.T) {
 			getCrud.Limit = 20
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetAll(GetTableFields, tableFieldPointers)
+			value, _ := res.Value.(GetResultType)
+			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
+			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
+			fmt.Printf("get-by-all-limit-count: %v\n", value.RecordCount)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value.RecordCount == 20, true, "get-task-count should be = 20")
+			mctest.AssertEquals(t, len(value.TableRecords) == 20, true, "get-result-count should be = 20")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get records by Id and return success[get-record method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			getCrud.RecordIds = GetIds
+			getCrud.QueryParams = mctypes.WhereParamType{}
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			// get-record method params
+			getRecParams := mctypes.GetCrudParamsType{
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+			}
+			res := getCrud.GetRecord(getRecParams)
+			value, _ := res.Value.(GetResultType)
+			fmt.Printf("get-by-all-count: %v\n", value.RecordCount)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value.RecordCount, 2, "get-task-count should be 2")
+			mctest.AssertEquals(t, len(value.TableRecords), 2, "get-result-count should be 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get records by params and return success[get-record method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			getCrud.RecordIds = []string{}
+			getCrud.QueryParams = GetParams
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			// get-record method params
+			getRecParams := mctypes.GetCrudParamsType{
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+			}
+			res := getCrud.GetRecord(getRecParams)
+			value, _ := res.Value.(GetResultType)
+			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
+			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
+			fmt.Printf("get-by-all-limit-count: %v\n", value.RecordCount)
+			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
+			mctest.AssertEquals(t, value.RecordCount > 0, true, "get-task-count should be > 0")
+			mctest.AssertEquals(t, len(value.TableRecords) > 0, true, "get-result-count should be > 0")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should get all records and return success[get-record method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			getCrud.Skip = 0
+			getCrud.Limit = 20
+			getCrud.RecordIds = []string{}
+			getCrud.QueryParams = mctypes.WhereParamType{}
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			// get-record method params
+			getRecParams := mctypes.GetCrudParamsType{
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+			}
+			res := getCrud.GetRecord(getRecParams)
 			value, _ := res.Value.(GetResultType)
 			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
 			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])

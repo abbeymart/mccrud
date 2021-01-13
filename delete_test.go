@@ -117,6 +117,57 @@ func TestDelete(t *testing.T) {
 		},
 	})
 
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete two records by Ids and return success[delete-record-method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			deleteCrud.RecordIds = DeleteIds
+			deleteCrud.QueryParams = mctypes.WhereParamType{}
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			// get-record method params
+			deleteRecParams := mctypes.DeleteCrudParamsType{
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+			}
+			res := deleteCrud.DeleteRecord(deleteRecParams)
+			fmt.Printf("delete-by-ids[delete-record]: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete two records by query-params and return success[delete-record-method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			deleteCrud.RecordIds = []string{}
+			deleteCrud.QueryParams = DeleteParams
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			// get-record method params
+			deleteRecParams := mctypes.DeleteCrudParamsType{
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+			}
+			res := deleteCrud.DeleteRecord(deleteRecParams)
+			fmt.Printf("delete-by-params[delete-record]: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
+		},
+	})
+
 	mctest.PostTestResult()
 
 }

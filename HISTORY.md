@@ -1,5 +1,11 @@
 # Historical logs
 
+## Version 0.5.0
+
+- Release date: Jan 13, 2021
+- Refactored/added crud methods & params
+
+
 ## Version 0.4.0
 
 - Release date: Jan 12, 2021

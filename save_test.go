@@ -157,7 +157,7 @@ func TestSave(t *testing.T) {
 			var (
 				id            string
 				tableName     string
-				logRecords   interface{}
+				logRecords    interface{}
 				newLogRecords interface{}
 				logBy         string
 				logType       string
@@ -185,6 +185,121 @@ func TestSave(t *testing.T) {
 			res := updateParamCrud.UpdateByParamLog(updateParamCrud.ActionParams, GetTableFields, UpdateTableFields, tableFieldPointers)
 			fmt.Printf("update-by-params-log: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params-log should return code: success")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should create two new records and return success[save-record-method]:",
+		TestFunc: func() {
+			crud, ok := crud.(*Crud)
+			if !ok {
+				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			}
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			crud.RecordIds = []string{}
+			crud.QueryParams = mctypes.WhereParamType{}
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			// get-record method params
+			saveRecParams := mctypes.SaveCrudParamsType{
+				CreateTableFields:  CreateTableFields,
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+			}
+			res := crud.SaveRecord(saveRecParams)
+			fmt.Println(res.Message, res.ResCode)
+			value, _ := res.Value.(InsertedResultType)
+			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
+			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records and return success[save-record-method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			updateCrud.RecordIds = []string{}
+			updateCrud.QueryParams = mctypes.WhereParamType{}
+			// get-record method params
+			saveRecParams := mctypes.SaveCrudParamsType{
+				UpdateTableFields:  UpdateTableFields,
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+				AuditLog:           true,
+			}
+			res := updateCrud.SaveRecord(saveRecParams)
+			fmt.Printf("update[save-record]: %#v \n", res)
+			mctest.AssertEquals(t, res.Code, "success", "update-log should return code: success")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records by Ids and return success[save-record-method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			updateIdCrud.RecordIds = UpdateIds
+			updateIdCrud.QueryParams = mctypes.WhereParamType{}
+			// get-record method params
+			saveRecParams := mctypes.SaveCrudParamsType{
+				UpdateTableFields:  UpdateTableFields,
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+				AuditLog:           true,
+			}
+			res := updateIdCrud.SaveRecord(saveRecParams)
+			fmt.Printf("update-by-ids[save-record]: %#v \n", res)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-id-log should return code: success")
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update two records by query-params and return success[save-record-method]:",
+		TestFunc: func() {
+			var (
+				id            string
+				tableName     string
+				logRecords    interface{}
+				newLogRecords interface{}
+				logBy         string
+				logType       string
+				logAt         time.Time
+			)
+			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
+			updateParamCrud.RecordIds = []string{}
+			updateParamCrud.QueryParams = UpdateParams
+			// get-record method params
+			saveRecParams := mctypes.SaveCrudParamsType{
+				UpdateTableFields:  UpdateTableFields,
+				GetTableFields:     GetTableFields,
+				TableFieldPointers: tableFieldPointers,
+				AuditLog:           true,
+			}
+			res := updateParamCrud.SaveRecord(saveRecParams)
+			fmt.Printf("update-by-params[save-record]: %#v \n", res)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
 		},
 	})
 
