@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.5.1
+
+- Release date: Jan 26, 2021
+- updated dependencies mcdb-v0.2.5 and mcauditlog-v0.3.4
+
 ## Version 0.5.0
 
 - Release date: Jan 13, 2021

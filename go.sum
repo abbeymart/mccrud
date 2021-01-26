@@ -3,11 +3,15 @@ github.com/abbeymart/mcauditlog v0.3.2 h1:TL9VMXGUBoAm/ozJ4ft31d0yRrwVtaLLUOfI2Q
 github.com/abbeymart/mcauditlog v0.3.2/go.mod h1:fx0lO3ihgCowAcP5EAiJm0y5t7Wj2zz+6WcwHhKHJws=
 github.com/abbeymart/mcauditlog v0.3.3 h1:Pu37y4hHdRxWMIj7dGLCl1VizvUJ2CYmgWpgOAIkR3U=
 github.com/abbeymart/mcauditlog v0.3.3/go.mod h1:C6Bmh8HsnJmT1mhzL8rwyqBCWRpGatffEXqaBC4hCmc=
+github.com/abbeymart/mcauditlog v0.3.4 h1:BkIJ2/w0oRsNs3qt82icSKd/jSy74n17jE8IhaN3aQo=
+github.com/abbeymart/mcauditlog v0.3.4/go.mod h1:4UFG5T30mjU97Wc2W8QYgoxUMWEfyMUv1i8Jq5CfATU=
 github.com/abbeymart/mccache v0.3.1 h1:7NomA3x786wqIgR0JqwUa3df1YWBu1MDvBGTarAzY/8=
 github.com/abbeymart/mccache v0.3.1/go.mod h1:D9VIl3ZatR7Wd52SuB/BQHsePqI8C/nDDSV5OXuMIC0=
 github.com/abbeymart/mcdb v0.2.2/go.mod h1:RlvWB3nq9O7CZTyywELqim2dlhJ39MTLHsf+NqVmcvY=
 github.com/abbeymart/mcdb v0.2.3 h1:hY2DspBjdqD9raK8YiWyxAZ0xXHov2fMQH2d0rU09/c=
 github.com/abbeymart/mcdb v0.2.3/go.mod h1:IxGhHBJ4fJfqDHbFdbDhs69R7uykWVQ7h2t1VR7ZEQk=
+github.com/abbeymart/mcdb v0.2.5 h1:Vzvf70CrFoX7jaZSfQY2FG6teYfAp/LmkZCXrmYZzxA=
+github.com/abbeymart/mcdb v0.2.5/go.mod h1:IxGhHBJ4fJfqDHbFdbDhs69R7uykWVQ7h2t1VR7ZEQk=
 github.com/abbeymart/mcresponse v0.4.1 h1:GAekylL40+rQwVlCZkmBUCKzvzCTOokpdN1c9QDmxOA=
 github.com/abbeymart/mcresponse v0.4.1/go.mod h1:cbaoGCkmRrO5oc220/9xdMZhdLhvvKYvG+rI4lc3Ik4=
 github.com/abbeymart/mcresponse v0.4.2 h1:lZhSuIiK66xaR71Zqt0kn4ZajdQ+PcZGp5NKeKawnhw=
