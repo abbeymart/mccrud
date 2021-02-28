@@ -145,7 +145,7 @@ func (crud *Crud) Create(createRecs mctypes.ActionParamsType, tableFields []stri
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: InsertedResultType{
+		Value: SaveResultType{
 			RecordIds:   insertIds,
 			RecordCount: insertCount,
 		},
@@ -220,7 +220,7 @@ func (crud *Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields [
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: InsertedResultType{
+		Value: SaveResultType{
 			RecordIds:   insertIds,
 			RecordCount: insertCount,
 		},
@@ -294,7 +294,7 @@ func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: InsertedResultType{
+		Value: SaveResultType{
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(copyCount),
 		},
@@ -349,7 +349,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []stri
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: UpdatedResultType{
+		Value: SaveResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: updateCount,
@@ -399,7 +399,7 @@ func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: UpdatedResultType{
+		Value: SaveResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(commandTag.RowsAffected()),
@@ -449,7 +449,7 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: UpdatedResultType{
+		Value: SaveResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(commandTag.RowsAffected()),

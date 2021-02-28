@@ -101,7 +101,7 @@ func TestSave(t *testing.T) {
 			}
 			res := crud.Save([]string{})
 			fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
+			value, _ := res.Value.(SaveResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
@@ -215,7 +215,7 @@ func TestSave(t *testing.T) {
 			}
 			res := crud.SaveRecord(saveRecParams)
 			fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(InsertedResultType)
+			value, _ := res.Value.(SaveResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")

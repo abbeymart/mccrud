@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.6
+
+- Release date: Feb 28, 2021
+- refactor get-value-to-json-value-format & added SaveResultType
+
 ## Version 0.5.1
 
 - Release date: Jan 26, 2021

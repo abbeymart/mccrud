@@ -99,10 +99,22 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 				}
 			}
 			// getChan <- rowCount // pass the scanned result alert to getChan | will block until read
-			// get snapshot value from the pointer
-			jByte, _ := json.Marshal(getResult)
+			// get snapshot value from the pointer | transform value to json-value-format
+			jByte, jErr := json.Marshal(getResult)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			var gValue map[string]interface{}
-			_ = json.Unmarshal(jByte, &gValue)
+			jErr = json.Unmarshal(jByte, &gValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			getResults = append(getResults, gValue)
 			rowCount += 1
 		}
@@ -227,10 +239,22 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 					})
 				}
 			}
-			// get snapshot value from the pointer
-			jByte, _ := json.Marshal(getResult)
+			// get snapshot value from the pointer | transform value to json-value-format
+			jByte, jErr := json.Marshal(getResult)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			var gValue map[string]interface{}
-			_ = json.Unmarshal(jByte, &gValue)
+			jErr = json.Unmarshal(jByte, &gValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			getResults = append(getResults, gValue)
 			rowCount += 1
 		}
@@ -345,10 +369,22 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 					})
 				}
 			}
-			// get snapshot value from the pointer
-			jByte, _ := json.Marshal(getResult)
+			// get snapshot value from the pointer | transform value to json-value-format
+			jByte, jErr := json.Marshal(getResult)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			var gValue map[string]interface{}
-			_ = json.Unmarshal(jByte, &gValue)
+			jErr = json.Unmarshal(jByte, &gValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			getResults = append(getResults, gValue)
 			rowCount += 1
 		}

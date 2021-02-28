@@ -6,6 +6,11 @@ package mccrud
 
 import "github.com/abbeymart/mctypes"
 
+type SaveResultType struct {
+	QueryParam  mctypes.WhereParamType `json:"query_param"`
+	RecordIds   []string               `json:"record_ids"`
+	RecordCount int                    `json:"record_count"`
+}
 type InsertedResultType struct {
 	RecordIds   []string `json:"record_ids"`
 	RecordCount int      `json:"record_count"`
