@@ -6,30 +6,7 @@ package mccrud
 
 import "github.com/abbeymart/mctypes"
 
-type SaveResultType struct {
-	QueryParam  mctypes.WhereParamType `json:"query_param"`
-	RecordIds   []string               `json:"record_ids"`
-	RecordCount int                    `json:"record_count"`
-}
-type InsertedResultType struct {
-	RecordIds   []string `json:"record_ids"`
-	RecordCount int      `json:"record_count"`
-}
-
-type UpdatedResultType struct {
-	QueryParam  mctypes.WhereParamType `json:"query_param"`
-	RecordIds   []string               `json:"record_ids"`
-	RecordCount int                    `json:"record_count"`
-}
-
-type DeletedResultType struct {
-	QueryParam   mctypes.WhereParamType `json:"query_param"`
-	RecordIds    []string               `json:"record_ids"`
-	RecordCount  int                    `json:"record_count"`
-	TableRecords []interface{}          `json:"table_records"`
-}
-
-type GetResultType struct {
+type CrudResultType struct {
 	QueryParam   mctypes.WhereParamType `json:"query_param"`
 	RecordIds    []string               `json:"record_ids"`
 	RecordCount  int                    `json:"record_count"`

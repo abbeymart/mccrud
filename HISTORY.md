@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.6.1
+
+- Release date: Feb 28, 2021
+- consolidate get-save-delete-res-type to CrudResultType
+
 ## Version 0.6
 
 - Release date: Feb 28, 2021

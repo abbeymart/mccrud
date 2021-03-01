@@ -91,7 +91,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: map[string]string{"query_desc":"all-records"},
+			LogRecords: map[string]string{"query_desc": "all-records"},
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -109,8 +109,8 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
 	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
-		getRes := crud.GetById(tableFields, tableFieldPointers )
-		value, _ := getRes.Value.(GetResultType)
+		getRes := crud.GetById(tableFields, tableFieldPointers)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -121,7 +121,7 @@ func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []inter
 	logMessage := ""
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName: crud.TableName,
+			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -141,8 +141,8 @@ func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []inter
 func (crud *Crud) DeleteByParamLog(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
 	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
-		getRes := crud.GetByParam(tableFields, tableFieldPointers )
-		value, _ := getRes.Value.(GetResultType)
+		getRes := crud.GetByParam(tableFields, tableFieldPointers)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -153,7 +153,7 @@ func (crud *Crud) DeleteByParamLog(tableFields []string, tableFieldPointers []in
 	logMessage := ""
 	if crud.LogDelete {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName: crud.TableName,
+			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,
 		}
 		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {

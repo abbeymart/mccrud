@@ -145,7 +145,7 @@ func (crud *Crud) Create(createRecs mctypes.ActionParamsType, tableFields []stri
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: SaveResultType{
+		Value: CrudResultType{
 			RecordIds:   insertIds,
 			RecordCount: insertCount,
 		},
@@ -220,7 +220,7 @@ func (crud *Crud) CreateBatch(createRecs mctypes.ActionParamsType, tableFields [
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: SaveResultType{
+		Value: CrudResultType{
 			RecordIds:   insertIds,
 			RecordCount: insertCount,
 		},
@@ -294,7 +294,7 @@ func (crud *Crud) CreateCopy(createRecs mctypes.ActionParamsType, tableFields []
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: SaveResultType{
+		Value: CrudResultType{
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(copyCount),
 		},
@@ -349,7 +349,7 @@ func (crud *Crud) Update(updateRecs mctypes.ActionParamsType, tableFields []stri
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: SaveResultType{
+		Value: CrudResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: updateCount,
@@ -399,7 +399,7 @@ func (crud *Crud) UpdateById(updateRecs mctypes.ActionParamsType, tableFields []
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: SaveResultType{
+		Value: CrudResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(commandTag.RowsAffected()),
@@ -449,7 +449,7 @@ func (crud *Crud) UpdateByParam(updateRecs mctypes.ActionParamsType, tableFields
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: SaveResultType{
+		Value: CrudResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(commandTag.RowsAffected()),
@@ -461,7 +461,7 @@ func (crud *Crud) UpdateLog(updateRecs mctypes.ActionParamsType, tableFields []s
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(GetResultType)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -494,7 +494,7 @@ func (crud *Crud) UpdateByIdLog(updateRecs mctypes.ActionParamsType, tableFields
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(GetResultType)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -527,7 +527,7 @@ func (crud *Crud) UpdateByParamLog(updateRecs mctypes.ActionParamsType, tableFie
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetByParam(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(GetResultType)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 

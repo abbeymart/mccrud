@@ -25,7 +25,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 	if getCacheRes.Ok && ok && len(val) > 0 {
 		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 			Message: "records successfully retrieved from the cache",
-			Value: GetResultType{
+			Value: CrudResultType{
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  len(val),
@@ -147,7 +147,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
+		Value: CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
@@ -165,7 +165,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	if getCacheRes.Ok && ok && len(val) > 0 {
 		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 			Message: "records successfully retrieved from the cache",
-			Value: GetResultType{
+			Value: CrudResultType{
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  len(val),
@@ -263,7 +263,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value: GetResultType{
+			Value: CrudResultType{
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  rowCount,
@@ -290,7 +290,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
+		Value: CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
@@ -412,7 +412,7 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
+		Value: CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
