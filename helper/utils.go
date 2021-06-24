@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mccrud/types"
-	"github.com/abbeymart/mctypes"
 	"github.com/asaskevich/govalidator"
 	"reflect"
 )
@@ -102,11 +101,11 @@ func DataToValueParam(rec interface{}) (types.ActionParamType, error) {
 	return dataValue, nil
 }
 
-func DataToValueParam2(rec interface{}) (mctypes.ActionParamType, error) {
+func DataToValueParam2(rec interface{}) (types.ActionParamType, error) {
 
 	switch rec.(type) {
 	case struct{}:
-		dataValue := mctypes.ActionParamType{}
+		dataValue := types.ActionParamType{}
 		v := reflect.ValueOf(rec)
 		typeOfS := v.Type()
 
