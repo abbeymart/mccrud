@@ -36,6 +36,8 @@ github.com/abbeymart/mctypes v0.3.3 h1:cF5cPn0TqVkrUvxfTjvV2h/BXuvH9QTE7ZVXkhi/Y
 github.com/abbeymart/mctypes v0.3.3/go.mod h1:oHJApwBm+QhLfUW1hpKyISVxGFLKqiUyfjnP+xh0rHE=
 github.com/abbeymart/mctypes v0.3.5 h1:eJ5/QVmPHw6sACpbh/I48qVuQ/x8pNs8O4br2+Pwp9o=
 github.com/abbeymart/mctypes v0.3.5/go.mod h1:oHJApwBm+QhLfUW1hpKyISVxGFLKqiUyfjnP+xh0rHE=
+github.com/abbeymart/mctypes v0.4.3 h1:rlw9rtiEzjVb/5REv2wv/EPgAQwEzcmA08G3AP+YvkI=
+github.com/abbeymart/mctypes v0.4.3/go.mod h1:oHJApwBm+QhLfUW1hpKyISVxGFLKqiUyfjnP+xh0rHE=
 github.com/abbeymart/mcutils v0.1.3 h1:vWVOwAvOI44N3BauWH1myOYi5VjC/kgd3i6jCMvxiPI=
 github.com/abbeymart/mcutils v0.1.3/go.mod h1:prN2zEmBkQr/YhD52R5biN52Mlal6hn34wirUNqhdC8=
 github.com/abbeymart/mcutils v0.1.4 h1:gGj9MXrMMMp61pB1f4iZzWSx1ONp+6IcUDzMBJFJHVc=

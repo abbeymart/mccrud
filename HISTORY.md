@@ -1,10 +1,14 @@
 # Historical logs
 
+## Version 0.6.4
+
+- Release date: June 24, 2021
+- updated mctypes to v0.4.3
+
 ## Version 0.6.3
 
 - Release date: June 24, 2021
 - updated mctypes to v0.4.1
-
 
 ## Version 0.6.2
 
