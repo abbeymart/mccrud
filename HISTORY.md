@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.6.5
+
+- Release date: June 24, 2021
+- refactored crud-types
+
 ## Version 0.6.4
 
 - Release date: June 24, 2021

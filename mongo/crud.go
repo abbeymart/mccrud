@@ -7,24 +7,24 @@ package mongo
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abbeymart/mccrud"
+	"github.com/abbeymart/mccrud/types"
 )
 
 type CrudMongo struct {
-	mccrud.MongoCrudTaskType
-	mccrud.MongoCrudOptionsType
+	types.MongoCrudTaskType
+	types.MongoCrudOptionsType
 	HashKey string // Unique for exactly the same query
 }
 
-// constructor
-func NewCrudMongo(params mccrud.MongoCrudTaskType, options mccrud.MongoCrudOptionsType) CrudMongo {
+// NewCrudMongo constructor
+func NewCrudMongo(params types.MongoCrudTaskType, options types.MongoCrudOptionsType) CrudMongo {
 	result := CrudMongo{}
 	// compute crud params
 	result.AppDb = params.AppDb
 	result.TableName = params.TableName
 	result.UserInfo = params.UserInfo
 	result.ActionParams = params.ActionParams
-	result.DocIds = params.DocIds
+	result.RecordIds = params.RecordIds
 	result.QueryParams = params.QueryParams
 	result.SortParams = params.SortParams
 	result.ProjectParams = params.ProjectParams
@@ -43,7 +43,7 @@ func NewCrudMongo(params mccrud.MongoCrudTaskType, options mccrud.MongoCrudOptio
 	result.UserTable = options.UserTable
 	result.AuditDb = options.AuditDb
 	result.AccessDb = options.AccessDb
-	result.LogAll = options.LogAll
+	result.LogCrud = options.LogCrud
 	result.LogRead = options.LogRead
 	result.LogCreate = options.LogCreate
 	result.LogUpdate = options.LogUpdate
@@ -53,7 +53,7 @@ func NewCrudMongo(params mccrud.MongoCrudTaskType, options mccrud.MongoCrudOptio
 	qParam, _ := json.Marshal(params.QueryParams)
 	sParam, _ := json.Marshal(params.SortParams)
 	pParam, _ := json.Marshal(params.ProjectParams)
-	dIds, _ := json.Marshal(params.DocIds)
+	dIds, _ := json.Marshal(params.RecordIds)
 	result.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
 
 	// TODO: TransLog instance

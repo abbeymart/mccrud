@@ -290,7 +290,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	if !taskPermitted {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
 			Message: "You are not authorized to perform the requested action/task.",
-			Value:   TaskPermissionType{
+			Value: TaskPermissionType{
 				Ok: taskPermitted,
 			},
 		})
@@ -299,7 +299,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	// if all went well
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Action authorised / permitted.",
-		Value:   TaskPermissionType{
+		Value: TaskPermissionType{
 			Ok:       taskPermitted,
 			IsAdmin:  isAdmin,
 			IsActive: isActive,

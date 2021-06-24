@@ -10,6 +10,7 @@ import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
+	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
 )
@@ -110,7 +111,7 @@ func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []inter
 	// get records to delete, for audit-log
 	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(CrudResultType)
+		value, _ := getRes.Value.(types.CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -142,7 +143,7 @@ func (crud *Crud) DeleteByParamLog(tableFields []string, tableFieldPointers []in
 	// get records to delete, for audit-log
 	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetByParam(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(CrudResultType)
+		value, _ := getRes.Value.(types.CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 

@@ -8,14 +8,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mccrud/types"
+
+	//"github.com/abbeymart/mccrud"
 	"github.com/asaskevich/govalidator"
 	"strings"
 	"time"
 )
 
-func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
-	return mctypes.CreateQueryResponseType{
+func errMessage(errMsg string) (types.CreateQueryResponseType, error) {
+	return types.CreateQueryResponseType{
 		CreateQuery: "",
 		FieldNames:  nil,
 		FieldValues: nil,
@@ -23,7 +25,7 @@ func errMessage(errMsg string) (mctypes.CreateQueryResponseType, error) {
 }
 
 // ComputeCreateQuery function computes insert SQL scripts. It returns createScripts []string and err error
-func ComputeCreateQuery(tableName string, actionParams mctypes.ActionParamsType, tableFields []string) ([]string, error) {
+func ComputeCreateQuery(tableName string, actionParams types.ActionParamsType, tableFields []string) ([]string, error) {
 	if tableName == "" || len(actionParams) < 1 {
 		return nil, errors.New("table-name, action-params and table-fields are required for the create operation")
 	}
@@ -213,7 +215,7 @@ func ComputeCreateQuery(tableName string, actionParams mctypes.ActionParamsType,
 }
 
 // ComputeCreateCopyQuery function computes insert SQL script. It returns createScripts []string, fieldNames []string and err error
-func ComputeCreateCopyQuery(tableName string, actionParams mctypes.ActionParamsType, tableFields []string) (mctypes.CreateQueryResponseType, error) {
+func ComputeCreateCopyQuery(tableName string, actionParams types.ActionParamsType, tableFields []string) (types.CreateQueryResponseType, error) {
 	if tableName == "" || len(actionParams) < 1 {
 		return errMessage("table-name and action-params are required for the create operation")
 	}
@@ -412,7 +414,7 @@ func ComputeCreateCopyQuery(tableName string, actionParams mctypes.ActionParamsT
 		recFieldValues = []interface{}{}
 	}
 	// result
-	return mctypes.CreateQueryResponseType{
+	return types.CreateQueryResponseType{
 		CreateQuery: insertQuery,
 		FieldNames:  tableFields,
 		FieldValues: fValues,

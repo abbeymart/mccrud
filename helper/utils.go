@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mctypes"
 	"github.com/asaskevich/govalidator"
 	"reflect"
@@ -89,8 +90,8 @@ func JsonDataETL(jsonRec []byte, rec interface{}) error {
 
 // DataToValueParam method accepts only a struct record/param (type/model) and returns the ActionParamType
 // data camel/Pascal-case keys are converted to underscore-keys to match table-field/columns specs
-func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
-	dataValue := mctypes.ValueParamType{}
+func DataToValueParam(rec interface{}) (types.ActionParamType, error) {
+	dataValue := types.ActionParamType{}
 	v := reflect.ValueOf(rec)
 	typeOfS := v.Type()
 
@@ -101,11 +102,11 @@ func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
 	return dataValue, nil
 }
 
-func DataToValueParam2(rec interface{}) (mctypes.ValueParamType, error) {
+func DataToValueParam2(rec interface{}) (mctypes.ActionParamType, error) {
 
 	switch rec.(type) {
 	case struct{}:
-		dataValue := mctypes.ValueParamType{}
+		dataValue := mctypes.ActionParamType{}
 		v := reflect.ValueOf(rec)
 		typeOfS := v.Type()
 

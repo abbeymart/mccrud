@@ -7,6 +7,7 @@ package mccrud
 import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccrud/helper"
+	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mctypes"
 	"time"
 )
@@ -75,7 +76,7 @@ var TestUserInfo = mctypes.UserInfoType{
 var Recs = TestParam{Name: "Abi", Desc: "Testing only", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
 var TableRecords, _ = helper.DataToValueParam(Recs)
 
-//fmt.Println("table-records-json", string(tableRecords))
+// NewRecs fmt.Println("table-records-json", string(tableRecords))
 var NewRecs = TestParam{Name: "Abi Akindele", Desc: "Testing only - updated", Url: "localhost:9900", Priority: 1, Cost: 2000.00}
 var NewTableRecords, _ = helper.DataToValueParam(NewRecs)
 
@@ -83,7 +84,7 @@ var NewTableRecords, _ = helper.DataToValueParam(NewRecs)
 //var ReadP = map[string][]string{"keywords": {"lagos", "nigeria", "ghana", "accra"}}
 //var ReadParams, _ = json.Marshal(ReadP)
 
-var TestCrudParamOptions = mctypes.CrudOptionsType{
+var TestCrudParamOptions = types.CrudOptionsType{
 	AuditTable:    "audits",
 	UserTable:     "users",
 	ServiceTable:  "services",
@@ -100,7 +101,7 @@ var TestCrudParamOptions = mctypes.CrudOptionsType{
 	MsgFrom:       "support@mconnect.biz",
 }
 
-// create record(s)
+// CreateRecordA create record(s)
 var CreateRecordA = mcauditlog.AuditRecord{
 	TableName:  "services",
 	LogRecords: TableRecords,
@@ -117,12 +118,12 @@ var CreateRecordB = mcauditlog.AuditRecord{
 }
 var valParam1, _ = helper.DataToValueParam(CreateRecordA)
 var valParam2, _ = helper.DataToValueParam(CreateRecordB)
-var CreateActionParams = mctypes.ActionParamsType{
+var CreateActionParams = types.ActionParamsType{
 	valParam1,
 	valParam2,
 }
 
-// update record(s)
+// UpdateRecordType update record(s)
 type UpdateRecordType struct {
 	Id            string
 	TableName     string
@@ -175,12 +176,12 @@ var UpdateRecordByParam = mcauditlog.AuditRecord{
 }
 
 var UpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var UpdateParams = mctypes.WhereParamType{
-	mctypes.QueryGroupType{
+var UpdateParams = types.QueryParamType{
+	types.QueryGroupType{
 		GroupName:   "id_logtype",
 		GroupOrder:  1,
 		GroupLinkOp: "or",
-		GroupItems: []mctypes.QueryItemType{
+		GroupItems: []types.QueryItemType{
 			{
 				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
 				GroupItemOrder: 1,
@@ -200,19 +201,19 @@ var updateRec2, _ = helper.DataToValueParam(UpdateRecordB)
 var updateRecId, _ = helper.DataToValueParam(UpdateRecordById)
 var updateRecParam, _ = helper.DataToValueParam(UpdateRecordByParam)
 
-var UpdateActionParams = mctypes.ActionParamsType{
+var UpdateActionParams = types.ActionParamsType{
 	updateRec1,
 	updateRec2,
 }
 
-var UpdateActionParamsById = mctypes.ActionParamsType{
+var UpdateActionParamsById = types.ActionParamsType{
 	updateRecId,
 }
-var UpdateActionParamsByParam = mctypes.ActionParamsType{
+var UpdateActionParamsByParam = types.ActionParamsType{
 	updateRecParam,
 }
 
-// get record(s)
+// GetRecordType get record(s)
 type GetRecordType struct {
 	Id            string
 	TableName     string
@@ -223,14 +224,14 @@ type GetRecordType struct {
 	LogAt         time.Time
 }
 
-// get by ids & params
+// GetIds get by ids & params
 var GetIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GetParams = mctypes.WhereParamType{
-	mctypes.QueryGroupType{
+var GetParams = types.QueryParamType{
+	types.QueryGroupType{
 		GroupName:   "id_table",
 		GroupOrder:  2,
 		GroupLinkOp: "and",
-		GroupItems: []mctypes.QueryItemType{
+		GroupItems: []types.QueryItemType{
 			{
 				GroupItem:      map[string]map[string]interface{}{"id": {"in": []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}},
 				GroupItemOrder: 1,
@@ -245,14 +246,14 @@ var GetParams = mctypes.WhereParamType{
 	},
 }
 
-// delete record(s) by ids & params
+// DeleteIds delete record(s) by ids & params
 var DeleteIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
-var DeleteParams = mctypes.WhereParamType{
-	mctypes.QueryGroupType{
+var DeleteParams = types.QueryParamType{
+	types.QueryGroupType{
 		GroupName:   "id_table",
 		GroupOrder:  2,
 		GroupLinkOp: "and",
-		GroupItems: []mctypes.QueryItemType{
+		GroupItems: []types.QueryItemType{
 			{
 				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
 				GroupItemOrder: 1,
@@ -265,11 +266,11 @@ var DeleteParams = mctypes.WhereParamType{
 			},
 		},
 	},
-	mctypes.QueryGroupType{
+	types.QueryGroupType{
 		GroupName:   "id_logtype",
 		GroupOrder:  1,
 		GroupLinkOp: "or",
-		GroupItems: []mctypes.QueryItemType{
+		GroupItems: []types.QueryItemType{
 			{
 				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
 				GroupItemOrder: 1,

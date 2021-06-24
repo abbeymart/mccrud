@@ -7,9 +7,9 @@ package mccrud
 import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
-	"github.com/abbeymart/mctypes"
 	"testing"
 	"time"
 )
@@ -43,26 +43,26 @@ func TestSave(t *testing.T) {
 	// audit-log instance
 	mcLog := mcauditlog.NewAuditLogPgx(dbc.DbConn, TestAuditTable)
 
-	createCrudParams := mctypes.CrudParamsType{
+	createCrudParams := types.CrudParamsType{
 		AppDb:        dbc.DbConn,
 		TableName:    TestTable,
 		UserInfo:     TestUserInfo,
 		ActionParams: CreateActionParams,
 	}
-	updateCrudParams := mctypes.CrudParamsType{
+	updateCrudParams := types.CrudParamsType{
 		AppDb:        dbc.DbConn,
 		TableName:    TestTable,
 		UserInfo:     TestUserInfo,
 		ActionParams: UpdateActionParams,
 	}
-	updateCrudParamsById := mctypes.CrudParamsType{
+	updateCrudParamsById := types.CrudParamsType{
 		AppDb:        dbc.DbConn,
 		TableName:    TestTable,
 		UserInfo:     TestUserInfo,
 		ActionParams: UpdateActionParamsById,
 		RecordIds:    UpdateIds,
 	}
-	updateCrudParamsByParam := mctypes.CrudParamsType{
+	updateCrudParamsByParam := types.CrudParamsType{
 		AppDb:        dbc.DbConn,
 		TableName:    TestTable,
 		UserInfo:     TestUserInfo,
@@ -101,7 +101,7 @@ func TestSave(t *testing.T) {
 			}
 			res := crud.Save([]string{})
 			fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(CrudResultType)
+			value, _ := res.Value.(types.CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
@@ -205,17 +205,17 @@ func TestSave(t *testing.T) {
 				logAt         time.Time
 			)
 			crud.RecordIds = []string{}
-			crud.QueryParams = mctypes.WhereParamType{}
+			crud.QueryParams = types.QueryParamType{}
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			saveRecParams := mctypes.SaveCrudParamsType{
+			saveRecParams := types.SaveCrudParamsType{
 				CreateTableFields:  CreateTableFields,
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}
 			res := crud.SaveRecord(saveRecParams)
 			fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(CrudResultType)
+			value, _ := res.Value.(types.CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
@@ -235,9 +235,9 @@ func TestSave(t *testing.T) {
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			updateCrud.RecordIds = []string{}
-			updateCrud.QueryParams = mctypes.WhereParamType{}
+			updateCrud.QueryParams = types.QueryParamType{}
 			// get-record method params
-			saveRecParams := mctypes.SaveCrudParamsType{
+			saveRecParams := types.SaveCrudParamsType{
 				UpdateTableFields:  UpdateTableFields,
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
@@ -262,9 +262,9 @@ func TestSave(t *testing.T) {
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			updateIdCrud.RecordIds = UpdateIds
-			updateIdCrud.QueryParams = mctypes.WhereParamType{}
+			updateIdCrud.QueryParams = types.QueryParamType{}
 			// get-record method params
-			saveRecParams := mctypes.SaveCrudParamsType{
+			saveRecParams := types.SaveCrudParamsType{
 				UpdateTableFields:  UpdateTableFields,
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
@@ -291,7 +291,7 @@ func TestSave(t *testing.T) {
 			updateParamCrud.RecordIds = []string{}
 			updateParamCrud.QueryParams = UpdateParams
 			// get-record method params
-			saveRecParams := mctypes.SaveCrudParamsType{
+			saveRecParams := types.SaveCrudParamsType{
 				UpdateTableFields:  UpdateTableFields,
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,

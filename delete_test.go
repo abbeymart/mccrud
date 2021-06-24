@@ -6,9 +6,9 @@ package mccrud
 
 import (
 	"fmt"
+	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
-	"github.com/abbeymart/mctypes"
 	"testing"
 	"time"
 )
@@ -36,14 +36,14 @@ func TestDelete(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
-	deleteCrudParams := mctypes.CrudParamsType{
+	deleteCrudParams := types.CrudParamsType{
 		AppDb:       dbc.DbConn,
 		TableName:   TestTable,
 		UserInfo:    TestUserInfo,
 		RecordIds:   DeleteIds,
 		QueryParams: DeleteParams,
 	}
-	deleteAllCrudParams := mctypes.CrudParamsType{
+	deleteAllCrudParams := types.CrudParamsType{
 		AppDb:     dbc.DbConn,
 		TableName: DeleteAllTable,
 		UserInfo:  TestUserInfo,
@@ -130,10 +130,10 @@ func TestDelete(t *testing.T) {
 				logAt         time.Time
 			)
 			deleteCrud.RecordIds = DeleteIds
-			deleteCrud.QueryParams = mctypes.WhereParamType{}
+			deleteCrud.QueryParams = types.QueryParamType{}
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			deleteRecParams := mctypes.DeleteCrudParamsType{
+			deleteRecParams := types.DeleteCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}
@@ -158,7 +158,7 @@ func TestDelete(t *testing.T) {
 			deleteCrud.QueryParams = DeleteParams
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			deleteRecParams := mctypes.DeleteCrudParamsType{
+			deleteRecParams := types.DeleteCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}

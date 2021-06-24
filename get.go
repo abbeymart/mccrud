@@ -11,6 +11,7 @@ import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
+	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
 	"time"
@@ -25,7 +26,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 	if getCacheRes.Ok && ok && len(val) > 0 {
 		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 			Message: "records successfully retrieved from the cache",
-			Value: CrudResultType{
+			Value: types.CrudResultType{
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  len(val),
@@ -147,7 +148,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: CrudResultType{
+		Value: types.CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
@@ -165,7 +166,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	if getCacheRes.Ok && ok && len(val) > 0 {
 		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 			Message: "records successfully retrieved from the cache",
-			Value: CrudResultType{
+			Value: types.CrudResultType{
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  len(val),
@@ -263,7 +264,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value: CrudResultType{
+			Value: types.CrudResultType{
 				QueryParam:   crud.QueryParams,
 				RecordIds:    crud.RecordIds,
 				RecordCount:  rowCount,
@@ -290,7 +291,7 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: CrudResultType{
+		Value: types.CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
@@ -412,7 +413,7 @@ func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{})
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: CrudResultType{
+		Value: types.CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
 			RecordCount:  rowCount,
