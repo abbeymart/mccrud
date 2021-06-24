@@ -117,6 +117,7 @@ func (crud Crud) String() string {
 }
 
 // Methods
+
 // SaveRecord function creates new record(s) or updates existing record(s)
 func (crud *Crud) SaveRecord(params mctypes.SaveCrudParamsType) mcresponse.ResponseMessage {
 	//  compute taskType-records from actionParams: create or update

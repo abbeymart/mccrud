@@ -87,7 +87,7 @@ func JsonDataETL(jsonRec []byte, rec interface{}) error {
 	}
 }
 
-// DataToValueParam method accepts only a struct record/param (type/model) and returns the ValueParamType
+// DataToValueParam method accepts only a struct record/param (type/model) and returns the ActionParamType
 // data camel/Pascal-case keys are converted to underscore-keys to match table-field/columns specs
 func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
 	dataValue := mctypes.ValueParamType{}
