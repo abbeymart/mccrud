@@ -7,7 +7,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud/types"
+	"github.com/abbeymart/mccrud"
 )
 
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
@@ -30,7 +30,7 @@ func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error
 }
 
 // ComputeDeleteQueryByParam function computes delete SQL script by parameter specifications
-func ComputeDeleteQueryByParam(tableName string, where types.QueryParamType) (string, error) {
+func ComputeDeleteQueryByParam(tableName string, where mccrud.QueryParamType) (string, error) {
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}

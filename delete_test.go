@@ -6,7 +6,6 @@ package mccrud
 
 import (
 	"fmt"
-	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
@@ -36,14 +35,14 @@ func TestDelete(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
-	deleteCrudParams := types.CrudParamsType{
+	deleteCrudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
 		TableName:   TestTable,
 		UserInfo:    TestUserInfo,
 		RecordIds:   DeleteIds,
 		QueryParams: DeleteParams,
 	}
-	deleteAllCrudParams := types.CrudParamsType{
+	deleteAllCrudParams := CrudParamsType{
 		AppDb:     dbc.DbConn,
 		TableName: DeleteAllTable,
 		UserInfo:  TestUserInfo,
@@ -111,7 +110,7 @@ func TestDelete(t *testing.T) {
 				logAt         time.Time
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			res := deleteCrud.DeleteByParamLog(DeleteSelectTableFields, tableFieldPointers )
+			res := deleteCrud.DeleteByParamLog(DeleteSelectTableFields, tableFieldPointers)
 			fmt.Printf("delete-by-params-log: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
 		},
@@ -130,10 +129,10 @@ func TestDelete(t *testing.T) {
 				logAt         time.Time
 			)
 			deleteCrud.RecordIds = DeleteIds
-			deleteCrud.QueryParams = types.QueryParamType{}
+			deleteCrud.QueryParams = QueryParamType{}
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			deleteRecParams := types.DeleteCrudParamsType{
+			deleteRecParams := DeleteCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}
@@ -158,7 +157,7 @@ func TestDelete(t *testing.T) {
 			deleteCrud.QueryParams = DeleteParams
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			deleteRecParams := types.DeleteCrudParamsType{
+			deleteRecParams := DeleteCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}

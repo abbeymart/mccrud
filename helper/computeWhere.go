@@ -7,7 +7,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud/types"
+	"github.com/abbeymart/mccrud"
 	"github.com/abbeymart/mctypes/groupOperators"
 	"github.com/abbeymart/mctypes/operators"
 	"sort"
@@ -16,7 +16,7 @@ import (
 )
 
 // ComputeWhereQuery function computes the multi-cases where-conditions for crud-operations
-func ComputeWhereQuery(where types.QueryParamType) (string, error) {
+func ComputeWhereQuery(where mccrud.QueryParamType) (string, error) {
 	if len(where) < 1 {
 		return "", errors.New("where condition is required")
 	}

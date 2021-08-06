@@ -8,22 +8,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
-	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
 )
 
 // Crud object / struct
 type Crud struct {
-	types.CrudParamsType
-	types.CrudOptionsType
+	CrudParamsType
+	CrudOptionsType
 	CurrentRecords []interface{}
 	TransLog       mcauditlog.PgxLogParam
 	HashKey        string // Unique for exactly the same query
 }
 
 // NewCrud constructor returns a new crud-instance
-func NewCrud(params types.CrudParamsType, options types.CrudOptionsType) (crudInstance *Crud) {
+func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud) {
 	crudInstance = &Crud{}
 	// compute crud params
 	crudInstance.AppDb = params.AppDb
@@ -34,7 +33,6 @@ func NewCrud(params types.CrudParamsType, options types.CrudOptionsType) (crudIn
 	crudInstance.QueryParams = params.QueryParams
 	crudInstance.SortParams = params.SortParams
 	crudInstance.ProjectParams = params.ProjectParams
-	crudInstance.ExistParams = params.ExistParams
 	crudInstance.Token = params.Token
 	crudInstance.TaskName = params.TaskName
 	crudInstance.Skip = params.Skip
@@ -119,12 +117,12 @@ func (crud Crud) String() string {
 // Methods
 
 // SaveRecord function creates new record(s) or updates existing record(s)
-func (crud *Crud) SaveRecord(params types.SaveCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) SaveRecord(params SaveCrudParamsType) mcresponse.ResponseMessage {
 	//  compute taskType-records from actionParams: create or update
 	var (
-		createRecs types.ActionParamsType // records without id field-value
-		updateRecs types.ActionParamsType // records with id field-value
-		recIds     []string                 // capture recordIds for separate/multiple updates
+		createRecs ActionParamsType // records without id field-value
+		updateRecs ActionParamsType // records with id field-value
+		recIds     []string         // capture recordIds for separate/multiple updates
 	)
 	for _, rec := range crud.ActionParams {
 		// determine if record exists (update) or is new (create)
@@ -208,7 +206,7 @@ func (crud *Crud) SaveRecord(params types.SaveCrudParamsType) mcresponse.Respons
 }
 
 // DeleteRecord function deletes/removes record(s) by id(s) or params
-func (crud *Crud) DeleteRecord(params types.DeleteCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteRecord(params DeleteCrudParamsType) mcresponse.ResponseMessage {
 	// check task-permission - delete
 	if crud.CheckAccess {
 		accessRes := crud.TaskPermission(tasks.Delete)
@@ -243,7 +241,7 @@ func (crud *Crud) DeleteRecord(params types.DeleteCrudParamsType) mcresponse.Res
 }
 
 // GetRecord function get records by id, params or all
-func (crud *Crud) GetRecord(params types.GetCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) GetRecord(params GetCrudParamsType) mcresponse.ResponseMessage {
 	// check task-permission - get/read
 	if crud.CheckAccess {
 		accessRes := crud.TaskPermission(tasks.Read)
@@ -267,7 +265,7 @@ func (crud *Crud) GetRecord(params types.GetCrudParamsType) mcresponse.ResponseM
 }
 
 // GetRecords function get records by id, params or all - lookup-items
-func (crud *Crud) GetRecords(params types.GetCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) GetRecords(params GetCrudParamsType) mcresponse.ResponseMessage {
 	// get-by-id
 	if len(crud.RecordIds) > 0 {
 		return crud.GetById(params.GetTableFields, params.TableFieldPointers)

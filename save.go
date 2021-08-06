@@ -10,7 +10,6 @@ import (
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
-	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcresponse"
 	"github.com/abbeymart/mctypes/tasks"
 	"github.com/jackc/pgx/v4"
@@ -21,9 +20,9 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 	//  determine taskType from actionParams: create or update
 	//  iterate through actionParams: update createRecs, updateRecs & crud.recordIds
 	var (
-		createRecs types.ActionParamsType // records without id field-value
-		updateRecs types.ActionParamsType // records with id field-value
-		recIds     []string                 // capture recordIds for separate/multiple updates
+		createRecs ActionParamsType // records without id field-value
+		updateRecs ActionParamsType // records with id field-value
+		recIds     []string         // capture recordIds for separate/multiple updates
 	)
 	for _, rec := range crud.ActionParams {
 		// determine if record existed (update) or is new (create)
@@ -83,7 +82,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 }
 
 // Create method creates new record(s)
-func (crud *Crud) Create(createRecs types.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) Create(createRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs, tableFields)
 	if qErr != nil {
@@ -145,7 +144,7 @@ func (crud *Crud) Create(createRecs types.ActionParamsType, tableFields []string
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: types.CrudResultType{
+		Value: CrudResultType{
 			RecordIds:   insertIds,
 			RecordCount: insertCount,
 		},
@@ -155,7 +154,7 @@ func (crud *Crud) Create(createRecs types.ActionParamsType, tableFields []string
 // CreateBatch method creates new record(s) by placeholder values from copy-create-query
 // resolve sql-values parsing error: only time.Time and String value requires '' wrapping
 // uuid, json and others (int/bool/float) should not be wrapped as placeholder values
-func (crud *Crud) CreateBatch(createRecs types.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) CreateBatch(createRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
@@ -220,7 +219,7 @@ func (crud *Crud) CreateBatch(createRecs types.ActionParamsType, tableFields []s
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: types.CrudResultType{
+		Value: CrudResultType{
 			RecordIds:   insertIds,
 			RecordCount: insertCount,
 		},
@@ -229,7 +228,7 @@ func (crud *Crud) CreateBatch(createRecs types.ActionParamsType, tableFields []s
 
 // CreateCopy method creates new record(s) using Pg CopyFrom
 // TODO: resolve sql-values parsing error (incorrect binary data format (SQLSTATE 22P03) - ?uuid primary key?)
-func (crud *Crud) CreateCopy(createRecs types.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
@@ -294,7 +293,7 @@ func (crud *Crud) CreateCopy(createRecs types.ActionParamsType, tableFields []st
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: types.CrudResultType{
+		Value: CrudResultType{
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(copyCount),
 		},
@@ -302,7 +301,7 @@ func (crud *Crud) CreateCopy(createRecs types.ActionParamsType, tableFields []st
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(updateRecs types.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) Update(updateRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, updateRecs, tableFields)
 	if err != nil {
@@ -349,7 +348,7 @@ func (crud *Crud) Update(updateRecs types.ActionParamsType, tableFields []string
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: types.CrudResultType{
+		Value: CrudResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: updateCount,
@@ -358,7 +357,7 @@ func (crud *Crud) Update(updateRecs types.ActionParamsType, tableFields []string
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateById(updateRecs types.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateById(updateRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, updateRecs, crud.RecordIds, tableFields)
 	if err != nil {
@@ -399,7 +398,7 @@ func (crud *Crud) UpdateById(updateRecs types.ActionParamsType, tableFields []st
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: types.CrudResultType{
+		Value: CrudResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(commandTag.RowsAffected()),
@@ -408,7 +407,7 @@ func (crud *Crud) UpdateById(updateRecs types.ActionParamsType, tableFields []st
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
-func (crud *Crud) UpdateByParam(updateRecs types.ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParam(updateRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRecs, crud.QueryParams, tableFields)
 	if err != nil {
@@ -449,7 +448,7 @@ func (crud *Crud) UpdateByParam(updateRecs types.ActionParamsType, tableFields [
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
-		Value: types.CrudResultType{
+		Value: CrudResultType{
 			QueryParam:  crud.QueryParams,
 			RecordIds:   crud.RecordIds,
 			RecordCount: int(commandTag.RowsAffected()),
@@ -457,11 +456,11 @@ func (crud *Crud) UpdateByParam(updateRecs types.ActionParamsType, tableFields [
 	})
 }
 
-func (crud *Crud) UpdateLog(updateRecs types.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateLog(updateRecs ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(types.CrudResultType)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -490,11 +489,11 @@ func (crud *Crud) UpdateLog(updateRecs types.ActionParamsType, tableFields []str
 	})
 }
 
-func (crud *Crud) UpdateByIdLog(updateRecs types.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByIdLog(updateRecs ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetById(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(types.CrudResultType)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 
@@ -523,11 +522,11 @@ func (crud *Crud) UpdateByIdLog(updateRecs types.ActionParamsType, tableFields [
 	})
 }
 
-func (crud *Crud) UpdateByParamLog(updateRecs types.ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParamLog(updateRecs ActionParamsType, tableFields []string, upTableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
 	// get records to update, for audit-log
 	if crud.LogUpdate && len(tableFields) == len(tableFieldPointers) {
 		getRes := crud.GetByParam(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(types.CrudResultType)
+		value, _ := getRes.Value.(CrudResultType)
 		crud.CurrentRecords = value.TableRecords
 	}
 

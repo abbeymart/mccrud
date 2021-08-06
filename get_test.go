@@ -7,7 +7,6 @@ package mccrud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abbeymart/mccrud/types"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
@@ -39,7 +38,7 @@ func TestGet(t *testing.T) {
 		return
 	}
 
-	getCrudParams := types.CrudParamsType{
+	getCrudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
 		TableName:   TestTable,
 		UserInfo:    TestUserInfo,
@@ -65,7 +64,7 @@ func TestGet(t *testing.T) {
 			res := getCrud.GetById(GetTableFields, tableFieldPointers)
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-id-value: %#v\n", value.TableRecords)
 			fmt.Printf("get-by-param-count: %v\n", value.RecordCount)
 			jsonRecs, _ := json.Marshal(value.TableRecords)
@@ -90,7 +89,7 @@ func TestGet(t *testing.T) {
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetByParam(GetTableFields, tableFieldPointers)
 			//fmt.Printf("get-by-param-response: %#v\n", res)
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-param-value: %#v\n", value.TableRecords)
 			fmt.Printf("get-by-param-count: %v\n", value.RecordCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
@@ -113,7 +112,7 @@ func TestGet(t *testing.T) {
 			)
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetAll(GetTableFields, tableFieldPointers)
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
 			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			fmt.Printf("get-by-all-count: %v\n", value.RecordCount)
@@ -138,7 +137,7 @@ func TestGet(t *testing.T) {
 			getCrud.Limit = 20
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			res := getCrud.GetAll(GetTableFields, tableFieldPointers)
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
 			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			fmt.Printf("get-by-all-limit-count: %v\n", value.RecordCount)
@@ -161,15 +160,15 @@ func TestGet(t *testing.T) {
 				logAt         time.Time
 			)
 			getCrud.RecordIds = GetIds
-			getCrud.QueryParams = types.QueryParamType{}
+			getCrud.QueryParams = QueryParamType{}
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			getRecParams := types.GetCrudParamsType{
+			getRecParams := GetCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}
 			res := getCrud.GetRecord(getRecParams)
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-all-count: %v\n", value.RecordCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordCount, 2, "get-task-count should be 2")
@@ -192,12 +191,12 @@ func TestGet(t *testing.T) {
 			getCrud.QueryParams = GetParams
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			getRecParams := types.GetCrudParamsType{
+			getRecParams := GetCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}
 			res := getCrud.GetRecord(getRecParams)
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
 			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			fmt.Printf("get-by-all-limit-count: %v\n", value.RecordCount)
@@ -221,15 +220,15 @@ func TestGet(t *testing.T) {
 			getCrud.Skip = 0
 			getCrud.Limit = 20
 			getCrud.RecordIds = []string{}
-			getCrud.QueryParams = types.QueryParamType{}
+			getCrud.QueryParams = QueryParamType{}
 			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			getRecParams := types.GetCrudParamsType{
+			getRecParams := GetCrudParamsType{
 				GetTableFields:     GetTableFields,
 				TableFieldPointers: tableFieldPointers,
 			}
 			res := getCrud.GetRecord(getRecParams)
-			value, _ := res.Value.(types.CrudResultType)
+			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
 			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			fmt.Printf("get-by-all-limit-count: %v\n", value.RecordCount)

@@ -8,12 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud/types"
+	"github.com/abbeymart/mccrud"
 	"github.com/asaskevich/govalidator"
 	"time"
 )
 
-func ComputeUpdateQuery(tableName string, actionParams types.ActionParamsType, tableFields []string) ([]string, error) {
+func ComputeUpdateQuery(tableName string, actionParams mccrud.ActionParamsType, tableFields []string) ([]string, error) {
 	if tableName == "" || len(actionParams) < 1 {
 		return nil, errors.New("table-name and action-params are required for the update operation")
 	}
@@ -101,7 +101,7 @@ func ComputeUpdateQuery(tableName string, actionParams types.ActionParamsType, t
 	return updateQuery, nil
 }
 
-func ComputeUpdateQueryById(tableName string, actionParams types.ActionParamsType, recordIds []string, tableFields []string) (string, error) {
+func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType, recordIds []string, tableFields []string) (string, error) {
 	if tableName == "" || len(actionParams) < 1 || len(recordIds) < 1 {
 		return "", errors.New("table-name, table-fields, action-params and record/doc-Ids are required for the update-by-id operation")
 	}
@@ -197,7 +197,7 @@ func ComputeUpdateQueryById(tableName string, actionParams types.ActionParamsTyp
 	return updateQuery, nil
 }
 
-func ComputeUpdateQueryByParam(tableName string, actionParams types.ActionParamsType, where types.QueryParamType, tableFields []string) (string, error) {
+func ComputeUpdateQueryByParam(tableName string, actionParams mccrud.ActionParamsType, where mccrud.QueryParamType, tableFields []string) (string, error) {
 	if tableName == "" || len(actionParams) < 1 || len(where) < 1 {
 		return "", errors.New("table-name, action-params and where-params are required for the update-by-params operation")
 	}
