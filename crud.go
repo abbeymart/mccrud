@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mcresponse"
-	"github.com/abbeymart/mctypes/tasks"
 )
 
 // Crud object / struct
@@ -44,7 +43,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.AccessTable = options.AccessTable
 	crudInstance.RoleTable = options.RoleTable
 	crudInstance.UserTable = options.UserTable
-	crudInstance.UserProfileTable = options.UserProfileTable
+	crudInstance.ProfileTable = options.ProfileTable
 	crudInstance.ServiceTable = options.ServiceTable
 	crudInstance.AuditDb = options.AuditDb
 	crudInstance.AccessDb = options.AccessDb
@@ -75,8 +74,8 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	if crudInstance.UserTable == "" {
 		crudInstance.UserTable = "users"
 	}
-	if crudInstance.UserProfileTable == "" {
-		crudInstance.UserProfileTable = "user_profile"
+	if crudInstance.ProfileTable == "" {
+		crudInstance.ProfileTable = "profiles"
 	}
 	if crudInstance.ServiceTable == "" {
 		crudInstance.ServiceTable = "services"
@@ -117,7 +116,7 @@ func (crud Crud) String() string {
 // Methods
 
 // SaveRecord function creates new record(s) or updates existing record(s)
-func (crud *Crud) SaveRecord(params SaveCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) mcresponse.ResponseMessage {
 	//  compute taskType-records from actionParams: create or update
 	var (
 		createRecs ActionParamsType // records without id field-value
@@ -157,7 +156,7 @@ func (crud *Crud) SaveRecord(params SaveCrudParamsType) mcresponse.ResponseMessa
 	if len(createRecs) > 0 {
 		// check task-permission - create
 		if crud.CheckAccess {
-			accessRes := crud.TaskPermission(tasks.Create)
+			accessRes := crud.TaskPermission(CreateTask)
 			if accessRes.Code != "success" {
 				return accessRes
 			}
@@ -168,7 +167,7 @@ func (crud *Crud) SaveRecord(params SaveCrudParamsType) mcresponse.ResponseMessa
 
 	// check task-permission - updates
 	if crud.CheckAccess {
-		accessRes := crud.TaskPermission(tasks.Update)
+		accessRes := crud.TaskPermission(UpdateTask)
 		if accessRes.Code != "success" {
 			return accessRes
 		}
@@ -206,10 +205,10 @@ func (crud *Crud) SaveRecord(params SaveCrudParamsType) mcresponse.ResponseMessa
 }
 
 // DeleteRecord function deletes/removes record(s) by id(s) or params
-func (crud *Crud) DeleteRecord(params DeleteCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage {
 	// check task-permission - delete
 	if crud.CheckAccess {
-		accessRes := crud.TaskPermission(tasks.Delete)
+		accessRes := crud.TaskPermission(DeleteTask)
 		if accessRes.Code != "success" {
 			return accessRes
 		}
@@ -241,10 +240,10 @@ func (crud *Crud) DeleteRecord(params DeleteCrudParamsType) mcresponse.ResponseM
 }
 
 // GetRecord function get records by id, params or all
-func (crud *Crud) GetRecord(params GetCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) GetRecord(modelRef interface{}) mcresponse.ResponseMessage {
 	// check task-permission - get/read
 	if crud.CheckAccess {
-		accessRes := crud.TaskPermission(tasks.Read)
+		accessRes := crud.TaskPermission(ReadTask)
 		if accessRes.Code != "success" {
 			return accessRes
 		}
@@ -265,7 +264,7 @@ func (crud *Crud) GetRecord(params GetCrudParamsType) mcresponse.ResponseMessage
 }
 
 // GetRecords function get records by id, params or all - lookup-items
-func (crud *Crud) GetRecords(params GetCrudParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) GetRecords(modelRef interface{}) mcresponse.ResponseMessage {
 	// get-by-id
 	if len(crud.RecordIds) > 0 {
 		return crud.GetById(params.GetTableFields, params.TableFieldPointers)

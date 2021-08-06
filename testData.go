@@ -6,90 +6,108 @@ package mccrud
 
 import (
 	"github.com/abbeymart/mcauditlog"
-	"github.com/abbeymart/mccrud/helper"
-	"github.com/abbeymart/mctypes"
 	"time"
 )
 
-const TestTable = "audits_test1"
+// Models
+
+type Group struct {
+	BaseModelType
+	Name string `json:"name" gorm:"unique" mcorm:"name"`
+}
+
+type Category struct {
+	BaseModelType
+	Name      string    `json:"name"  mcorm:"name"`
+	OwnerId   string    `json:"ownerId" mcorm:"owner_id"`
+	Path      string    `json:"path" mcorm:"path"`
+	Priority  uint      `json:"priority" mcorm:"priority"`
+	ParentId  *string   `json:"parentId" mcorm:"parent_id"`
+	GroupId   string    `json:"groupId" mcorm:"group_id"`
+	Group     Group     `json:"group" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" mcorm:"group"`
+	Parent    *Category `json:"parent" gorm:"foreignKey:ParentId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" mcorm:"parent"`
+	IconStyle string    `json:"iconStyle" mcorm:"icon_style"`
+}
+
+const GroupTable = "groups"
+const CategoryTable = "categories"
+const AuditTable = "audits"
 const DeleteAllTable = "audits_test2"
 const TestAuditTable = "audits"
 
-var CreateTableFields = []string{
-	"table_name",
-	"log_records",
-	"log_type",
-	"log_by",
-	"log_at",
-}
-
-var UpdateTableFields = []string{
-	"table_name",
-	"log_records",
-	"log_type",
-	"log_at",
-}
-
-var DeleteSelectTableFields = []string{
-	"id",
-	"table_name",
-	"log_records",
-	"new_log_records",
-	"log_by",
-	"log_type",
-	"log_at",
-}
-
-var GetTableFields = []string{
-	"id",
-	"table_name",
-	"log_records",
-	"new_log_records",
-	"log_by",
-	"log_type",
-	"log_at",
-}
-
-type TestParam struct {
-	Name     string  `json:"name"`
-	Desc     string  `json:"desc"`
-	Url      string  `json:"url"`
-	Priority int     `json:"priority"`
-	Cost     float64 `json:"cost"`
-}
-
 const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de"
 
-var TestUserInfo = mctypes.UserInfoType{
+var TestUserInfo = UserInfoType{
 	UserId:    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
 	LoginName: "abbeymart",
 	Email:     "abbeya1@yahoo.com",
 	Language:  "en-US",
-	FirstName: "Abi",
-	LastName:  "Akindele",
+	Firstname: "Abi",
+	Lastname:  "Akindele",
 	Token:     "",
 	Expire:    0,
-	Group:     "TBD",
+	Role:      "TBD",
 }
 
-var Recs = TestParam{Name: "Abi", Desc: "Testing only", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var TableRecords, _ = helper.DataToValueParam(Recs)
+// audit-logs records for create / update / delete / read log-
 
-// NewRecs fmt.Println("table-records-json", string(tableRecords))
-var NewRecs = TestParam{Name: "Abi Akindele", Desc: "Testing only - updated", Url: "localhost:9900", Priority: 1, Cost: 2000.00}
-var NewTableRecords, _ = helper.DataToValueParam(NewRecs)
+type AuditCreateRecordType struct {
+	Name     string  `json:"name" mcorm:"name"`
+	Desc     string  `json:"desc" mcorm:"desc"`
+	Url      string  `json:"url" mcorm:"url"`
+	Priority int     `json:"priority" mcorm:"priority"`
+	Cost     float64 `json:"cost" mcorm:"cost"`
+}
 
-//fmt.Println("new-table-records-json", string(newTableRecords))
-//var ReadP = map[string][]string{"keywords": {"lagos", "nigeria", "ghana", "accra"}}
-//var ReadParams, _ = json.Marshal(ReadP)
+var Recs = AuditCreateRecordType{Name: "Abi", Desc: "Testing only", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
+var TableRecords, _ = DataToValueParam(Recs)
+
+var NewRecs = AuditCreateRecordType{Name: "Abi Akindele", Desc: "Testing only - updated", Url: "localhost:9900", Priority: 1, Cost: 2000.00}
+var NewTableRecords, _ = DataToValueParam(NewRecs)
+
+// AuditUpdateRecordType update record(s)
+type AuditUpdateRecordType struct {
+	Id            string
+	TableName     string
+	LogRecords    interface{}
+	NewLogRecords interface{}
+	LogBy         string
+	LogType       string
+	LogAt         time.Time
+}
+
+var upRecs = AuditCreateRecordType{Name: "Abi100", Desc: "Testing only100", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
+var upTableRecords, _ = DataToValueParam(upRecs)
+var upRecs2 = AuditCreateRecordType{Name: "Abi200", Desc: "Testing only200", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
+var upTableRecords2, _ = DataToValueParam(upRecs2)
+var UpdateRecordA = AuditUpdateRecordType{
+	Id:            "d46a29db-a9a3-47b9-9598-e17a7338e474",
+	TableName:     "services",
+	LogRecords:    upTableRecords,
+	NewLogRecords: NewTableRecords,
+	LogBy:         UserId,
+	LogType:       mcauditlog.UpdateLog,
+	LogAt:         time.Now(),
+}
+var UpdateRecordB = AuditUpdateRecordType{
+	Id:            "8fcdc5d5-f4e3-4f98-ba19-16e798f81070",
+	TableName:     "services2",
+	LogRecords:    upTableRecords2,
+	NewLogRecords: NewTableRecords,
+	LogBy:         UserId,
+	LogType:       mcauditlog.UpdateLog,
+	LogAt:         time.Now(),
+}
 
 var TestCrudParamOptions = CrudOptionsType{
 	AuditTable:    "audits",
 	UserTable:     "users",
+	ProfileTable:  "profiles",
 	ServiceTable:  "services",
 	AccessTable:   "access_keys",
 	VerifyTable:   "verify_users",
 	RoleTable:     "roles",
+	LogCrud:       true,
 	LogCreate:     true,
 	LogUpdate:     true,
 	LogDelete:     true,
@@ -100,116 +118,88 @@ var TestCrudParamOptions = CrudOptionsType{
 	MsgFrom:       "support@mconnect.biz",
 }
 
-// CreateRecordA create record(s)
-var CreateRecordA = mcauditlog.AuditRecord{
-	TableName:  "services",
-	LogRecords: TableRecords,
-	LogBy:      UserId,
-	LogType:    mcauditlog.CreateLog,
-	LogAt:      time.Now(),
+// TODO: create/update, get & delete records for groups & categories tables
+
+// create record(s)
+
+var GroupCreateRec1 = ActionParamType{
+	"name": "services",
 }
-var CreateRecordB = mcauditlog.AuditRecord{
-	TableName:  "services",
-	LogRecords: TableRecords,
-	LogBy:      UserId,
-	LogType:    mcauditlog.CreateLog,
-	LogAt:      time.Now(),
-}
-var valParam1, _ = helper.DataToValueParam(CreateRecordA)
-var valParam2, _ = helper.DataToValueParam(CreateRecordB)
-var CreateActionParams = ActionParamsType{
-	valParam1,
-	valParam2,
+var GroupCreateRec2 = ActionParamType{
+	"name": "services",
 }
 
-// UpdateRecordType update record(s)
-type UpdateRecordType struct {
-	Id            string
-	TableName     string
-	LogRecords    interface{}
-	NewLogRecords interface{}
-	LogBy         string
-	LogType       string
-	LogAt         time.Time
+var GroupUpdateRec1 = ActionParamType{
+	"name": "services",
+}
+var GroupUpdateRec2 = ActionParamType{
+	"name": "services",
 }
 
-var upRecs = TestParam{Name: "Abi100", Desc: "Testing only100", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var upTableRecords, _ = helper.DataToValueParam(upRecs)
-var upRecs2 = TestParam{Name: "Abi200", Desc: "Testing only200", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var upTableRecords2, _ = helper.DataToValueParam(upRecs2)
-var UpdateRecordA = UpdateRecordType{
-	Id:            "d46a29db-a9a3-47b9-9598-e17a7338e474",
-	TableName:     "services",
-	LogRecords:    upTableRecords,
-	NewLogRecords: NewTableRecords,
-	LogBy:         UserId,
-	LogType:       mcauditlog.UpdateLog,
-	LogAt:         time.Now(),
-}
-var UpdateRecordB = UpdateRecordType{
-	Id:            "8fcdc5d5-f4e3-4f98-ba19-16e798f81070",
-	TableName:     "services2",
-	LogRecords:    upTableRecords2,
-	NewLogRecords: NewTableRecords,
-	LogBy:         UserId,
-	LogType:       mcauditlog.UpdateLog,
-	LogAt:         time.Now(),
+var CategoryCreateRec1 = ActionParamType{
+	"name": "services",
 }
 
-var UpdateRecordById = UpdateRecordType{
-	TableName:     "services2",
-	LogRecords:    upTableRecords,
-	NewLogRecords: NewTableRecords,
-	LogBy:         UserId,
-	LogType:       mcauditlog.UpdateLog,
-	LogAt:         time.Now(),
+var CategoryCreateRec2 = ActionParamType{
+	"name": "services",
 }
 
-var UpdateRecordByParam = mcauditlog.AuditRecord{
-	TableName:     "services3",
-	LogRecords:    upTableRecords2,
-	NewLogRecords: NewTableRecords,
-	LogBy:         UserId,
-	LogType:       mcauditlog.UpdateLog,
-	LogAt:         time.Now(),
+var CategoryUpdateRec1 = ActionParamType{
+	"name": "services",
 }
+
+var CategoryUpdateRec2 = ActionParamType{
+	"name": "services",
+}
+
+var GroupCreateActionParams = ActionParamsType{
+	GroupCreateRec1,
+	GroupCreateRec2,
+}
+
+var CategoryCreateActionParams = ActionParamsType{
+	CategoryCreateRec1,
+	CategoryCreateRec2,
+}
+
+// TODO: update and delete params (ids, queryParams)
+
+var GroupUpdateRecordById = ActionParamType{
+	"name": "services2",
+}
+
+var CategoryUpdateRecordById = ActionParamType{
+	"name": "services2",
+}
+
+var GroupUpdateRecordByParam = ActionParamType{
+	"name": "services2",
+}
+
+var CategoryUpdateRecordByParam = ActionParamType{
+	"name": "services2",
+}
+
+var GroupUpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
+var GroupUpdateParams = QueryParamType{}
+
+var CategoryUpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
+var CategoryUpdateParams = QueryParamType{}
 
 var UpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var UpdateParams = QueryParamType{
-	QueryParamType{
-		GroupName:   "id_logtype",
-		GroupOrder:  1,
-		GroupLinkOp: "or",
-		GroupItems: []QueryParamItemType{
-			{
-				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
-				GroupItemOrder: 1,
-				GroupItemOp:    "and",
-			},
-			{
-				GroupItem:      map[string]map[string]interface{}{"log_type": {"eq": "create"}},
-				GroupItemOrder: 2,
-				GroupItemOp:    "and",
-			},
-		},
-	},
+var UpdateParams = QueryParamType{}
+
+var GroupUpdateActionParams = ActionParamsType{
+	GroupUpdateRec1,
+	GroupUpdateRec2,
 }
 
-var updateRec1, _ = helper.DataToValueParam(UpdateRecordA)
-var updateRec2, _ = helper.DataToValueParam(UpdateRecordB)
-var updateRecId, _ = helper.DataToValueParam(UpdateRecordById)
-var updateRecParam, _ = helper.DataToValueParam(UpdateRecordByParam)
-
-var UpdateActionParams = ActionParamsType{
-	updateRec1,
-	updateRec2,
+var GroupUpdateActionParamsById = ActionParamsType{
+	GroupUpdateRecordById,
 }
-
-var UpdateActionParamsById = ActionParamsType{
-	updateRecId,
-}
-var UpdateActionParamsByParam = ActionParamsType{
-	updateRecParam,
+var GroupUpdateActionParamsByParam = ActionParamsType{
+	GroupUpdateRecordByParam,
+	GroupUpdateRecordByParam,
 }
 
 // GetRecordType get record(s)
@@ -225,61 +215,8 @@ type GetRecordType struct {
 
 // GetIds get by ids & params
 var GetIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GetParams = QueryParamType{
-	QueryParamType{
-		GroupName:   "id_table",
-		GroupOrder:  2,
-		GroupLinkOp: "and",
-		GroupItems: []QueryParamItemType{
-			{
-				GroupItem:      map[string]map[string]interface{}{"id": {"in": []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}}},
-				GroupItemOrder: 1,
-				GroupItemOp:    "and",
-			},
-			{
-				GroupItem:      map[string]map[string]interface{}{"table_name": {"eq": "services"}},
-				GroupItemOrder: 2,
-				GroupItemOp:    "and",
-			},
-		},
-	},
-}
+var GetParams = QueryParamType{}
 
 // DeleteIds delete record(s) by ids & params
 var DeleteIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
-var DeleteParams = QueryParamType{
-	QueryParamType{
-		GroupName:   "id_table",
-		GroupOrder:  2,
-		GroupLinkOp: "and",
-		GroupItems: []QueryParamItemType{
-			{
-				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
-				GroupItemOrder: 1,
-				GroupItemOp:    "and",
-			},
-			{
-				GroupItem:      map[string]map[string]interface{}{"table_name": {"eq": "services"}},
-				GroupItemOrder: 2,
-				GroupItemOp:    "and",
-			},
-		},
-	},
-	QueryParamType{
-		GroupName:   "id_logtype",
-		GroupOrder:  1,
-		GroupLinkOp: "or",
-		GroupItems: []QueryParamItemType{
-			{
-				GroupItem:      map[string]map[string]interface{}{"id": {"eq": "57d58438-2941-40f2-8e6f-c9e4539dab3e"}},
-				GroupItemOrder: 1,
-				GroupItemOp:    "and",
-			},
-			{
-				GroupItem:      map[string]map[string]interface{}{"log_type": {"eq": "create"}},
-				GroupItemOrder: 2,
-				GroupItemOp:    "and",
-			},
-		},
-	},
-}
+var DeleteParams = QueryParamType{}

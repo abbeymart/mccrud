@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcresponse"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"time"
 )
 
 type DbConnectionType *sql.DB
@@ -78,6 +79,20 @@ func CrudTasks() CrudTasksType {
 	}
 }
 
+const (
+	CreateTask = "create"
+	InsertTask = "insert"
+	UpdateTask = "update"
+	ReadTask   = "read"
+	DeleteTask = "delete"
+	RemoveTask = "remove"
+	LoginTask  = "login"
+	LogoutTask = "logout"
+	SystemTask = "system"
+	AppTask    = "app"
+	Unknown    = "unknown"
+)
+
 type UserInfoType struct {
 	UserId    string `json:"userId" form:"userId" mcorm:"user_id"`
 	Firstname string `json:"firstname" mcorm:"firstname"`
@@ -88,6 +103,19 @@ type UserInfoType struct {
 	Expire    int64  `json:"expire" mcorm:"expire"`
 	Email     string `json:"email" form:"email" mcorm:"email"`
 	Role      string `json:"role" mcorm:"role"`
+}
+
+type BaseModelType struct {
+	ID        string    `json:"id" mcorm:"id"`
+	Language  string    `json:"language" mcorm:"language"`
+	Desc      string    `json:"desc" mcorm:"desc"`
+	AppId     string    `json:"appId" mcorm:"app_id"`       // application-id in a multi-hosted apps environment (e.g. cloud-env)
+	IsActive  bool      `json:"isActive" mcorm:"is_active"` // => activate by modelOptionsType settings...
+	CreatedBy string    `json:"createdBy" mcorm:"created_by"`
+	CreatedAt time.Time `json:"createdAt" mcorm:"created_at"`
+	UpdatedBy string    `json:"updatedBy" mcorm:"updated_by"`
+	UpdatedAt time.Time `json:"updatedAt" mcorm:"updated_at"`
+	DeletedAt time.Time `json:"deletedAt" mcorm:"deleted_at"`
 }
 
 type RoleServiceType struct {
@@ -169,7 +197,7 @@ type CrudOptionsType struct {
 	RoleTable             string
 	AccessTable           string
 	VerifyTable           string
-	UserProfileTable      string
+	ProfileTable          string
 	MaxQueryLimit         int
 	LogCrud               bool
 	LogCreate             bool

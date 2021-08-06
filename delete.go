@@ -11,7 +11,6 @@ import (
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
-	"github.com/abbeymart/mctypes/tasks"
 )
 
 // DeleteById method deletes or removes record(s) by record-id(s)
@@ -72,7 +71,7 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 // Use if and only if you know what you are doing
 func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	// ***** perform DELETE-ALL-RECORDS FROM A TABLE, IF RELATIONS/CONSTRAINTS PERMIT *****
-	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING *****
+	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING && AT-YOUR-OWN-RISK *****
 	// compute delete query
 	delQuery := fmt.Sprintf("DELETE FROM %v", crud.TableName)
 	commandTag, delErr := crud.AppDb.Exec(context.Background(), delQuery)
@@ -93,7 +92,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 			TableName:  crud.TableName,
 			LogRecords: map[string]string{"query_desc": "all-records"},
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -124,7 +123,7 @@ func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []inter
 			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -156,7 +155,7 @@ func (crud *Crud) DeleteByParamLog(tableFields []string, tableFieldPointers []in
 			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Delete, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)

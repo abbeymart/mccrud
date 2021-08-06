@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
-	"github.com/abbeymart/mctypes"
-	"github.com/abbeymart/mctypes/tasks"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"strings"
 	"time"
@@ -21,8 +19,8 @@ import (
 // and to assert returned value
 type AccessInfoType struct {
 	UserId   string
-	Group    string
-	Groups   []string
+	RoleId   string
+	RoleIds  []string
 	IsAdmin  bool
 	IsActive bool
 }
@@ -39,9 +37,9 @@ type TaskPermissionType struct {
 }
 
 // TaskPermission method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
-// for various tasks: create/insert, update, delete/remove, read
+// for various : create/insert, update, delete/remove, read
 func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
-	// permit crud tasks: by owner, role/group (on coll/table or doc/record(s)) or admin
+	// permit crud : by owner, role/group (on coll/table or doc/record(s)) or admin
 	// task permission access variables
 	var (
 		taskPermitted   = false
@@ -54,7 +52,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 		tableId         = ""
 		group           = ""
 		groups          []string
-		roleServices    []mctypes.RoleServiceType
+		roleServices    []RoleServiceType
 	)
 
 	// check role-based access
@@ -65,7 +63,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	}
 
 	// get access-record
-	accessRec, ok := accessRes.Value.(mctypes.CheckAccessType)
+	accessRec, ok := accessRes.Value.(CheckAccessType)
 	if !ok {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
 			Message: "Error parsing task access information/value",
@@ -77,8 +75,8 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	isActive = accessRec.IsActive
 	roleServices = accessRec.RoleServices
 	userId = accessRec.UserId
-	group = accessRec.Group
-	groups = accessRec.Groups
+	group = accessRec.RoleId
+	groups = accessRec.RoleIds
 	tableId = accessRec.TableId
 
 	// validate active status
@@ -134,15 +132,15 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	}
 
 	// filter the roleServices by categories ("collection | table" or "record | document")
-	collTabFunc := func(item mctypes.RoleServiceType) bool {
+	collTabFunc := func(item RoleServiceType) bool {
 		return item.ServiceCategory == tableId
 	}
-	recordFunc := func(item mctypes.RoleServiceType) bool {
+	recordFunc := func(item RoleServiceType) bool {
 		return helper.ArrayStringContains(recordIds, item.ServiceCategory)
 	}
 
 	var (
-		roleTables, roleRecords []mctypes.RoleServiceType
+		roleTables, roleRecords []RoleServiceType
 	)
 	if len(roleServices) > 0 {
 		for _, v := range roleServices {
@@ -158,30 +156,30 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	}
 
 	// helper functions
-	canCreateFunc := func(item mctypes.RoleServiceType) bool {
+	canCreateFunc := func(item RoleServiceType) bool {
 		return item.CanCreate
 	}
-	canUpdateFunc := func(item mctypes.RoleServiceType) bool {
+	canUpdateFunc := func(item RoleServiceType) bool {
 		return item.CanUpdate
 	}
-	canDeleteFunc := func(item mctypes.RoleServiceType) bool {
+	canDeleteFunc := func(item RoleServiceType) bool {
 		return item.CanDelete
 	}
-	canReadFunc := func(item mctypes.RoleServiceType) bool {
+	canReadFunc := func(item RoleServiceType) bool {
 		return item.CanRead
 	}
 
-	roleUpdateFunc := func(it1 string, it2 mctypes.RoleServiceType) bool {
+	roleUpdateFunc := func(it1 string, it2 RoleServiceType) bool {
 		return it2.ServiceId == it1 && it2.CanUpdate
 	}
-	roleDeleteFunc := func(it1 string, it2 mctypes.RoleServiceType) bool {
+	roleDeleteFunc := func(it1 string, it2 RoleServiceType) bool {
 		return it2.ServiceId == it1 && it2.CanDelete
 	}
-	roleReadFunc := func(it1 string, it2 mctypes.RoleServiceType) bool {
+	roleReadFunc := func(it1 string, it2 RoleServiceType) bool {
 		return it2.ServiceId == it1 && it2.CanRead
 	}
 
-	roleRecFunc := func(it1 string, roleRecs []mctypes.RoleServiceType, roleFunc mctypes.RoleFuncType) bool {
+	roleRecFunc := func(it1 string, roleRecs []RoleServiceType, roleFunc RoleFuncType) bool {
 		// test if any/some of the roleRecords it1/it2 met the access condition
 		for _, it2 := range roleRecs {
 			if roleFunc(it1, it2) {
@@ -194,7 +192,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	// taskType specific permission(s)
 	if !isAdmin && len(roleServices) > 0 {
 		switch taskType {
-		case tasks.Create, tasks.Insert:
+		case CreateTask, InsertTask:
 			// collection/table level access | only tableId was included in serviceIds
 			// must be able to perform create on the specified tableId(s)
 			if len(roleTables) > 0 {
@@ -207,7 +205,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 					return true
 				}()
 			}
-		case tasks.Update:
+		case UpdateTask:
 			// collection/table level access
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
@@ -230,7 +228,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 					return true
 				}()
 			}
-		case tasks.Delete, tasks.Remove:
+		case DeleteTask, RemoveTask:
 			// collection/table level access
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
@@ -253,7 +251,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 					return true
 				}()
 			}
-		case tasks.Read:
+		case ReadTask:
 			// collection/table level access
 			if len(roleTables) > 0 {
 				tablePermitted = func() bool {
@@ -321,15 +319,15 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 	// set current-user info for next steps
 	var (
 		uId      string
-		group    string
-		groups   []string
+		roleId   string
+		roleIds  []string
 		isAdmin  bool
 		isActive bool
 	)
 	if val, ok := accessRes.Value.(AccessInfoType); ok {
 		uId = val.UserId
-		group = val.Group
-		groups = val.Groups
+		roleId = val.RoleId
+		roleIds = val.RoleIds
 		isAdmin = val.IsAdmin
 		isActive = val.IsActive
 	} else {
@@ -363,10 +361,10 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 		serviceIds = append(serviceIds, serviceId)
 	}
 
-	var roleServices []mctypes.RoleServiceType
+	var roleServices []RoleServiceType
 	var rsErr error
 	if len(serviceIds) > 0 {
-		roleServices, rsErr = crud.GetRoleServices(crud.AccessDb, crud.RoleTable, group, serviceIds)
+		roleServices, rsErr = crud.GetRoleServices(crud.AccessDb, crud.RoleTable, roleId, serviceIds)
 		if rsErr != nil {
 			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Action un-authorised / not-permitted | %v", rsErr.Error()),
@@ -375,10 +373,10 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 		}
 	}
 
-	permittedRes := mctypes.CheckAccessType{
+	permittedRes := CheckAccessType{
 		UserId:       uId,
-		Group:        group,
-		Groups:       groups,
+		RoleId:       roleId,
+		RoleIds:      roleIds,
 		IsActive:     isActive,
 		IsAdmin:      isAdmin,
 		RoleServices: roleServices,
@@ -393,8 +391,8 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 }
 
 // GetRoleServices method process and returns the permission to user / user-group for the specified service items
-func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, groupId string, serviceIds []string) ([]mctypes.RoleServiceType, error) {
-	var roleServices []mctypes.RoleServiceType
+func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, groupId string, serviceIds []string) ([]RoleServiceType, error) {
+	var roleServices []RoleServiceType
 	roleScript := fmt.Sprintf("SELECT id, service_id, service_category, can_read, can_create, can_delete, can_update from %v WHERE service_id IN ($1) AND group_id=$2 AND is_active=$3", roleTable)
 	// where-in-values
 	inValues := ""
@@ -418,7 +416,7 @@ func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, grou
 	)
 	for rows.Next() {
 		if err := rows.Scan(&roleId, &serviceId, &serviceCategory, &canRead, &canCreate, &canDelete, &canUpdate); err == nil {
-			roleServices = append(roleServices, mctypes.RoleServiceType{
+			roleServices = append(roleServices, RoleServiceType{
 				ServiceId:       serviceId,
 				RoleId:          roleId,
 				ServiceCategory: serviceCategory,
@@ -471,7 +469,7 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 		})
 	}
 	// get default-group from user profile
-	pScript := fmt.Sprintf("SELECT group from %v WHERE user_id=$1 is_active=$2", crud.UserProfileTable)
+	pScript := fmt.Sprintf("SELECT group from %v WHERE user_id=$1 is_active=$2", crud.ProfileTable)
 	userProfile := crud.AccessDb.QueryRow(context.Background(), pScript, crud.UserInfo.UserId, true)
 	if err := userProfile.Scan(&group); err != nil {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
@@ -485,8 +483,8 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 		Message: "Action authorised / permitted.",
 		Value: AccessInfoType{
 			UserId:   uId,
-			Group:    group,
-			Groups:   groups,
+			RoleId:   group,
+			RoleIds:  groups,
 			IsAdmin:  isAdmin,
 			IsActive: isActive,
 		},
@@ -494,7 +492,7 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 }
 
 // CheckLoginStatus method checks if the user exists and has active login status/token
-func (crud *Crud) CheckLoginStatus(params mctypes.UserInfoType) mcresponse.ResponseMessage {
+func (crud *Crud) CheckLoginStatus(params UserInfoType) mcresponse.ResponseMessage {
 	// check if user exists, from users table
 	emailUsername := helper.EmailUsername(params.LoginName)
 	email := emailUsername.Email

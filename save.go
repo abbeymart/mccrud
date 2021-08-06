@@ -11,7 +11,6 @@ import (
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
-	"github.com/abbeymart/mctypes/tasks"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -59,7 +58,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 		return crud.CreateBatch(createRecs, tableFields)
 	}
 
-	// update each record by it's recordId
+	// update each record by its recordId
 	if len(updateRecs) >= 1 && (len(recIds) == len(updateRecs)) {
 		return crud.Update(updateRecs, tableFields)
 	}
@@ -74,7 +73,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 		return crud.UpdateByParam(updateRecs, tableFields)
 	}
 
-	// otherwise return saveError
+	// otherwise, return saveError
 	return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
 		Message: "Save error: incomplete or invalid action/query-params provided",
 		Value:   nil,
@@ -99,7 +98,12 @@ func (crud *Crud) Create(createRecs ActionParamsType, tableFields []string) mcre
 			Value:   nil,
 		})
 	}
-	defer tx.Rollback(context.Background())
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
 
 	// perform records' creation
 	insertCount := 0
@@ -136,7 +140,7 @@ func (crud *Crud) Create(createRecs ActionParamsType, tableFields []string) mcre
 			TableName:  crud.TableName,
 			LogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(CreateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -172,7 +176,12 @@ func (crud *Crud) CreateBatch(createRecs ActionParamsType, tableFields []string)
 			Value:   nil,
 		})
 	}
-	defer tx.Rollback(context.Background())
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
 
 	// perform records' creation
 	insertCount := 0
@@ -211,7 +220,7 @@ func (crud *Crud) CreateBatch(createRecs ActionParamsType, tableFields []string)
 			TableName:  crud.TableName,
 			LogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(CreateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -249,7 +258,12 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) 
 			Value:   nil,
 		})
 	}
-	defer tx.Rollback(context.Background())
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
 
 	// bulk create
 	copyCount, cErr := tx.CopyFrom(
@@ -285,7 +299,7 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) 
 			TableName:  crud.TableName,
 			LogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Create, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(CreateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -318,7 +332,13 @@ func (crud *Crud) Update(updateRecs ActionParamsType, tableFields []string) mcre
 			Value:   nil,
 		})
 	}
-	defer tx.Rollback(context.Background())
+	//defer tx.Rollback(context.Background())
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
 	// perform records' updates
 	updateCount := 0
 	//fmt.Printf("update-queries: %v\n", updateQuery)
@@ -374,7 +394,12 @@ func (crud *Crud) UpdateById(updateRecs ActionParamsType, tableFields []string) 
 			Value:   nil,
 		})
 	}
-	defer tx.Rollback(context.Background())
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
 	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
@@ -424,7 +449,12 @@ func (crud *Crud) UpdateByParam(updateRecs ActionParamsType, tableFields []strin
 			Value:   nil,
 		})
 	}
-	defer tx.Rollback(context.Background())
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
 	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
@@ -475,7 +505,7 @@ func (crud *Crud) UpdateLog(updateRecs ActionParamsType, tableFields []string, u
 			LogRecords:    crud.CurrentRecords,
 			NewLogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -508,7 +538,7 @@ func (crud *Crud) UpdateByIdLog(updateRecs ActionParamsType, tableFields []strin
 			LogRecords:    crud.CurrentRecords,
 			NewLogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
@@ -541,7 +571,7 @@ func (crud *Crud) UpdateByParamLog(updateRecs ActionParamsType, tableFields []st
 			LogRecords:    crud.CurrentRecords,
 			NewLogRecords: crud.ActionParams,
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(tasks.Update, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr := crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)

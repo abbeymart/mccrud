@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.7.0
+
+- Release date: Aug 08, 2021
+- refactored / re-write, focus on standard-simple crud-tasks
+
 ## Version 0.6.5
 
 - Release date: June 24, 2021
