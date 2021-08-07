@@ -15,7 +15,7 @@ import (
 )
 
 // Save method creates new record(s) or updates existing record(s)
-func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) Save(modelRef interface{}, recs interface{}, batch int) mcresponse.ResponseMessage {
 	//  determine taskType from actionParams: create or update
 	//  iterate through actionParams: update createRecs, updateRecs & crud.recordIds
 	var (
@@ -81,7 +81,7 @@ func (crud *Crud) Save(tableFields []string) mcresponse.ResponseMessage {
 }
 
 // Create method creates new record(s)
-func (crud *Crud) Create(createRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) Create(modelRef interface{}, recs interface{}, batch int) mcresponse.ResponseMessage {
 	// compute query
 	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs, tableFields)
 	if qErr != nil {
@@ -158,7 +158,7 @@ func (crud *Crud) Create(createRecs ActionParamsType, tableFields []string) mcre
 // CreateBatch method creates new record(s) by placeholder values from copy-create-query
 // resolve sql-values parsing error: only time.Time and String value requires '' wrapping
 // uuid, json and others (int/bool/float) should not be wrapped as placeholder values
-func (crud *Crud) CreateBatch(createRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) CreateBatch(recs interface{}, batch int) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
@@ -315,7 +315,7 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) 
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(updateRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) Update(modelRef interface{}, recs interface{}) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, updateRecs, tableFields)
 	if err != nil {
@@ -377,7 +377,62 @@ func (crud *Crud) Update(updateRecs ActionParamsType, tableFields []string) mcre
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateById(updateRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateById(modelRef interface{}, recs interface{}, id string) mcresponse.ResponseMessage {
+	// create from updatedRecs (actionParams)
+	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, updateRecs, crud.RecordIds, tableFields)
+	if err != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
+			Value:   nil,
+		})
+	}
+	// perform update action, via transaction:
+	tx, txErr := crud.AppDb.Begin(context.Background())
+	if txErr != nil {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txErr.Error()),
+			Value:   nil,
+		})
+	}
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+		}
+	}(tx, context.Background())
+	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+	if updateErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", updateErr.Error()),
+			Value:   nil,
+		})
+	}
+	// commit
+	txcErr := tx.Commit(context.Background())
+	if txcErr != nil {
+		_ = tx.Rollback(context.Background())
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error updating record(s): %v", txcErr.Error()),
+			Value:   nil,
+		})
+	}
+
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "Record(s) update completed successfully",
+		Value: CrudResultType{
+			QueryParam:  crud.QueryParams,
+			RecordIds:   crud.RecordIds,
+			RecordCount: int(commandTag.RowsAffected()),
+		},
+	})
+}
+
+// UpdateByIds method updates existing records (in batch) that met the specified record-id(s)
+func (crud *Crud) UpdateByIds(modelRef interface{}, recs interface{}) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, updateRecs, crud.RecordIds, tableFields)
 	if err != nil {
@@ -432,7 +487,7 @@ func (crud *Crud) UpdateById(updateRecs ActionParamsType, tableFields []string) 
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
-func (crud *Crud) UpdateByParam(updateRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParam(modelRef interface{}, recs interface{}) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRecs, crud.QueryParams, tableFields)
 	if err != nil {

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mcresponse"
+	"time"
 )
 
 // Crud object / struct
@@ -117,6 +118,10 @@ func (crud Crud) String() string {
 
 // SaveRecord function creates new record(s) or updates existing record(s)
 func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) mcresponse.ResponseMessage {
+	// default value
+	if batch == 0 {
+		batch = 10000
+	}
 	//  compute taskType-records from actionParams: create or update
 	var (
 		createRecs ActionParamsType // records without id field-value
@@ -125,83 +130,85 @@ func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) 
 	)
 	for _, rec := range crud.ActionParams {
 		// determine if record exists (update) or is new (create)
-		if fieldValue, ok := rec["id"]; ok && fieldValue != "" {
-			// validate fieldValue as string
-			switch fieldValue.(type) {
-			case string:
-				updateRecs = append(updateRecs, rec)
-				recIds = append(recIds, fieldValue.(string))
-			default:
-				// invalid fieldValue type (string)
-				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("Invalid fieldValue type for fieldName: id, in record: %v", rec),
-					Value:   nil,
-				})
-			}
-		} else if len(crud.ActionParams) == 1 && (len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0) {
+		recId, ok := rec["id"]
+		recIdStr, idOk := recId.(string)
+		if ok && recId != nil && idOk && recIdStr != "" {
+			rec["updatedBy"] = crud.UserInfo.UserId
+			rec["updatedAt"] = time.Now()
+			recIds = append(recIds, recIdStr)
 			updateRecs = append(updateRecs, rec)
 		} else {
+			rec["createdBy"] = crud.UserInfo.UserId
+			rec["createdAt"] = time.Now()
 			createRecs = append(createRecs, rec)
 		}
 	}
 
-	// permit only create or update, not both at the same time
-	if len(createRecs) > 0 && len(updateRecs) > 0 {
+	// TODO: set action-type (create or update)
+	if len(updateRecs) > 1 && len(recIds) > 1 && len(recIds) == len(updateRecs) {
+		crud.TaskType = UpdateTask
+		crud.RecordIds = recIds
+	} else if len(updateRecs) == 1 && len(recIds) == 1 && (len(crud.RecordIds) > 0 || crud.QueryParams != nil) {
+		crud.TaskType = UpdateTask
+	} else if len(recIds) == 0 && len(createRecs) > 0 {
+		crud.TaskType = CreateTask
+	} else {
+		// return only create or update task permitted
 		return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
 			Message: "You may only create or update record(s), not both at the same time",
 			Value:   nil,
 		})
 	}
 
-	if len(createRecs) > 0 {
-		// check task-permission - create
+	// create/insert new record(s)
+	if crud.TaskType == CrudTasks().Create {
+		// check task-permission
 		if crud.CheckAccess {
-			accessRes := crud.TaskPermission(CreateTask)
+			accessRes := crud.TaskPermission(crud.TaskType)
 			if accessRes.Code != "success" {
 				return accessRes
 			}
 		}
 		// save-record(s): create/insert new record(s): len(recordIds) = 0 && len(createRecs) > 0
-		return crud.CreateBatch(createRecs, params.CreateTableFields)
+		return crud.CreateBatch(recs, batch)
 	}
 
-	// check task-permission - updates
-	if crud.CheckAccess {
-		accessRes := crud.TaskPermission(UpdateTask)
-		if accessRes.Code != "success" {
-			return accessRes
+	if crud.TaskType == CrudTasks().Update {
+		// check task-permission
+		if crud.CheckAccess {
+			accessRes := crud.TaskPermission(crud.TaskType)
+			if accessRes.Code != "success" {
+				return accessRes
+			}
+		}
+		// update 1 or more records by ids or queryParams
+		if len(crud.ActionParams) == 1 {
+			upRec := recs.([]interface{})[0]
+			// update record(s) by recordIds
+			if len(crud.RecordIds) > 1 {
+				return crud.UpdateByIds(modelRef, upRec)
+			}
+			// update the record by recordId
+			if len(crud.RecordIds) == 1 {
+				return crud.UpdateById(modelRef, upRec, crud.RecordIds[0])
+			}
+			// update record(s) by queryParams
+			if len(crud.QueryParams) > 0 {
+				return crud.UpdateByParam(modelRef, upRec)
+			}
+		}
+		// update multiple records
+		if len(crud.ActionParams) > 1 {
+			return crud.Update(modelRef, recs)
 		}
 	}
 
-	// update each record by it's recordId
-	if len(updateRecs) >= 1 && (len(recIds) == len(updateRecs)) {
-		if params.AuditLog || crud.LogUpdate {
-			return crud.UpdateLog(updateRecs, params.GetTableFields, params.UpdateTableFields, params.TableFieldPointers)
-		}
-		return crud.Update(updateRecs, params.UpdateTableFields)
-	}
-
-	// update record(s) by recordIds
-	if len(updateRecs) == 1 && len(crud.RecordIds) > 0 {
-		if params.AuditLog || crud.LogUpdate {
-			return crud.UpdateByIdLog(updateRecs, params.GetTableFields, params.UpdateTableFields, params.TableFieldPointers)
-		}
-		return crud.UpdateById(updateRecs, params.UpdateTableFields)
-	}
-
-	// update record(s) by queryParams
-	if len(updateRecs) == 1 && len(crud.QueryParams) > 0 {
-		if params.AuditLog || crud.LogUpdate {
-			return crud.UpdateByParamLog(updateRecs, params.GetTableFields, params.UpdateTableFields, params.TableFieldPointers)
-		}
-		return crud.UpdateByParam(updateRecs, params.UpdateTableFields)
-	}
-
-	// otherwise return saveError
+	// otherwise, return saveError
 	return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
 		Message: "Save error: incomplete or invalid action/query-params provided",
 		Value:   nil,
 	})
+
 }
 
 // DeleteRecord function deletes/removes record(s) by id(s) or params
@@ -214,24 +221,16 @@ func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage 
 		}
 	}
 
-	// delete-by-id
-	if len(crud.RecordIds) > 0 {
-		if params.AuditLog || crud.LogDelete {
-			return crud.DeleteByIdLog(params.GetTableFields, params.TableFieldPointers)
-		}
-		return crud.DeleteById()
+	if len(crud.RecordIds) == 1 {
+		return crud.DeleteById(modelRef, crud.RecordIds[0])
 	}
-
-	// delete-by-param
-	if len(crud.QueryParams) > 0 {
-		if params.AuditLog || crud.LogDelete {
-			return crud.DeleteByParamLog(params.GetTableFields, params.TableFieldPointers)
-		}
-		return crud.DeleteByParam()
+	if len(crud.RecordIds) > 1 {
+		return crud.DeleteByIds(modelRef)
 	}
-
+	if crud.QueryParams != nil && len(crud.QueryParams) > 0 {
+		return crud.DeleteByParam(modelRef)
+	}
 	// delete-all ***RESTRICTED***
-
 	// otherwise return error
 	return mcresponse.GetResMessage("removeError", mcresponse.ResponseMessageOptions{
 		Message: "Remove error: incomplete or invalid query-conditions provided",
@@ -249,32 +248,28 @@ func (crud *Crud) GetRecord(modelRef interface{}) mcresponse.ResponseMessage {
 		}
 	}
 
-	// get-by-id
-	if len(crud.RecordIds) > 0 {
-		return crud.GetById(params.GetTableFields, params.TableFieldPointers)
+	if len(crud.RecordIds) == 1 {
+		return crud.GetById(modelRef, crud.RecordIds[0])
 	}
-
-	// get-by-param
-	if len(crud.QueryParams) > 0 {
-		return crud.GetByParam(params.GetTableFields, params.TableFieldPointers)
+	if len(crud.RecordIds) > 1 {
+		return crud.GetByIds(modelRef)
 	}
-
-	// get-all-up-to-limit
-	return crud.GetAll(params.GetTableFields, params.TableFieldPointers)
+	if crud.QueryParams != nil && len(crud.QueryParams) > 0 {
+		return crud.GetByParam(modelRef)
+	}
+	return crud.GetAll(modelRef)
 }
 
 // GetRecords function get records by id, params or all - lookup-items
 func (crud *Crud) GetRecords(modelRef interface{}) mcresponse.ResponseMessage {
-	// get-by-id
-	if len(crud.RecordIds) > 0 {
-		return crud.GetById(params.GetTableFields, params.TableFieldPointers)
+	if len(crud.RecordIds) == 1 {
+		return crud.GetById(modelRef, crud.RecordIds[0])
 	}
-
-	// get-by-param
-	if len(crud.QueryParams) > 0 {
-		return crud.GetByParam(params.GetTableFields, params.TableFieldPointers)
+	if len(crud.RecordIds) > 1 {
+		return crud.GetByIds(modelRef)
 	}
-
-	// get-all-up-to-limit
-	return crud.GetAll(params.GetTableFields, params.TableFieldPointers)
+	if crud.QueryParams != nil && len(crud.QueryParams) > 0 {
+		return crud.GetByParam(modelRef)
+	}
+	return crud.GetAll(modelRef)
 }

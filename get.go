@@ -17,7 +17,7 @@ import (
 
 // GetById method fetches/gets/reads record(s) that met the specified record-id(s),
 // constrained by optional skip and limit parameters
-func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMessage {
 	// check cache
 	getCacheRes := mccache.GetHashCache(crud.TableName, crud.HashKey)
 	val, ok := getCacheRes.Value.([]interface{})
@@ -155,9 +155,7 @@ func (crud *Crud) GetById(tableFields []string, tableFieldPointers []interface{}
 	})
 }
 
-// GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
-// constrained by optional skip and limit parameters
-func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	// check cache
 	getCacheRes := mccache.GetHashCache(crud.TableName, crud.HashKey)
 	val, ok := getCacheRes.Value.([]interface{})
@@ -172,6 +170,111 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 			},
 		})
 	}
+	if len(crud.RecordIds) < 1 {
+		return mcresponse.GetResMessage("paramsError",
+			mcresponse.ResponseMessageOptions{
+				Message: "recordIds param is required to get-record-by-id",
+				Value:   nil,
+			})
+	}
+	// perform get-query
+	result := crud.GormDb.Limit(crud.Limit).Offset(crud.Skip).Where("id in ?", crud.RecordIds).Find(&modelRef)
+	if result.Error != nil {
+		return mcresponse.GetResMessage("readError",
+			mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("%v", result.Error.Error()),
+				Value:   nil,
+			})
+	}
+	// rows
+	var records []interface{}
+	rows, err := result.Rows()
+	if err != nil {
+		errMsg := fmt.Sprintf("%v", result.Error.Error())
+		return mcresponse.GetResMessage("readError",
+			mcresponse.ResponseMessageOptions{
+				Message: errMsg,
+				Value:   nil,
+			})
+	}
+	for rows.Next() {
+		err = crud.GormDb.ScanRows(rows, &modelRef)
+		if err != nil {
+			return mcresponse.GetResMessage("readError",
+				mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("%v", result.Error.Error()),
+					Value:   nil,
+				})
+		}
+		// get snapshot value from the pointer | transform value to json-value([]byte)
+		jByte, jErr := json.Marshal(modelRef)
+		if jErr != nil {
+			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error transforming record(row-value) into json-value([]byte): %v", jErr.Error()),
+				Value:   nil,
+			})
+		}
+		var gValue map[string]interface{}
+		jErr = json.Unmarshal(jByte, &gValue)
+		if jErr != nil {
+			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error transforming json-value to result-value: %v", jErr.Error()),
+				Value:   nil,
+			})
+		}
+		records = append(records, gValue)
+	}
+	var totalRecordsCount int64
+	var _ = crud.GormDb.Find(modelRef).Count(&totalRecordsCount)
+	// logRead
+	var logRes mcresponse.ResponseMessage
+	if crud.LogRead {
+		logRes, err = crud.TransLog.AuditLog(CrudTasks().Read, crud.UserInfo.UserId, AuditLogOptionsType{
+			LogRecords: crud.RecordIds,
+			TableName:  crud.TableName,
+		})
+		if err != nil {
+			logRes = mcresponse.ResponseMessage{
+				Code:    "logError",
+				Message: fmt.Sprintf("Audit-log error: %v", err.Error()),
+				Value:   nil,
+			}
+		}
+	}
+	return mcresponse.GetResMessage("success",
+		mcresponse.ResponseMessageOptions{
+			Message: "Task completed successfully",
+			Value: GetResultType{
+				Records: records,
+				Stats: GetStatType{
+					Skip:              crud.Skip,
+					Limit:             crud.Limit,
+					RecordsCount:      int(result.RowsAffected),
+					TotalRecordsCount: int(totalRecordsCount),
+				},
+				LogRes: logRes,
+			},
+		})
+}
+
+// GetByParam method fetches/gets/reads record(s) that met the specified query-params or where conditions,
+// constrained by optional skip and limit parameters
+func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
+	// check cache
+	getCacheRes := mccache.GetHashCache(crud.TableName, crud.HashKey)
+	val, ok := getCacheRes.Value.([]interface{})
+	if getCacheRes.Ok && ok && len(val) > 0 {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "records successfully retrieved from the cache",
+			Value: CrudResultType{
+				QueryParam:   crud.QueryParams,
+				RecordIds:    crud.RecordIds,
+				RecordCount:  len(val),
+				TableRecords: val,
+			},
+		})
+	}
+
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -296,10 +399,11 @@ func (crud *Crud) GetByParam(tableFields []string, tableFieldPointers []interfac
 			TableRecords: getResults,
 		},
 	})
+
 }
 
 // GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
-func (crud *Crud) GetAll(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) GetAll(modelRef interface{}) mcresponse.ResponseMessage {
 	// SELECT/scan to tableFieldPointers, in order specified by the tableFields
 	if len(tableFields) != len(tableFieldPointers) {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{

@@ -14,7 +14,34 @@ import (
 )
 
 // DeleteById method deletes or removes record(s) by record-id(s)
-func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.ResponseMessage {
+	// compute delete query by record-ids
+	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, crud.RecordIds)
+	if dQErr != nil {
+		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
+			Value:   nil,
+		})
+	}
+	commandTag, delErr := crud.AppDb.Exec(context.Background(), deleteQuery)
+	if delErr != nil {
+		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
+			Value:   nil,
+		})
+	}
+
+	// delete cache
+	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+
+	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+		Message: "Record(s) deleted successfully",
+		Value:   commandTag.Delete(),
+	})
+}
+
+// DeleteByIds method deletes or removes record(s) by record-id(s)
+func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	// compute delete query by record-ids
 	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, crud.RecordIds)
 	if dQErr != nil {
@@ -41,7 +68,7 @@ func (crud *Crud) DeleteById() mcresponse.ResponseMessage {
 }
 
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
-func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	// compute delete query by query-params
 	deleteQuery, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if dQErr != nil {
