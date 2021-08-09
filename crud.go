@@ -117,11 +117,13 @@ func (crud Crud) String() string {
 // Methods
 
 // SaveRecord function creates new record(s) or updates existing record(s)
-func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) mcresponse.ResponseMessage {
+func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.ResponseMessage {
 	// default value
 	if batch == 0 {
 		batch = 10000
 	}
+	// TODO: validate actionParams (map[string]interface) to type of []modelRef ([]struct)
+
 	//  compute taskType-records from actionParams: create or update
 	var (
 		createRecs ActionParamsType // records without id field-value
@@ -170,7 +172,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) 
 			}
 		}
 		// save-record(s): create/insert new record(s): len(recordIds) = 0 && len(createRecs) > 0
-		return crud.CreateBatch(recs, batch)
+		return crud.CreateBatch(createRecs, batch)
 	}
 
 	if crud.TaskType == CrudTasks().Update {
@@ -183,7 +185,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) 
 		}
 		// update 1 or more records by ids or queryParams
 		if len(crud.ActionParams) == 1 {
-			upRec := recs.([]interface{})[0]
+			upRec := updateRecs[0]
 			// update record(s) by recordIds
 			if len(crud.RecordIds) > 1 {
 				return crud.UpdateByIds(modelRef, upRec)
@@ -199,7 +201,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, recs interface{}, batch int) 
 		}
 		// update multiple records
 		if len(crud.ActionParams) > 1 {
-			return crud.Update(modelRef, recs)
+			return crud.Update(modelRef, updateRecs)
 		}
 	}
 
