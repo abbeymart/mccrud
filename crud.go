@@ -122,7 +122,8 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 	if batch == 0 {
 		batch = 10000
 	}
-	// TODO: validate actionParams (map[string]interface) to type of []modelRef ([]struct)
+
+	// TODO: transform actionParams ([]map[string]interface) to underscore table values
 
 	//  compute taskType-records from actionParams: create or update
 	var (

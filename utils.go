@@ -211,15 +211,36 @@ func MapToUnderscoreMap(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as map type
 	recMap, ok := rec.(map[string]interface{})
 	if !ok || recMap == nil {
-		return nil, errors.New(fmt.Sprintf("rec parameter must be of type struct{}"))
+		return nil, errors.New(fmt.Sprintf("rec parameter must be of type map[string]interface{}"))
 	}
 
-	underscoreMapData := map[string]interface{}{}
-	// compose underscoreMapData
+	uMapData := map[string]interface{}{}
+	// compose uMapData
 	for key, val := range recMap {
-		underscoreMapData[govalidator.CamelCaseToUnderscore(key)] = val
+		uMapData[govalidator.CamelCaseToUnderscore(key)] = val
 	}
-	return underscoreMapData, nil
+	return uMapData, nil
+}
+
+// ArrayMapToUnderscoreMap converts []map-fields to underscore
+func ArrayMapToUnderscoreMap(rec interface{}) ([]map[string]interface{}, error) {
+	// validate recs as []map type
+	arrayMap, ok := rec.([]map[string]interface{})
+	if !ok || arrayMap == nil {
+		return nil, errors.New(fmt.Sprintf("rec parameter must be of type []map[string]interface{}"))
+	}
+
+	var uArrayMapData []map[string]interface{}
+	// compose underscoreMapData
+	for _, mapRec := range arrayMap {
+		uMapData, err := MapToUnderscoreMap(mapRec)
+		if err != nil {
+			return nil, err
+		}
+		uArrayMapData = append(uArrayMapData, uMapData)
+	}
+
+	return uArrayMapData, nil
 }
 
 // StructToFieldValues converts struct to record fields(underscore) and associated values (columns and values)
