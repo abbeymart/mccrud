@@ -123,7 +123,14 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 		batch = 10000
 	}
 
-	// TODO: transform actionParams ([]map[string]interface) to underscore table values
+	// transform actionParams ([]map[string]interface) camelCase fields to underscore
+	actParams, err := ArrayMapToUnderscoreMap(crud.ActionParams)
+	if err != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("actParams-records format error: %v", err.Error()),
+			Value: nil,
+		})
+	}
 
 	//  compute taskType-records from actionParams: create or update
 	var (
@@ -131,36 +138,37 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 		updateRecs ActionParamsType // records with id field-value
 		recIds     []string         // capture recordIds for separate/multiple updates
 	)
-	for _, rec := range crud.ActionParams {
-		// determine if record exists (update) or is new (create)
+	for _, rec := range actParams {
+		// determine if record exists (update), cast id into string or is new (create)
 		recId, ok := rec["id"]
 		recIdStr, idOk := recId.(string)
 		if ok && recId != nil && idOk && recIdStr != "" {
-			rec["updatedBy"] = crud.UserInfo.UserId
-			rec["updatedAt"] = time.Now()
+			rec["updated_by"] = crud.UserInfo.UserId
+			rec["updated_at"] = time.Now()
 			recIds = append(recIds, recIdStr)
 			updateRecs = append(updateRecs, rec)
 		} else {
-			rec["createdBy"] = crud.UserInfo.UserId
-			rec["createdAt"] = time.Now()
+			rec["created_by"] = crud.UserInfo.UserId
+			rec["created_at"] = time.Now()
 			createRecs = append(createRecs, rec)
 		}
 	}
 
 	// TODO: set action-type (create or update)
-	if len(updateRecs) > 1 && len(recIds) > 1 && len(recIds) == len(updateRecs) {
-		crud.TaskType = UpdateTask
-		crud.RecordIds = recIds
-	} else if len(updateRecs) == 1 && len(recIds) == 1 && (len(crud.RecordIds) > 0 || crud.QueryParams != nil) {
-		crud.TaskType = UpdateTask
-	} else if len(recIds) == 0 && len(createRecs) > 0 {
-		crud.TaskType = CreateTask
-	} else {
+	if len(createRecs) > 0 && len(updateRecs) > 0 {
 		// return only create or update task permitted
 		return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
 			Message: "You may only create or update record(s), not both at the same time",
 			Value:   nil,
 		})
+	}
+	if len(updateRecs) > 1 && len(recIds) > 1 && len(recIds) == len(updateRecs) {
+		crud.TaskType = UpdateTask
+		crud.RecordIds = recIds
+	} else if len(updateRecs) == 1 && (len(crud.RecordIds) > 0 || crud.QueryParams != nil) {
+		crud.TaskType = UpdateTask
+	} else if len(recIds) == 0 && len(createRecs) > 0 {
+		crud.TaskType = CreateTask
 	}
 
 	// create/insert new record(s)
@@ -173,7 +181,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 			}
 		}
 		// save-record(s): create/insert new record(s): len(recordIds) = 0 && len(createRecs) > 0
-		return crud.CreateBatch(createRecs, batch)
+		return crud.Create(createRecs, batch)
 	}
 
 	if crud.TaskType == CrudTasks().Update {

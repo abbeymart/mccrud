@@ -227,34 +227,36 @@ type OkResponse struct {
 
 // CRUD operations
 
-type CreateQueryResponseType struct {
+type CreateQueryObject struct {
 	CreateQuery string
 	FieldNames  []string
 	FieldValues [][]interface{}
 }
 
-type UpdateQueryResponseType struct {
+type UpdateQueryObject struct {
 	UpdateQuery string
 	WhereQuery  string
 	FieldValues []interface{}
 }
 
-type WhereQueryResponseType struct {
+type WhereQueryObject struct {
 	WhereQuery  string
 	FieldValues []interface{}
 }
 
-type DeleteQueryResponseType struct {
+type DeleteQueryObject struct {
 	DeleteQuery string
 	WhereQuery  string
 	FieldValues []interface{}
 }
 
-type SelectQueryResponseType struct {
+type SelectQueryObject struct {
 	SelectQuery string
 	WhereQuery  string
 	FieldValues []interface{}
 }
+
+// TODO: remove, not required
 
 type SaveParamsType struct {
 	UserInfo    UserInfoType   `json:"userInfo"`

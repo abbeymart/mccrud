@@ -81,9 +81,9 @@ func (crud *Crud) Save(modelRef interface{}, recs interface{}, batch int) mcresp
 }
 
 // Create method creates new record(s)
-func (crud *Crud) Create(modelRef interface{}, recs interface{}, batch int) mcresponse.ResponseMessage {
+func (crud *Crud) Create(recs ActionParamsType, batch int) mcresponse.ResponseMessage {
 	// compute query
-	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs, tableFields)
+	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -158,7 +158,7 @@ func (crud *Crud) Create(modelRef interface{}, recs interface{}, batch int) mcre
 // CreateBatch method creates new record(s) by placeholder values from copy-create-query
 // resolve sql-values parsing error: only time.Time and String value requires '' wrapping
 // uuid, json and others (int/bool/float) should not be wrapped as placeholder values
-func (crud *Crud) CreateBatch(recs interface{}, batch int) mcresponse.ResponseMessage {
+func (crud *Crud) CreateBatch(recs ActionParamsType, batch int) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
 	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
