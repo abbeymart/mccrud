@@ -117,12 +117,7 @@ func (crud Crud) String() string {
 // Methods
 
 // SaveRecord function creates new record(s) or updates existing record(s)
-func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.ResponseMessage {
-	// default value
-	if batch == 0 {
-		batch = 10000
-	}
-
+func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 	// transform actionParams ([]map[string]interface) camelCase fields to underscore
 	actParams, err := ArrayMapToUnderscoreMap(crud.ActionParams)
 	if err != nil {
@@ -154,7 +149,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 		}
 	}
 
-	// TODO: set action-type (create or update)
+	// set action-type (create or update)
 	if len(createRecs) > 0 && len(updateRecs) > 0 {
 		// return only create or update task permitted
 		return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
@@ -170,7 +165,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 	} else if len(recIds) == 0 && len(createRecs) > 0 {
 		crud.TaskType = CreateTask
 	} else {
-		// TODO: return if above conditions could not be met
+		// return error, if above conditions could not be met
 		return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
 			Message: "Incomplete params to perform the data-operation-task",
 			Value:   nil,
@@ -187,7 +182,7 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 			}
 		}
 		// save-record(s): create/insert new record(s): len(recordIds) = 0 && len(createRecs) > 0
-		return crud.Create(createRecs, batch)
+		return crud.Create(createRecs)
 	}
 
 	if crud.TaskType == CrudTasks().Update {
@@ -199,24 +194,24 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 			}
 		}
 		// update 1 or more records by ids or queryParams
-		if len(crud.ActionParams) == 1 {
+		if len(crud.ActionParams) == 1 || len(updateRecs) == 1 {
 			upRec := updateRecs[0]
-			// update record(s) by recordIds
-			if len(crud.RecordIds) > 1 {
-				return crud.UpdateByIds(modelRef, upRec)
-			}
 			// update the record by recordId
 			if len(crud.RecordIds) == 1 {
-				return crud.UpdateById(modelRef, upRec, crud.RecordIds[0])
+				return crud.UpdateById(upRec, crud.RecordIds[0])
+			}
+			// update record(s) by recordIds
+			if len(crud.RecordIds) > 1 {
+				return crud.UpdateByIds(upRec)
 			}
 			// update record(s) by queryParams
 			if len(crud.QueryParams) > 0 {
-				return crud.UpdateByParam(modelRef, upRec)
+				return crud.UpdateByParam(upRec)
 			}
 		}
 		// update multiple records
 		if len(crud.ActionParams) > 1 {
-			return crud.Update(modelRef, updateRecs)
+			return crud.Update(updateRecs)
 		}
 	}
 
