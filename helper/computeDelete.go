@@ -11,9 +11,19 @@ import (
 )
 
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
-func ComputeDeleteQueryById(tableName string, recordIds []string) (string, error) {
+func ComputeDeleteQueryById(tableName string, recordId string) (string, error) {
+	if tableName == "" || recordId == "" {
+		return "", errors.New("table/collection name and record-id are required for the delete-by-id operation")
+	}
+	// validated recordIds, strictly contains string/UUID values, to avoid SQL-injection
+	deleteQuery := "DELETE FROM " + tableName + " WHERE id =" + recordId
+	return deleteQuery, nil
+}
+
+// ComputeDeleteQueryByIds function computes delete SQL script by id(s)
+func ComputeDeleteQueryByIds(tableName string, recordIds []string) (string, error) {
 	if tableName == "" || len(recordIds) < 1 {
-		return "", errors.New("table/collection name and doc-Ids are required for the delete-by-id operation")
+		return "", errors.New("table/collection name and record-Ids are required for the delete-by-id operation")
 	}
 	// validated recordIds, strictly contains string/UUID values, to avoid SQL-injection
 	// from / where condition (where-in-values)
@@ -34,7 +44,8 @@ func ComputeDeleteQueryByParam(tableName string, where mccrud.QueryParamType) (s
 	if tableName == "" || len(where) < 1 {
 		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}
-	if whereParam, err := ComputeWhereQuery(where); err == nil {
+	whereParam, err := ComputeWhereQuery(where, 1)
+	if err == nil {
 		deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
 		return deleteScript, nil
 	} else {
