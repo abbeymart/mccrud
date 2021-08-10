@@ -83,7 +83,7 @@ func (crud *Crud) Save(modelRef interface{}, recs interface{}, batch int) mcresp
 // Create method creates new record(s)
 func (crud *Crud) Create(recs ActionParamsType, batch int) mcresponse.ResponseMessage {
 	// compute query
-	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs)
+	createQueryObject, qErr := helper.ComputeCreateQuery(crud.TableName, recs)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -109,8 +109,9 @@ func (crud *Crud) Create(recs ActionParamsType, batch int) mcresponse.ResponseMe
 	insertCount := 0
 	var insertIds []string
 	var insertId string
-	for _, insertQuery := range createQuery {
-		insertErr := tx.QueryRow(context.Background(), insertQuery).Scan(&insertId)
+	// TODO: create new records by fieldValues
+	for _, fValues := range createQueryObject.FieldValues {
+		insertErr := tx.QueryRow(context.Background(), createQueryObject.CreateQuery, fValues...).Scan(&insertId)
 		if insertErr != nil {
 			_ = tx.Rollback(context.Background())
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{

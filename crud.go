@@ -128,15 +128,15 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 	if err != nil {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("actParams-records format error: %v", err.Error()),
-			Value: nil,
+			Value:   nil,
 		})
 	}
 
 	//  compute taskType-records from actionParams: create or update
 	var (
-		createRecs ActionParamsType // records without id field-value
-		updateRecs ActionParamsType // records with id field-value
-		recIds     []string         // capture recordIds for separate/multiple updates
+		createRecs = ActionParamsType{} // records without id field-value
+		updateRecs = ActionParamsType{} // records with id field-value
+		recIds     []string             // capture recordIds for separate/multiple updates
 	)
 	for _, rec := range actParams {
 		// determine if record exists (update), cast id into string or is new (create)
@@ -169,6 +169,12 @@ func (crud *Crud) SaveRecord(modelRef interface{}, batch int) mcresponse.Respons
 		crud.TaskType = UpdateTask
 	} else if len(recIds) == 0 && len(createRecs) > 0 {
 		crud.TaskType = CreateTask
+	} else {
+		// TODO: return if above conditions could not be met
+		return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
+			Message: "Incomplete params to perform the data-operation-task",
+			Value:   nil,
+		})
 	}
 
 	// create/insert new record(s)
