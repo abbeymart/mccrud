@@ -17,7 +17,7 @@ func updateErrMessage(errMsg string) (mccrud.UpdateQueryObject, error) {
 	return mccrud.UpdateQueryObject{
 		UpdateQuery: "",
 		FieldNames:  nil,
-		WhereQuery:  "",
+		WhereQuery:  mccrud.WhereQueryObject{},
 		FieldValues: nil,
 	}, errors.New(errMsg)
 }
@@ -34,25 +34,28 @@ func ComputeUpdateQuery(tableName string, actionParam mccrud.ActionParamType) (m
 	}
 
 	// declare slice variable for create/insert queries
-	var updateQuery string
 	var whereQuery string
 	var fieldNames []string
 	var fieldValues []interface{}
 
 	// compute update script and associated values () for all the actionParam/record
-	itemQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName := range actionParam {
+		// skip fieldName=="id"
+		if fieldName == "id" {
+			continue
+		}
 		fieldCount += 1
 		fieldNames = append(fieldNames, fieldName)
-		itemQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
+		updateQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
-			itemQuery += ", "
+			updateQuery += ", "
 		}
 	}
 	// close item-script/value-placeholder
-	itemQuery += " )"
+	updateQuery += " )"
 	// add where condition by id
 	updateQuery += fmt.Sprintf(" WHERE id='%v'", actionParam["id"])
 
@@ -216,7 +219,10 @@ func ComputeUpdateQuery(tableName string, actionParam mccrud.ActionParamType) (m
 	return mccrud.UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
-		WhereQuery:  whereQuery,
+		WhereQuery: mccrud.WhereQueryObject{
+			WhereQuery:  whereQuery,
+			FieldValues: nil,
+		},
 		FieldValues: fieldValues,
 	}, nil
 }
@@ -242,24 +248,27 @@ func ComputeUpdateQueryById(tableName string, actionParam mccrud.ActionParamType
 	whereQuery := fmt.Sprintf(" WHERE id IN(%v)", whereIds)
 
 	// declare slice variable for create/insert queries
-	var updateQuery string
 	var fieldNames []string
 	var fieldValues []interface{}
 
 	// compute update script and associated values () for all the actionParam/record
-	itemQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName := range actionParam {
+		// skip fieldName="id"
+		if fieldName == "id" {
+			continue
+		}
 		fieldCount += 1
 		fieldNames = append(fieldNames, fieldName)
-		itemQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
+		updateQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
-			itemQuery += ", "
+			updateQuery += ", "
 		}
 	}
 	// close item-script/value-placeholder
-	itemQuery += " )"
+	updateQuery += " )"
 	// add where condition by id
 	updateQuery += whereQuery
 	// compute update-field-values from actionParams/records, in order of the fields-sequence
@@ -421,7 +430,10 @@ func ComputeUpdateQueryById(tableName string, actionParam mccrud.ActionParamType
 	return mccrud.UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
-		WhereQuery:  whereQuery,
+		WhereQuery: mccrud.WhereQueryObject{
+			WhereQuery:  whereQuery,
+			FieldValues: nil,
+		},
 		FieldValues: fieldValues,
 	}, nil
 }
@@ -436,29 +448,30 @@ func ComputeUpdateQueryByParam(tableName string, actionParam mccrud.ActionParamT
 		return updateErrMessage(fmt.Sprintf("queryParams is required for the update operation: %v", actionParam))
 	}
 	// declare slice variable for create/insert queries
-	var updateQuery string
 	var fieldNames []string
 	var fieldValues []interface{}
 
 	// compute update script and associated values () for all the actionParam/record
-	itemQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName := range actionParam {
+		// skip fieldName="id"
+		if fieldName == "id" {
+			continue
+		}
 		fieldCount += 1
 		fieldNames = append(fieldNames, fieldName)
-		itemQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
+		updateQuery += fmt.Sprintf(" %v=$%v", fieldName, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
-			itemQuery += ", "
+			updateQuery += ", "
 		}
 	}
 	// close item-script/value-placeholder
-	itemQuery += " )"
+	updateQuery += " )"
 	// add where condition by queryParams | TODO: refactor ComputeWhereQuery to support query-value-placeholders
-	whereQuery, err := ComputeWhereQuery(queryParams)
-	if err == nil {
-		updateQuery += " " + whereQuery
-	} else {
+	whereQuery, err := ComputeWhereQuery(queryParams, fieldsLength)
+	if err != nil {
 		return updateErrMessage(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
 	}
 	// compute update-field-values from actionParams/records, in order of the fields-sequence
@@ -620,7 +633,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam mccrud.ActionParamT
 	return mccrud.UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
-		WhereQuery:  whereQuery, // TODO: remove, not required
+		WhereQuery:  whereQuery,
 		FieldValues: fieldValues,
 	}, nil
 }

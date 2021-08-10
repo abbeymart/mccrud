@@ -170,15 +170,20 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) 
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) Update(updateRecs ActionParamsType) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
-	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, recs, tableFields)
-	if err != nil {
-		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
-			Value:   nil,
-		})
+	var updateQueryObjects []UpdateQueryObject
+	for _, rec := range updateRecs {
+		updateQueryObject, err := helper.ComputeUpdateQuery(crud.TableName, rec)
+		if err != nil {
+			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
+				Value:   nil,
+			})
+		}
+		updateQueryObjects = append(updateQueryObjects, updateQueryObject)
 	}
+
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -196,10 +201,11 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	}(tx, context.Background())
 	// perform records' updates
 	updateCount := 0
-	//fmt.Printf("update-queries: %v\n", updateQuery)
-	for _, upQuery := range updateQuery {
-		// TODO: extract id from updateRec?
-		commandTag, updateErr := tx.Exec(context.Background(), upQuery)
+	for _, upQuery := range updateQueryObjects {
+		updateQuery := upQuery.UpdateQuery + upQuery.WhereQuery.WhereQuery
+		var updateFieldValues []interface{}
+		updateFieldValues = append(upQuery.FieldValues, upQuery.WhereQuery.FieldValues...)
+		commandTag, updateErr := tx.Exec(context.Background(), updateQuery, updateFieldValues...)
 		if updateErr != nil {
 			_ = tx.Rollback(context.Background())
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -233,7 +239,7 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateById(modelRef interface{}, recs interface{}, id string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateById(updateRec ActionParamType, id string) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
 
 	// create from updatedRecs (actionParams)
@@ -290,7 +296,7 @@ func (crud *Crud) UpdateById(modelRef interface{}, recs interface{}, id string) 
 }
 
 // UpdateByIds method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateByIds(modelRef interface{}, recs interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByIds(updateRec ActionParamType) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
 	// create from updatedRecs (actionParams)
 	updateQuery, err := helper.ComputeUpdateQueryById(crud.TableName, updateRecs, crud.RecordIds, tableFields)
@@ -346,10 +352,10 @@ func (crud *Crud) UpdateByIds(modelRef interface{}, recs interface{}) mcresponse
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
-func (crud *Crud) UpdateByParam(modelRef interface{}, recs interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParam(updateRec ActionParamType) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
 	// create from updatedRecs (actionParams)
-	updateQuery, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRecs, crud.QueryParams, tableFields)
+	updateQueryObject, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRec, crud.QueryParams)
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -370,7 +376,10 @@ func (crud *Crud) UpdateByParam(modelRef interface{}, recs interface{}) mcrespon
 
 		}
 	}(tx, context.Background())
-	commandTag, updateErr := tx.Exec(context.Background(), updateQuery)
+	updateQuery := updateQueryObject.UpdateQuery + updateQueryObject.WhereQuery.WhereQuery
+	var updateFieldValues []interface{}
+	updateFieldValues = append(updateQueryObject.FieldValues, updateQueryObject.WhereQuery.FieldValues...)
+	commandTag, updateErr := tx.Exec(context.Background(), updateQuery, updateFieldValues...)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{

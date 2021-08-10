@@ -233,28 +233,28 @@ type CreateQueryObject struct {
 	FieldValues [][]interface{}
 }
 
-type UpdateQueryObject struct {
-	UpdateQuery string
-	FieldNames  []string
-	WhereQuery  string
-	FieldValues []interface{}
-}
-
 type WhereQueryObject struct {
 	WhereQuery  string
 	FieldValues []interface{}
 }
 
+type UpdateQueryObject struct {
+	UpdateQuery string
+	FieldNames  []string
+	FieldValues []interface{}
+	WhereQuery  WhereQueryObject
+}
+
 type DeleteQueryObject struct {
 	DeleteQuery string
-	WhereQuery  string
 	FieldValues []interface{}
+	WhereQuery  WhereQueryObject
 }
 
 type SelectQueryObject struct {
 	SelectQuery string
-	WhereQuery  string
 	FieldValues []interface{}
+	WhereQuery  WhereQueryObject
 }
 
 // TODO: remove, not required
