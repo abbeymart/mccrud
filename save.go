@@ -95,7 +95,7 @@ func (crud *Crud) Create(recs ActionParamsType, batch int) mcresponse.ResponseMe
 func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
-	createQuery, qErr := helper.ComputeCreateCopyQuery(crud.TableName, createRecs, tableFields)
+	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
