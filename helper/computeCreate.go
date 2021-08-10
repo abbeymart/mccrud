@@ -34,8 +34,8 @@ func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType) 
 
 	// compute create script and associated values () for all the records in actionParams
 	// compute create-query from the first actionParams
-	var itemQuery = fmt.Sprintf("INSERT INTO %v(", tableName)
-	var itemValuePlaceholder = " VALUES("
+	itemQuery := fmt.Sprintf("INSERT INTO %v(", tableName)
+	itemValuePlaceholder := " VALUES("
 	fieldsLength := len(actionParams[0])
 	fieldCount := 0
 	for fieldName := range actionParams[0] {
@@ -51,11 +51,11 @@ func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType) 
 	// close item-script/value-placeholder
 	itemQuery += " )"
 	itemValuePlaceholder += " )"
-	// add/append item-script & value-placeholder to the createScripts
+	// add/append item-script & value-placeholder to the createScript
 	createQuery = itemQuery + itemValuePlaceholder + " RETURNING id"
 
 	// compute create-record-values from actionParams/records, in order of the fields-sequence
-	// value-computation for each of the actionParams' records must match the record-fields
+	// value-computation for each of the actionParams / records must match the record-fields
 	for recIndex, rec := range actionParams {
 		// item-values-computation variable
 		var recFieldValues []interface{}

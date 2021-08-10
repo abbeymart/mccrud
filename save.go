@@ -170,9 +170,9 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType, tableFields []string) 
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(modelRef interface{}, recs interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	// create from updatedRecs (actionParams)
-	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, updateRecs, tableFields)
+	updateQuery, err := helper.ComputeUpdateQuery(crud.TableName, recs, tableFields)
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -198,6 +198,7 @@ func (crud *Crud) Update(modelRef interface{}, recs interface{}) mcresponse.Resp
 	updateCount := 0
 	//fmt.Printf("update-queries: %v\n", updateQuery)
 	for _, upQuery := range updateQuery {
+		// TODO: extract id from updateRec?
 		commandTag, updateErr := tx.Exec(context.Background(), upQuery)
 		if updateErr != nil {
 			_ = tx.Rollback(context.Background())

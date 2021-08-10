@@ -13,111 +13,223 @@ import (
 	"time"
 )
 
-func ComputeUpdateQuery(tableName string, actionParams mccrud.ActionParamsType, tableFields []string) ([]string, error) {
-	if tableName == "" || len(actionParams) < 1 {
-		return nil, errors.New("table-name and action-params are required for the update operation")
-	}
-	// compute tableFields from the first record, if len(tableFields) == 0
-	if len(tableFields) == 0 {
-		actRec := actionParams[0]
-		for fName := range actRec {
-			if fName == "id" {
-				continue
-			}
-			tableFields = append(tableFields, fName)
-		}
-	}
-	// compute update script from queryParams
-	var updateQuery []string
-	validUpdateItemCount := 0
-	invalidUpdateItemCount := 0
-
-	for recNum, rec := range actionParams {
-		itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
-		fieldCount := 0
-		fieldLen := len(tableFields)
-		for _, fieldName := range tableFields {
-			fieldValue, ok := rec[fieldName]
-			// check for the required fields in each record
-			if !ok {
-				return nil, errors.New(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] is missing", recNum, rec, fieldName))
-			}
-			fieldCount += 1
-			// update/set recFieldValues by fieldValue-type
-			var currentFieldValue interface{}
-			switch fieldValue.(type) {
-			case time.Time:
-				if fVal, ok := fieldValue.(time.Time); !ok {
-					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-				}
-			case string:
-				if fVal, ok := fieldValue.(string); !ok {
-					return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					if govalidator.IsJSON(fVal) {
-						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
-							return nil, errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-						} else {
-							currentFieldValue = "'" + fValue + "'"
-						}
-					} else {
-						currentFieldValue = "'" + fVal + "'"
-					}
-				}
-			case int, uint, float64, bool:
-				currentFieldValue = fieldValue
-			default:
-				// json-stringify fieldValue
-				if fVal, err := json.Marshal(fieldValue); err != nil {
-					return nil, errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
-				} else {
-					currentFieldValue = "'" + string(fVal) + "'"
-				}
-			}
-
-			// add itemValue
-			itemScript += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
-			if fieldLen > 1 && fieldCount < fieldLen {
-				itemScript += ", "
-			}
-		}
-
-		// add where condition by id
-		itemScript += fmt.Sprintf(" WHERE id='%v'", rec["id"])
-		//validate/update script content based on valid field specifications
-		if fieldCount > 0 && fieldCount == fieldLen {
-			validUpdateItemCount += 1
-			updateQuery = append(updateQuery, itemScript)
-		} else {
-			invalidUpdateItemCount += 1
-		}
-	}
-	// check is there was invalid update items
-	if invalidUpdateItemCount > 0 {
-		return nil, errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
-	}
-	return updateQuery, nil
+func updateErrMessage(errMsg string) (mccrud.UpdateQueryObject, error) {
+	return mccrud.UpdateQueryObject{
+		UpdateQuery: "",
+		FieldNames:  nil,
+		WhereQuery:  "",
+		FieldValues: nil,
+	}, errors.New(errMsg)
 }
 
-func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsType, recordIds []string, tableFields []string) (string, error) {
-	if tableName == "" || len(actionParams) < 1 || len(recordIds) < 1 {
-		return "", errors.New("table-name, table-fields, action-params and record/doc-Ids are required for the update-by-id operation")
+// ComputeUpdateQuery function computes update SQL script. It returns updateScript, updateValues []interface{} and/or err error
+func ComputeUpdateQuery(tableName string, actionParam mccrud.ActionParamType) (mccrud.UpdateQueryObject, error) {
+	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
+		return updateErrMessage("table-name and actionParam are required for the update operation")
 	}
-	// compute tableFields from the first record, if len(tableFields) == 0
-	if len(tableFields) == 0 {
-		actRec := actionParams[0]
-		for fName := range actRec {
-			if fName == "id" {
-				continue
-			}
-			tableFields = append(tableFields, fName)
+	// validate actionParam/record-id
+	recId, ok := actionParam["id"]
+	if !ok || recId == "" {
+		return updateErrMessage(fmt.Sprintf("actionParam/record-is is required for the update operation: %v", actionParam))
+	}
+
+	// declare slice variable for create/insert queries
+	var updateQuery string
+	var whereQuery string
+	var fieldNames []string
+	var fieldValues []interface{}
+
+	// compute update script and associated values () for all the actionParam/record
+	itemQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	fieldsLength := len(actionParam)
+	fieldCount := 0
+	for fieldName := range actionParam {
+		fieldCount += 1
+		fieldNames = append(fieldNames, fieldName)
+		itemQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
+		if fieldsLength > 1 && fieldCount < fieldsLength {
+			itemQuery += ", "
 		}
 	}
-	// compute update script from query-ids
-	var updateQuery string
-	itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
+	// close item-script/value-placeholder
+	itemQuery += " )"
+	// add where condition by id
+	updateQuery += fmt.Sprintf(" WHERE id='%v'", actionParam["id"])
+
+	// compute update-field-values from actionParams/records, in order of the fields-sequence
+	// value-computation for each of the actionParam / record must match the record-fields
+
+	// item-values-computation variable
+	for _, fieldName := range fieldNames {
+		fieldValue, ok := actionParam[fieldName]
+		// check for required field in each record
+		if !ok {
+			return updateErrMessage(fmt.Sprintf("Record #%v: required field_name[%v] has field_value of %v ", actionParam, fieldName, fieldValue))
+		}
+		// update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
+		var currentFieldValue interface{}
+		switch fieldValue.(type) {
+		case time.Time:
+			if fVal, ok := fieldValue.(time.Time); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v [date-type] | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
+			}
+		case string:
+			if fVal, ok := fieldValue.(string); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				if govalidator.IsUUID(fVal) {
+					currentFieldValue = fVal
+				} else if govalidator.IsJSON(fVal) {
+					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
+						return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+					} else {
+						fmt.Printf("string-toJson-value: %v\n\n", fValue)
+						currentFieldValue = fValue
+					}
+				} else {
+					currentFieldValue = "'" + fVal + "'"
+				}
+			}
+		case bool:
+			if fVal, ok := fieldValue.(bool); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int8:
+			if fVal, ok := fieldValue.(int8); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int16:
+			if fVal, ok := fieldValue.(int16); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int32:
+			if fVal, ok := fieldValue.(int32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int64:
+			if fVal, ok := fieldValue.(int64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int:
+			if fVal, ok := fieldValue.(int); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint8:
+			if fVal, ok := fieldValue.(uint8); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint16:
+			if fVal, ok := fieldValue.(uint16); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint32:
+			if fVal, ok := fieldValue.(uint32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint64:
+			if fVal, ok := fieldValue.(uint64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint:
+			if fVal, ok := fieldValue.(uint); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case float32:
+			if fVal, ok := fieldValue.(float32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case float64:
+			if fVal, ok := fieldValue.(float64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []string:
+			if fVal, ok := fieldValue.([]string); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []int:
+			if fVal, ok := fieldValue.([]int); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []float32:
+			if fVal, ok := fieldValue.([]float32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []float64:
+			if fVal, ok := fieldValue.([]float64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []struct{}:
+			if fVal, ok := fieldValue.([]struct{}); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		default:
+			// json-stringify fieldValue
+			if fVal, err := json.Marshal(fieldValue); err != nil {
+				return updateErrMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+			} else {
+				currentFieldValue = string(fVal)
+			}
+		}
+		// add itemValue
+		fieldValues = append(fieldValues, currentFieldValue)
+	}
+
+	// result
+	return mccrud.UpdateQueryObject{
+		UpdateQuery: updateQuery,
+		FieldNames:  fieldNames,
+		WhereQuery:  whereQuery,
+		FieldValues: fieldValues,
+	}, nil
+}
+
+// ComputeUpdateQueryById function computes update SQL script by recordIds. It returns updateScript, updateValues []interface{} and/or err error
+func ComputeUpdateQueryById(tableName string, actionParam mccrud.ActionParamType, recordIds []string) (mccrud.UpdateQueryObject, error) {
+	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
+		return updateErrMessage("table-name and actionParam are required for the update operation")
+	}
+	// validate actionParam/record-ids
+	if len(recordIds) < 1 {
+		return updateErrMessage(fmt.Sprintf("actionParam/recordIds are required for the update operation: %v", actionParam))
+	}
 	// from / where condition (where-in-values)
 	whereIds := ""
 	idLen := len(recordIds)
@@ -129,163 +241,386 @@ func ComputeUpdateQueryById(tableName string, actionParams mccrud.ActionParamsTy
 	}
 	whereQuery := fmt.Sprintf(" WHERE id IN(%v)", whereIds)
 
-	invalidUpdateItemCount := 0
-	validUpdateItemCount := 0
+	// declare slice variable for create/insert queries
+	var updateQuery string
+	var fieldNames []string
+	var fieldValues []interface{}
 
-	// only one actionParams record is required for update by docIds
-	rec := actionParams[0]
+	// compute update script and associated values () for all the actionParam/record
+	itemQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	fieldsLength := len(actionParam)
 	fieldCount := 0
-	fieldLen := len(tableFields)
-	for _, fieldName := range tableFields {
-		fieldValue, ok := rec[fieldName]
-		// check for the required fields in each record
-		if !ok {
-			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
-		}
+	for fieldName := range actionParam {
 		fieldCount += 1
-		// update/set recFieldValues by fieldValue-type
+		fieldNames = append(fieldNames, fieldName)
+		itemQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
+		if fieldsLength > 1 && fieldCount < fieldsLength {
+			itemQuery += ", "
+		}
+	}
+	// close item-script/value-placeholder
+	itemQuery += " )"
+	// add where condition by id
+	updateQuery += whereQuery
+	// compute update-field-values from actionParams/records, in order of the fields-sequence
+	// value-computation for each of the actionParam / record must match the record-fields
+	// item-values-computation variable
+	for _, fieldName := range fieldNames {
+		fieldValue, ok := actionParam[fieldName]
+		// check for required field in each record
+		if !ok {
+			return updateErrMessage(fmt.Sprintf("Record #%v: required field_name[%v] has field_value of %v ", actionParam, fieldName, fieldValue))
+		}
+		// update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 		var currentFieldValue interface{}
 		switch fieldValue.(type) {
 		case time.Time:
 			if fVal, ok := fieldValue.(time.Time); !ok {
-				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				return updateErrMessage(fmt.Sprintf("field_name: %v [date-type] | field_value: %v error: ", fieldName, fieldValue))
 			} else {
 				currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 			}
 		case string:
 			if fVal, ok := fieldValue.(string); !ok {
-				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 			} else {
-				if govalidator.IsJSON(fVal) {
+				if govalidator.IsUUID(fVal) {
+					currentFieldValue = fVal
+				} else if govalidator.IsJSON(fVal) {
 					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						currentFieldValue = "'" + fValue + "'"
+						fmt.Printf("string-toJson-value: %v\n\n", fValue)
+						currentFieldValue = fValue
 					}
 				} else {
 					currentFieldValue = "'" + fVal + "'"
 				}
 			}
-		case int, uint, float64, bool:
-			currentFieldValue = fieldValue
+		case bool:
+			if fVal, ok := fieldValue.(bool); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int8:
+			if fVal, ok := fieldValue.(int8); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int16:
+			if fVal, ok := fieldValue.(int16); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int32:
+			if fVal, ok := fieldValue.(int32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int64:
+			if fVal, ok := fieldValue.(int64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int:
+			if fVal, ok := fieldValue.(int); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint8:
+			if fVal, ok := fieldValue.(uint8); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint16:
+			if fVal, ok := fieldValue.(uint16); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint32:
+			if fVal, ok := fieldValue.(uint32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint64:
+			if fVal, ok := fieldValue.(uint64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint:
+			if fVal, ok := fieldValue.(uint); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case float32:
+			if fVal, ok := fieldValue.(float32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case float64:
+			if fVal, ok := fieldValue.(float64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []string:
+			if fVal, ok := fieldValue.([]string); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []int:
+			if fVal, ok := fieldValue.([]int); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []float32:
+			if fVal, ok := fieldValue.([]float32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []float64:
+			if fVal, ok := fieldValue.([]float64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []struct{}:
+			if fVal, ok := fieldValue.([]struct{}); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
 		default:
 			// json-stringify fieldValue
 			if fVal, err := json.Marshal(fieldValue); err != nil {
-				return "", errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+				return updateErrMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 			} else {
-				currentFieldValue = "'" + string(fVal) + "'"
+				currentFieldValue = string(fVal)
 			}
 		}
 		// add itemValue
-		itemScript += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
-		if fieldLen > 1 && fieldCount < fieldLen {
-			itemScript += ", "
-		}
-	}
-	//validate/update script content based on valid field specifications
-	if fieldCount > 0 && fieldCount == fieldLen {
-		validUpdateItemCount += 1
-		updateQuery = itemScript + whereQuery
-	} else {
-		invalidUpdateItemCount += 1
+		fieldValues = append(fieldValues, currentFieldValue)
 	}
 
-	// check is there was invalid update items
-	if invalidUpdateItemCount > 0 {
-		return "", errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
-	}
-	return updateQuery, nil
+	// result
+	return mccrud.UpdateQueryObject{
+		UpdateQuery: updateQuery,
+		FieldNames:  fieldNames,
+		WhereQuery:  whereQuery,
+		FieldValues: fieldValues,
+	}, nil
 }
 
-func ComputeUpdateQueryByParam(tableName string, actionParams mccrud.ActionParamsType, where mccrud.QueryParamType, tableFields []string) (string, error) {
-	if tableName == "" || len(actionParams) < 1 || len(where) < 1 {
-		return "", errors.New("table-name, action-params and where-params are required for the update-by-params operation")
+// ComputeUpdateQueryByParam function computes update SQL scripts by queryParams. It returns updateScript, updateValues []interface{} and/or err error
+func ComputeUpdateQueryByParam(tableName string, actionParam mccrud.ActionParamType, queryParams mccrud.QueryParamType) (mccrud.UpdateQueryObject, error) {
+	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
+		return updateErrMessage("table-name and actionParam are required for the update operation")
 	}
-	// compute tableFields from the first record, if len(tableFields) == 0
-	if len(tableFields) == 0 {
-		actRec := actionParams[0]
-		for fName := range actRec {
-			if fName == "id" {
-				continue
-			}
-			tableFields = append(tableFields, fName)
-		}
+	// validate actionParam/record-ids
+	if len(queryParams) < 1 {
+		return updateErrMessage(fmt.Sprintf("queryParams is required for the update operation: %v", actionParam))
 	}
-
-	// compute update script from queryParams
+	// declare slice variable for create/insert queries
 	var updateQuery string
-	invalidUpdateItemCount := 0
-	validUpdateItemCount := 0
+	var fieldNames []string
+	var fieldValues []interface{}
 
-	// only one actionParams record is required for update by where-params
-	rec := actionParams[0]
-	itemScript := fmt.Sprintf("UPDATE %v SET", tableName)
+	// compute update script and associated values () for all the actionParam/record
+	itemQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	fieldsLength := len(actionParam)
 	fieldCount := 0
-	fieldLen := len(tableFields)
-	for _, fieldName := range tableFields {
-		fieldValue, ok := rec[fieldName]
-		// check for the required fields in each record
-		if !ok {
-			return "", errors.New(fmt.Sprintf("Record [%#v]: required field_name[%v] is missing", rec, fieldName))
-		}
+	for fieldName := range actionParam {
 		fieldCount += 1
-		// update/set recFieldValues by fieldValue-type
+		fieldNames = append(fieldNames, fieldName)
+		itemQuery += fmt.Sprintf(" %v=%v", fieldName, fieldCount)
+		if fieldsLength > 1 && fieldCount < fieldsLength {
+			itemQuery += ", "
+		}
+	}
+	// close item-script/value-placeholder
+	itemQuery += " )"
+	// add where condition by queryParams | TODO: refactor ComputeWhereQuery to support query-value-placeholders
+	whereQuery, err := ComputeWhereQuery(queryParams)
+	if err == nil {
+		updateQuery += " " + whereQuery
+	} else {
+		return updateErrMessage(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
+	}
+	// compute update-field-values from actionParams/records, in order of the fields-sequence
+	// value-computation for each of the actionParam / record must match the record-fields
+	// item-values-computation variable
+	for _, fieldName := range fieldNames {
+		fieldValue, ok := actionParam[fieldName]
+		// check for required field in each record
+		if !ok {
+			return updateErrMessage(fmt.Sprintf("Record #%v: required field_name[%v] has field_value of %v ", actionParam, fieldName, fieldValue))
+		}
+		// update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 		var currentFieldValue interface{}
 		switch fieldValue.(type) {
 		case time.Time:
 			if fVal, ok := fieldValue.(time.Time); !ok {
-				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				return updateErrMessage(fmt.Sprintf("field_name: %v [date-type] | field_value: %v error: ", fieldName, fieldValue))
 			} else {
 				currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 			}
 		case string:
 			if fVal, ok := fieldValue.(string); !ok {
-				return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 			} else {
-				if govalidator.IsJSON(fVal) {
+				if govalidator.IsUUID(fVal) {
+					currentFieldValue = fVal
+				} else if govalidator.IsJSON(fVal) {
 					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
-						return "", errors.New(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						currentFieldValue = "'" + fValue + "'"
+						fmt.Printf("string-toJson-value: %v\n\n", fValue)
+						currentFieldValue = fValue
 					}
 				} else {
 					currentFieldValue = "'" + fVal + "'"
 				}
 			}
-		case int, uint, float64, bool:
-			currentFieldValue = fieldValue
+		case bool:
+			if fVal, ok := fieldValue.(bool); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int8:
+			if fVal, ok := fieldValue.(int8); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int16:
+			if fVal, ok := fieldValue.(int16); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int32:
+			if fVal, ok := fieldValue.(int32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int64:
+			if fVal, ok := fieldValue.(int64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case int:
+			if fVal, ok := fieldValue.(int); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint8:
+			if fVal, ok := fieldValue.(uint8); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint16:
+			if fVal, ok := fieldValue.(uint16); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint32:
+			if fVal, ok := fieldValue.(uint32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint64:
+			if fVal, ok := fieldValue.(uint64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case uint:
+			if fVal, ok := fieldValue.(uint); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case float32:
+			if fVal, ok := fieldValue.(float32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case float64:
+			if fVal, ok := fieldValue.(float64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []string:
+			if fVal, ok := fieldValue.([]string); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []int:
+			if fVal, ok := fieldValue.([]int); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []float32:
+			if fVal, ok := fieldValue.([]float32); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []float64:
+			if fVal, ok := fieldValue.([]float64); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
+		case []struct{}:
+			if fVal, ok := fieldValue.([]struct{}); !ok {
+				return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+			} else {
+				currentFieldValue = fVal
+			}
 		default:
 			// json-stringify fieldValue
 			if fVal, err := json.Marshal(fieldValue); err != nil {
-				return "", errors.New(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+				return updateErrMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 			} else {
-				currentFieldValue = "'" + string(fVal) + "'"
+				currentFieldValue = string(fVal)
 			}
 		}
 		// add itemValue
-		itemScript += fmt.Sprintf(" %v=%v", fieldName, currentFieldValue)
-
-		if fieldLen > 1 && fieldCount < fieldLen {
-			itemScript += ", "
-		}
-	}
-	//validate/update script content based on valid field specifications
-	if fieldCount > 0 && fieldCount == fieldLen {
-		validUpdateItemCount += 1
-		updateQuery = itemScript
-	} else {
-		invalidUpdateItemCount += 1
+		fieldValues = append(fieldValues, currentFieldValue)
 	}
 
-	// check is there was invalid update items
-	if invalidUpdateItemCount > 0 {
-		return "", errors.New(fmt.Sprintf("Invalid action-params [%v]", invalidUpdateItemCount))
-	}
-
-	if whereScript, err := ComputeWhereQuery(where); err == nil {
-		updateQuery += " " + whereScript
-		return updateQuery, nil
-	} else {
-		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
-	}
+	// result
+	return mccrud.UpdateQueryObject{
+		UpdateQuery: updateQuery,
+		FieldNames:  fieldNames,
+		WhereQuery:  whereQuery, // TODO: remove, not required
+		FieldValues: fieldValues,
+	}, nil
 }

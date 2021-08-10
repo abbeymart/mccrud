@@ -235,6 +235,7 @@ type CreateQueryObject struct {
 
 type UpdateQueryObject struct {
 	UpdateQuery string
+	FieldNames  []string
 	WhereQuery  string
 	FieldValues []interface{}
 }
