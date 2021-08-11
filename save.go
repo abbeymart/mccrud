@@ -170,7 +170,7 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMes
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(updateRecs ActionParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) Update(modelRef interface{}, updateRecs ActionParamsType) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
 
 	// create from updatedRecs (actionParams)
@@ -241,9 +241,13 @@ func (crud *Crud) Update(updateRecs ActionParamsType) mcresponse.ResponseMessage
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateById(updateRec ActionParamType, id string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateById(modelRef interface{}, updateRec ActionParamType, id string) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
-
+	if crud.LogUpdate || crud.LogCrud {
+		getRes := crud.GetById(modelRef, id)
+		value, _ := getRes.Value.(CrudResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
 	// create from updatedRecs (actionParams)
 	upQueryObj, err := helper.ComputeUpdateQueryById(crud.TableName, updateRec, id)
 	if err != nil {
@@ -298,8 +302,13 @@ func (crud *Crud) UpdateById(updateRec ActionParamType, id string) mcresponse.Re
 }
 
 // UpdateByIds method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateByIds(updateRec ActionParamType) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByIds(modelRef interface{}, updateRec ActionParamType) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
+	if crud.LogUpdate || crud.LogCrud {
+		getRes := crud.GetByIds(modelRef)
+		value, _ := getRes.Value.(CrudResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
 	// create from updatedRecs (actionParams)
 	upQueryObj, err := helper.ComputeUpdateQueryByIds(crud.TableName, updateRec, crud.RecordIds)
 	if err != nil {
@@ -354,8 +363,13 @@ func (crud *Crud) UpdateByIds(updateRec ActionParamType) mcresponse.ResponseMess
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
-func (crud *Crud) UpdateByParam(updateRec ActionParamType) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParam(modelRef interface{}, updateRec ActionParamType) mcresponse.ResponseMessage {
 	// TODO: include audit-log feature
+	if crud.LogUpdate || crud.LogCrud {
+		getRes := crud.GetByParam(modelRef)
+		value, _ := getRes.Value.(CrudResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
 	// create from updatedRecs (actionParams)
 	updateQueryObject, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRec, crud.QueryParams)
 	if err != nil {

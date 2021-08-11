@@ -16,6 +16,12 @@ import (
 // DeleteById method deletes or removes record(s) by record-id(s)
 func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.ResponseMessage {
 	// TODO: audit-log
+	// get records to delete, for audit-log
+	if crud.LogDelete || crud.LogCrud {
+		getRes := crud.GetById(modelRef, id)
+		value, _ := getRes.Value.(CrudResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
 	// compute delete query by record-ids
 	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, id)
 	if dQErr != nil {
@@ -44,7 +50,11 @@ func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.Respons
 // DeleteByIds method deletes or removes record(s) by record-id(s)
 func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	// TODO: audit-log
-
+	if crud.LogDelete || crud.LogCrud {
+		getRes := crud.GetByIds(modelRef)
+		value, _ := getRes.Value.(CrudResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
 	// compute delete query by record-ids
 	deleteQuery, dQErr := helper.ComputeDeleteQueryByIds(crud.TableName, crud.RecordIds)
 	if dQErr != nil {
@@ -73,7 +83,11 @@ func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
 func (crud *Crud) DeleteByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	// TODO: audit-log
-
+	if crud.LogDelete || crud.LogCrud {
+		getRes := crud.GetByParam(modelRef)
+		value, _ := getRes.Value.(CrudResultType)
+		crud.CurrentRecords = value.TableRecords
+	}
 	// compute delete query by query-params
 	delQueryObj, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if dQErr != nil {
@@ -120,7 +134,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 
 	// perform audit-log
 	logMessage := ""
-	if crud.LogDelete {
+	if crud.LogDelete || crud.LogCrud {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: map[string]string{"query_desc": "all-records"},
@@ -140,7 +154,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 
 func (crud *Crud) DeleteByIdLog(id string) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
-	//if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
+	//if crud.LogDelete || crud.LogCrud && len(tableFields) == len(tableFieldPointers) {
 	//	getRes := crud.GetById(tableFields, tableFieldPointers)
 	//	value, _ := getRes.Value.(CrudResultType)
 	//	crud.CurrentRecords = value.TableRecords
@@ -151,7 +165,7 @@ func (crud *Crud) DeleteByIdLog(id string) mcresponse.ResponseMessage {
 
 	// perform audit-log
 	logMessage := ""
-	if crud.LogDelete {
+	if crud.LogDelete || crud.LogCrud {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: crud.CurrentRecords,

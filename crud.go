@@ -198,20 +198,20 @@ func (crud *Crud) SaveRecord(modelRef interface{}) mcresponse.ResponseMessage {
 			upRec := updateRecs[0]
 			// update the record by recordId
 			if len(crud.RecordIds) == 1 {
-				return crud.UpdateById(upRec, crud.RecordIds[0])
+				return crud.UpdateById(modelRef, upRec, crud.RecordIds[0])
 			}
 			// update record(s) by recordIds
 			if len(crud.RecordIds) > 1 {
-				return crud.UpdateByIds(upRec)
+				return crud.UpdateByIds(modelRef, upRec)
 			}
 			// update record(s) by queryParams
 			if len(crud.QueryParams) > 0 {
-				return crud.UpdateByParam(upRec)
+				return crud.UpdateByParam(modelRef, upRec)
 			}
 		}
 		// update multiple records
 		if len(crud.ActionParams) > 1 {
-			return crud.Update(updateRecs)
+			return crud.Update(modelRef, updateRecs)
 		}
 	}
 
@@ -234,13 +234,13 @@ func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage 
 	}
 
 	if len(crud.RecordIds) == 1 {
-		return crud.DeleteById(crud.RecordIds[0])
+		return crud.DeleteById(modelRef, crud.RecordIds[0])
 	}
 	if len(crud.RecordIds) > 1 {
-		return crud.DeleteByIds()
+		return crud.DeleteByIds(modelRef)
 	}
 	if crud.QueryParams != nil && len(crud.QueryParams) > 0 {
-		return crud.DeleteByParam()
+		return crud.DeleteByParam(modelRef)
 	}
 	// delete-all ***RESTRICTED***
 	// otherwise return error
