@@ -14,9 +14,10 @@ import (
 )
 
 // DeleteById method deletes or removes record(s) by record-id(s)
-func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
+	// TODO: audit-log
 	// compute delete query by record-ids
-	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, crud.RecordIds)
+	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, id)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
@@ -41,9 +42,11 @@ func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.Respons
 }
 
 // DeleteByIds method deletes or removes record(s) by record-id(s)
-func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
+	// TODO: audit-log
+
 	// compute delete query by record-ids
-	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, crud.RecordIds)
+	deleteQuery, dQErr := helper.ComputeDeleteQueryByIds(crud.TableName, crud.RecordIds)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
@@ -68,16 +71,19 @@ func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 }
 
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
-func (crud *Crud) DeleteByParam(modelRef interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
+	// TODO: audit-log
+
 	// compute delete query by query-params
-	deleteQuery, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
+	delQueryObj, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
 			Value:   nil,
 		})
 	}
-	commandTag, delErr := crud.AppDb.Exec(context.Background(), deleteQuery)
+	deleteQuery := delQueryObj.DeleteQuery + delQueryObj.WhereQuery.WhereQuery
+	commandTag, delErr := crud.AppDb.Exec(context.Background(), deleteQuery, delQueryObj.WhereQuery.FieldValues...)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
@@ -132,48 +138,16 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	})
 }
 
-func (crud *Crud) DeleteByIdLog(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByIdLog(id string) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
-	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
-		getRes := crud.GetById(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(CrudResultType)
-		crud.CurrentRecords = value.TableRecords
-	}
+	//if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
+	//	getRes := crud.GetById(tableFields, tableFieldPointers)
+	//	value, _ := getRes.Value.(CrudResultType)
+	//	crud.CurrentRecords = value.TableRecords
+	//}
 
 	// perform delete-by-id
-	delRes := crud.DeleteById()
-
-	// perform audit-log
-	logMessage := ""
-	if crud.LogDelete {
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
-			TableName:  crud.TableName,
-			LogRecords: crud.CurrentRecords,
-		}
-		if logRes, logErr := crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
-			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
-		} else {
-			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
-		}
-	}
-
-	// overall response
-	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: delRes.Message + " | " + logMessage,
-		Value:   delRes.Value,
-	})
-}
-
-func (crud *Crud) DeleteByParamLog(tableFields []string, tableFieldPointers []interface{}) mcresponse.ResponseMessage {
-	// get records to delete, for audit-log
-	if crud.LogDelete && len(tableFields) == len(tableFieldPointers) {
-		getRes := crud.GetByParam(tableFields, tableFieldPointers)
-		value, _ := getRes.Value.(CrudResultType)
-		crud.CurrentRecords = value.TableRecords
-	}
-
-	// perform delete-by-param
-	delRes := crud.DeleteByParam()
+	delRes := crud.DeleteById(id)
 
 	// perform audit-log
 	logMessage := ""

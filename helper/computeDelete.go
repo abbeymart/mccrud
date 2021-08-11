@@ -10,6 +10,14 @@ import (
 	"github.com/abbeymart/mccrud"
 )
 
+func deleteErrMessage(errMsg string) (mccrud.DeleteQueryObject, error) {
+	return mccrud.DeleteQueryObject{
+		DeleteQuery: "",
+		FieldValues: nil,
+		WhereQuery:  mccrud.WhereQueryObject{},
+	}, errors.New(errMsg)
+}
+
 // ComputeDeleteQueryById function computes delete SQL script by id(s)
 func ComputeDeleteQueryById(tableName string, recordId string) (string, error) {
 	if tableName == "" || recordId == "" {
@@ -40,15 +48,19 @@ func ComputeDeleteQueryByIds(tableName string, recordIds []string) (string, erro
 }
 
 // ComputeDeleteQueryByParam function computes delete SQL script by parameter specifications
-func ComputeDeleteQueryByParam(tableName string, where mccrud.QueryParamType) (string, error) {
+func ComputeDeleteQueryByParam(tableName string, where mccrud.QueryParamType) (mccrud.DeleteQueryObject, error) {
 	if tableName == "" || len(where) < 1 {
-		return "", errors.New("table/collection name and where/query-condition are required for the delete-by-param operation")
+		return deleteErrMessage("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}
 	whereParam, err := ComputeWhereQuery(where, 1)
 	if err == nil {
-		deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
-		return deleteScript, nil
+		//deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
+		return mccrud.DeleteQueryObject{
+			DeleteQuery: fmt.Sprintf("DELETE FROM %v ", tableName),
+			WhereQuery: whereParam,
+			FieldValues: nil,
+		}, nil
 	} else {
-		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
+		return deleteErrMessage(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
 	}
 }

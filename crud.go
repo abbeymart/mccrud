@@ -224,7 +224,7 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 }
 
 // DeleteRecord function deletes/removes record(s) by id(s) or params
-func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteRecord() mcresponse.ResponseMessage {
 	// check task-permission - delete
 	if crud.CheckAccess {
 		accessRes := crud.TaskPermission(DeleteTask)
@@ -234,13 +234,13 @@ func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage 
 	}
 
 	if len(crud.RecordIds) == 1 {
-		return crud.DeleteById(modelRef, crud.RecordIds[0])
+		return crud.DeleteById(crud.RecordIds[0])
 	}
 	if len(crud.RecordIds) > 1 {
-		return crud.DeleteByIds(modelRef)
+		return crud.DeleteByIds()
 	}
 	if crud.QueryParams != nil && len(crud.QueryParams) > 0 {
-		return crud.DeleteByParam(modelRef)
+		return crud.DeleteByParam()
 	}
 	// delete-all ***RESTRICTED***
 	// otherwise return error
