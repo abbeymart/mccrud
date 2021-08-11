@@ -136,14 +136,14 @@ func StructToMap(rec interface{}) (map[string]interface{}, error) {
 // TagField return the field-tag (e.g. table-column-name) for mcorm tag
 func TagField(rec interface{}, fieldName string, tag string) (string, error) {
 	// validate recs as struct{} type
-	recType := fmt.Sprintf("%v", reflect.TypeOf(rec).Kind())
+	t := reflect.TypeOf(rec)
+	recType := fmt.Sprintf("%v", t.Kind())
 	switch recType {
 	case "struct":
 		break
 	default:
 		return "", errors.New(fmt.Sprintf("rec parameter must be of type struct{}"))
 	}
-	t := reflect.TypeOf(rec)
 	// convert the first-letter to upper-case (public field)
 	field, found := t.FieldByName(strings.Title(fieldName))
 	if !found {
@@ -157,7 +157,7 @@ func TagField(rec interface{}, fieldName string, tag string) (string, error) {
 	return field.Tag.Get(tag), nil
 }
 
-// StructToTagMap function converts struct to map (for crud-actionParams / records)
+// StructToTagMap function converts struct to map (tag/underscore_field), for crud-db-table-record
 func StructToTagMap(rec interface{}, tag string) (map[string]interface{}, error) {
 	// validate recs as struct{} type
 	recType := fmt.Sprintf("%v", reflect.TypeOf(rec).Kind())
@@ -183,8 +183,8 @@ func StructToTagMap(rec interface{}, tag string) (map[string]interface{}, error)
 	return tagMapData, nil
 }
 
-// StructToCaseUnderscoreMap converts struct to map (for crud-actionParams / records)
-func StructToCaseUnderscoreMap(rec interface{}) (map[string]interface{}, error) {
+// StructToMapUnderscore converts struct to map (underscore_fields), for crud-db-table-record
+func StructToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as struct{} type
 	recType := fmt.Sprintf("%v", reflect.TypeOf(rec).Kind())
 	switch recType {
@@ -206,8 +206,8 @@ func StructToCaseUnderscoreMap(rec interface{}) (map[string]interface{}, error) 
 	return caseUnderscoreMapData, nil
 }
 
-// MapToUnderscoreMap converts map-fields to underscore
-func MapToUnderscoreMap(rec interface{}) (map[string]interface{}, error) {
+// MapToMapUnderscore converts map-fields to underscore
+func MapToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as map type
 	recMap, ok := rec.(map[string]interface{})
 	if !ok || recMap == nil {
@@ -222,8 +222,8 @@ func MapToUnderscoreMap(rec interface{}) (map[string]interface{}, error) {
 	return uMapData, nil
 }
 
-// ArrayMapToUnderscoreMap converts []map-fields to underscore
-func ArrayMapToUnderscoreMap(rec interface{}) ([]map[string]interface{}, error) {
+// ArrayMapToMapUnderscore converts []map-fields to underscore
+func ArrayMapToMapUnderscore(rec interface{}) ([]map[string]interface{}, error) {
 	// validate recs as []map type
 	arrayMap, ok := rec.([]map[string]interface{})
 	if !ok || arrayMap == nil {
@@ -233,7 +233,7 @@ func ArrayMapToUnderscoreMap(rec interface{}) ([]map[string]interface{}, error) 
 	var uArrayMapData []map[string]interface{}
 	// compose underscoreMapData
 	for _, mapRec := range arrayMap {
-		uMapData, err := MapToUnderscoreMap(mapRec)
+		uMapData, err := MapToMapUnderscore(mapRec)
 		if err != nil {
 			return nil, err
 		}

@@ -119,7 +119,7 @@ func (crud Crud) String() string {
 // SaveRecord function creates new record(s) or updates existing record(s)
 func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 	// transform actionParams ([]map[string]interface) camelCase fields to underscore
-	actParams, err := ArrayMapToUnderscoreMap(crud.ActionParams)
+	actParams, err := ArrayMapToMapUnderscore(crud.ActionParams)
 	if err != nil {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("actParams-records format error: %v", err.Error()),

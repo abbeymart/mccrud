@@ -19,17 +19,18 @@ func selectErrMessage(errMsg string) (mccrud.SelectQueryObject, error) {
 	}, errors.New(errMsg)
 }
 
-// ComputeSelectQueryAll compose select SQL script to retrieve all table-records
-// The query may be limit/response may be controlled, by the user, by appending skip and limit options
+// ComputeSelectQueryAll compose select SQL script to retrieve all table-records.
+// The query may be constraint by skip(offset) and limit options
 func ComputeSelectQueryAll(modelRef interface{}, tableName string) (string, error) {
 	if tableName == "" || modelRef == nil {
 		return "", errors.New("model(struct) and table-name are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
-	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	// compute map[string]interface (underscore_fields) from the modelRef (struct)
+	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return "", mapErr
 	}
+	// compute table-fields
 	var tableFields []string
 	for fieldName := range mapMod {
 		tableFields = append(tableFields, fieldName)
@@ -44,8 +45,8 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	if tableName == "" || recordId == "" || modelRef == nil {
 		return "", errors.New("model (struct), table-name and record-id are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
-	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	// TODO: compute map[string]interface (underscore_fields) from the modelRef (struct)
+	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return "", mapErr
 	}
@@ -65,8 +66,8 @@ func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds [
 	if tableName == "" || len(recordIds) < 1 || modelRef == nil {
 		return "", errors.New("model (struct), table-name and record-ids are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
-	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	// TODO: compute map[string]interface (underscore_fields) from the modelRef (struct)
+	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return "", mapErr
 	}
@@ -95,8 +96,8 @@ func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryPara
 	if tableName == "" || len(queryParam) < 1 || modelRef == nil {
 		return selectErrMessage("model (struct), table-name, and queryParam are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
-	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	// TODO: compute map[string]interface (underscore_fields) from the modelRef (struct)
+	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return selectErrMessage(fmt.Sprintf("%v", mapErr.Error()))
 	}
