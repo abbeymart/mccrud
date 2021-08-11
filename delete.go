@@ -33,7 +33,7 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) deleted successfully",
@@ -62,7 +62,7 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) deleted successfully",
@@ -92,7 +92,7 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) deleted successfully",
@@ -116,7 +116,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	}
 
 	// delete cache, by key (TableName)
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "key")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "key")
 
 	// perform audit-log
 	logMessage := ""

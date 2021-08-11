@@ -66,7 +66,7 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 		})
 	}
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	// perform audit-log
 	logMessage := ""
@@ -145,7 +145,7 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMes
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	// perform audit-log
 	logMessage := ""
@@ -228,7 +228,7 @@ func (crud *Crud) Update(updateRecs ActionParamsType) mcresponse.ResponseMessage
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
@@ -285,7 +285,7 @@ func (crud *Crud) UpdateById(updateRec ActionParamType, id string) mcresponse.Re
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
@@ -341,7 +341,7 @@ func (crud *Crud) UpdateByIds(updateRec ActionParamType) mcresponse.ResponseMess
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",
@@ -400,7 +400,7 @@ func (crud *Crud) UpdateByParam(updateRec ActionParamType) mcresponse.ResponseMe
 	}
 
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.HashKey, "hash")
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
 
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Record(s) update completed successfully",

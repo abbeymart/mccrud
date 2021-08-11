@@ -18,7 +18,7 @@ type Crud struct {
 	CrudOptionsType
 	CurrentRecords []interface{}
 	TransLog       mcauditlog.PgxLogParam
-	HashKey        string // Unique for exactly the same query
+	CacheKey       string // Unique for exactly the same query
 }
 
 // NewCrud constructor returns a new crud-instance
@@ -55,13 +55,6 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.LogDelete = options.LogDelete
 	crudInstance.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
 	crudInstance.CacheExpire = options.CacheExpire // cache expire in secs
-	// Compute HashKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
-	qParam, _ := json.Marshal(params.QueryParams)
-	sParam, _ := json.Marshal(params.SortParams)
-	pParam, _ := json.Marshal(params.ProjectParams)
-	dIds, _ := json.Marshal(params.RecordIds)
-	crudInstance.HashKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
-
 	// Default values
 	if crudInstance.AuditTable == "" {
 		crudInstance.AuditTable = "audits"
@@ -91,17 +84,24 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 		crudInstance.Skip = 0
 	}
 
-	if crudInstance.MaxQueryLimit == 0 {
+	if crudInstance.MaxQueryLimit <= 0 {
 		crudInstance.MaxQueryLimit = 10000
 	}
 
-	if crudInstance.Limit > crudInstance.MaxQueryLimit && crudInstance.MaxQueryLimit != 0 {
+	if crudInstance.Limit > crudInstance.MaxQueryLimit {
 		crudInstance.Limit = crudInstance.MaxQueryLimit
 	}
 
 	if crudInstance.CacheExpire <= 0 {
 		crudInstance.CacheExpire = 300 // 300 secs, 5 minutes
 	}
+	// Compute CacheKey from TableName, QueryParams, SortParams, ProjectParams and RecordIds
+	qParam, _ := json.Marshal(params.QueryParams)
+	sParam, _ := json.Marshal(params.SortParams)
+	pParam, _ := json.Marshal(params.ProjectParams)
+	dIds, _ := json.Marshal(params.RecordIds)
+	//crudInstance.CacheKey = params.TableName + string(qParam) + string(sParam) + string(pParam) + string(dIds)
+	crudInstance.CacheKey = fmt.Sprintf("%v-%v-%v-%v-%v-%v-%v", params.TableName, string(qParam), string(sParam), string(pParam), string(dIds), crudInstance.Skip, crudInstance.Limit)
 
 	// Audit/TransLog instance
 	crudInstance.TransLog = mcauditlog.NewAuditLogPgx(crudInstance.AuditDb, crudInstance.AuditTable)

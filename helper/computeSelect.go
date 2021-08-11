@@ -11,20 +11,69 @@ import (
 	"strings"
 )
 
+func selectErrMessage(errMsg string) (mccrud.SelectQueryObject, error) {
+	return mccrud.SelectQueryObject{
+		SelectQuery: "",
+		FieldValues: nil,
+		WhereQuery:  mccrud.WhereQueryObject{},
+	}, errors.New(errMsg)
+}
+
 // ComputeSelectQueryAll compose select SQL script to retrieve all table-records
 // The query may be limit/response may be controlled, by the user, by appending skip and limit options
-func ComputeSelectQueryAll(tableName string, tableFields []string) (string, error) {
-	if tableName == "" || len(tableFields) < 1 {
-		return "", errors.New("table-name and table-fields are required to perform the select operation")
+func ComputeSelectQueryAll(modelRef interface{}, tableName string) (string, error) {
+	if tableName == "" || modelRef == nil {
+		return "", errors.New("model(struct) and table-name are required to perform the select operation")
 	}
-	selectQuery := fmt.Sprintf("SELECT %v FROM %v", strings.Join(tableFields, ", "), tableName)
+	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
+	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	if mapErr != nil {
+		return "", mapErr
+	}
+	var tableFields []string
+	for fieldName := range mapMod {
+		tableFields = append(tableFields, fieldName)
+	}
+	// get records for the model-defined fields/columns
+	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", strings.Join(tableFields, ", "), tableName)
 	return selectQuery, nil
 }
 
-// ComputeSelectQueryById compose select SQL script by id(s)
-func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []string) (string, error) {
-	if tableName == "" || len(recordIds) < 1 || len(tableFields) < 1 {
-		return "", errors.New("table-name, table-fields and record-ids are required to perform the select operation")
+// ComputeSelectQueryById compose select SQL script by id
+func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId string) (string, error) {
+	if tableName == "" || recordId == "" || modelRef == nil {
+		return "", errors.New("model (struct), table-name and record-id are required to perform the select operation")
+	}
+	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
+	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	if mapErr != nil {
+		return "", mapErr
+	}
+	var tableFields []string
+	for fieldName := range mapMod {
+		tableFields = append(tableFields, fieldName)
+	}
+	// get record(s) based on projected/provided field names ([]string)
+	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", strings.Join(tableFields, ", "), tableName)
+	// from / where condition (where-in-values)
+	selectQuery += fmt.Sprintf("WHERE id = %v", recordId)
+	return selectQuery, nil
+}
+
+// ComputeSelectQueryByIds compose select SQL script by ids
+func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds []string) (string, error) {
+	if tableName == "" || len(recordIds) < 1 || modelRef == nil {
+		return "", errors.New("model (struct), table-name and record-ids are required to perform the select operation")
+	}
+	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
+	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	if mapErr != nil {
+		return "", mapErr
+	}
+	// compute select-fields
+	var tableFields []string
+	for fieldName := range mapMod {
+		tableFields = append(tableFields, fieldName)
 	}
 	// get record(s) based on projected/provided field names ([]string)
 	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", strings.Join(tableFields, ", "), tableName)
@@ -42,18 +91,32 @@ func ComputeSelectQueryById(tableName string, recordIds []string, tableFields []
 }
 
 // ComputeSelectQueryByParam compose SELECT query from the where-parameters
-func ComputeSelectQueryByParam(tableName string, where mccrud.QueryParamType, tableFields []string) (string, error) {
-	if tableName == "" || len(where) < 1 || len(tableFields) < 1 {
-		return "", errors.New("table-name, tableFields and where-params are required to perform the select operation")
+func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryParam mccrud.QueryParamType) (mccrud.SelectQueryObject, error) {
+	if tableName == "" || len(queryParam) < 1 || modelRef == nil {
+		return selectErrMessage("model (struct), table-name, and queryParam are required to perform the select operation")
+	}
+	// TODO: compute map[string]interface from the modelRef (struct) - TEST (conversion of default-values)
+	mapMod, mapErr := mccrud.StructToCaseUnderscoreMap(modelRef)
+	if mapErr != nil {
+		return selectErrMessage(fmt.Sprintf("%v", mapErr.Error()))
+	}
+	// compute select-fields
+	var tableFields []string
+	for fieldName := range mapMod {
+		tableFields = append(tableFields, fieldName)
 	}
 	// get record(s) based on projected/provided field names ([]string)
 	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", strings.Join(tableFields, ", "), tableName)
-	// add where-params condition
-	if whereScript, err := ComputeWhereQuery(where); err == nil {
-		selectQuery += whereScript
-		return selectQuery, nil
+	// add queryParam-params condition
+	whereQuery, err := ComputeWhereQuery(queryParam, 1)
+	if err == nil {
+		return mccrud.SelectQueryObject{
+			SelectQuery: selectQuery,
+			FieldValues: nil,
+			WhereQuery:  whereQuery,
+		}, nil
 	} else {
-		return "", errors.New(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
+		return selectErrMessage(fmt.Sprintf("error computing queryParam-query condition(s): %v", err.Error()))
 	}
 }
 
