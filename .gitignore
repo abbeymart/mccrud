@@ -32,3 +32,5 @@ project.md
 # apps/auth/lib/test.ts
 #tests
 tests/*.txt
+test/config
+test/config/secure

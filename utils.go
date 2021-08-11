@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/abbeymart/mcresponse"
+	"github.com/abbeymart/mctypes"
 	"github.com/asaskevich/govalidator"
 	"reflect"
 	"strings"
@@ -327,4 +329,20 @@ func MapToStruct(mapRecord map[string]interface{}, rec interface{}) (interface{}
 		return nil, errors.New(fmt.Sprintf("error computing map to struct records: %v", err.Error()))
 	}
 	return rec, nil
+}
+
+func GetParamsMessage(msgObject mctypes.MessageObject) mcresponse.ResponseMessage {
+	var messages = ""
+
+	for key, val := range msgObject {
+		if messages != "" {
+			messages = fmt.Sprintf("%v | %v : %v", messages, key, val)
+		} else {
+			messages = fmt.Sprintf("%v : %v", key, val)
+		}
+	}
+	return mcresponse.GetResMessage("validateError", mcresponse.ResponseMessageOptions{
+		Message: messages,
+		Value:   nil,
+	})
 }
