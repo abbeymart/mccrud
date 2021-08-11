@@ -117,7 +117,7 @@ func (crud Crud) String() string {
 // Methods
 
 // SaveRecord function creates new record(s) or updates existing record(s)
-func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
+func (crud *Crud) SaveRecord(modelRef interface{}) mcresponse.ResponseMessage {
 	// transform actionParams ([]map[string]interface) camelCase fields to underscore
 	actParams, err := ArrayMapToMapUnderscore(crud.ActionParams)
 	if err != nil {
@@ -224,7 +224,7 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 }
 
 // DeleteRecord function deletes/removes record(s) by id(s) or params
-func (crud *Crud) DeleteRecord() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage {
 	// check task-permission - delete
 	if crud.CheckAccess {
 		accessRes := crud.TaskPermission(DeleteTask)
@@ -272,7 +272,7 @@ func (crud *Crud) GetRecord(modelRef interface{}) mcresponse.ResponseMessage {
 	return crud.GetAll(modelRef)
 }
 
-// GetRecords function get records by id, params or all - lookup-items
+// GetRecords function get records by id, params or all - lookup-items (no-access-constraint)
 func (crud *Crud) GetRecords(modelRef interface{}) mcresponse.ResponseMessage {
 	if len(crud.RecordIds) == 1 {
 		return crud.GetById(modelRef, crud.RecordIds[0])

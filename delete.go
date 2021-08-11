@@ -14,7 +14,7 @@ import (
 )
 
 // DeleteById method deletes or removes record(s) by record-id(s)
-func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
+func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.ResponseMessage {
 	// TODO: audit-log
 	// compute delete query by record-ids
 	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, id)
@@ -42,7 +42,7 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 }
 
 // DeleteByIds method deletes or removes record(s) by record-id(s)
-func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	// TODO: audit-log
 
 	// compute delete query by record-ids
@@ -71,7 +71,7 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 }
 
 // DeleteByParam method deletes or removes record(s) by query-parameters or where conditions
-func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
+func (crud *Crud) DeleteByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	// TODO: audit-log
 
 	// compute delete query by query-params

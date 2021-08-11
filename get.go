@@ -27,14 +27,13 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 		})
 	}
 	logMessage := ""
-	getQueryObj, err := helper.ComputeSelectQueryByParam(modelRef, crud.TableName, crud.QueryParams)
+	getQuery, err := helper.ComputeSelectQueryById(modelRef, crud.TableName, id)
 	if err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
 			Value:   nil,
 		})
 	}
-	getQuery := getQueryObj.SelectQuery
 	// include options: limit 
 	if crud.Limit > 0 {
 		getQuery += fmt.Sprintf(" LIMIT %v", crud.Limit)
@@ -42,16 +41,12 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 	if crud.Skip > 0 {
 		getQuery += fmt.Sprintf(" OFFSET %v", crud.Skip)
 	}
-	// include where-condition / placeholders (add to query-exec)
-	getQuery += getQueryObj.WhereQuery.WhereQuery
-	// perform crud-task action
 
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS totalRows FROM %v", crud.TableName)
 	countRows, tRowErr := crud.AppDb.Query(context.Background(), countQuery)
 	if tRowErr != nil {
-		// TODO: rollback
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
 			Value:   nil,
@@ -60,7 +55,6 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 	for countRows.Next() {
 		cErr := countRows.Scan(&totalRows)
 		if cErr != nil {
-			// TODO: rollback
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Db query Error: %v", cErr.Error()),
 				Value:   nil,
@@ -68,7 +62,8 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 		}
 	}
 
-	rows, qRowErr := crud.AppDb.Query(context.Background(), getQuery, getQueryObj.WhereQuery.FieldValues...)
+	// perform crud-task action
+	rows, qRowErr := crud.AppDb.Query(context.Background(), getQuery)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
@@ -110,17 +105,14 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value: CrudResultType{
-				QueryParam:   crud.QueryParams,
-				RecordIds:    crud.RecordIds,
-				RecordCount:  rowCount,
-				TableRecords: getResults,
+			Value: GetResultType{
+				Records:  nil,
+				Stats:    GetStatType{},
+				TaskType: crud.TaskType,
+				LogRes:   mcresponse.ResponseMessage{},
 			},
 		})
 	}
-
-	// update cache
-	_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getResults, uint(crud.CacheExpire))
 
 	// perform audit-log
 	logRes := mcresponse.ResponseMessage{}
@@ -137,23 +129,27 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 		}
 	}
 
+	getValue := GetResultType{
+		Records: getResults,
+		Stats: GetStatType{
+			Skip:              crud.Skip,
+			Limit:             crud.Limit,
+			RecordsCount:      rowCount,
+			TotalRecordsCount: totalRows,
+			QueryParam:        crud.QueryParams,
+			RecordIds:         crud.RecordIds,
+		},
+		TaskType: crud.TaskType,
+		LogRes:   logRes,
+	}
+
+	// update cache
+	_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getValue, uint(crud.CacheExpire))
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
-			Records: getResults,
-			Stats: GetStatType{
-				Skip:              crud.Skip,
-				Limit:             crud.Limit,
-				RecordsCount:      rowCount,
-				TotalRecordsCount: totalRows,
-				QueryParam:        crud.QueryParams,
-				RecordIds:         crud.RecordIds,
-			},
-			TaskType: crud.TaskType,
-			LogRes:   logRes,
-		},
+		Value:   getValue,
 	})
-
 }
 
 // GetByIds method fetches/gets/reads records that met the specified record-ids,
@@ -176,14 +172,13 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 			})
 	}
 	logMessage := ""
-	getQueryObj, err := helper.ComputeSelectQueryByParam(modelRef, crud.TableName, crud.QueryParams)
+	getQuery, err := helper.ComputeSelectQueryByIds(modelRef, crud.TableName, crud.RecordIds)
 	if err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
 			Value:   nil,
 		})
 	}
-	getQuery := getQueryObj.SelectQuery
 	// include options: limit 
 	if crud.Limit > 0 {
 		getQuery += fmt.Sprintf(" LIMIT %v", crud.Limit)
@@ -191,16 +186,12 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	if crud.Skip > 0 {
 		getQuery += fmt.Sprintf(" OFFSET %v", crud.Skip)
 	}
-	// include where-condition / placeholders (add to query-exec)
-	getQuery += getQueryObj.WhereQuery.WhereQuery
-	// perform crud-task action
 
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS totalRows FROM %v", crud.TableName)
 	countRows, tRowErr := crud.AppDb.Query(context.Background(), countQuery)
 	if tRowErr != nil {
-		// TODO: rollback
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
 			Value:   nil,
@@ -209,7 +200,6 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	for countRows.Next() {
 		cErr := countRows.Scan(&totalRows)
 		if cErr != nil {
-			// TODO: rollback
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Db query Error: %v", cErr.Error()),
 				Value:   nil,
@@ -217,7 +207,8 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 		}
 	}
 
-	rows, qRowErr := crud.AppDb.Query(context.Background(), getQuery, getQueryObj.WhereQuery.FieldValues...)
+	// perform crud-task action
+	rows, qRowErr := crud.AppDb.Query(context.Background(), getQuery)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
@@ -259,17 +250,14 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value: CrudResultType{
-				QueryParam:   crud.QueryParams,
-				RecordIds:    crud.RecordIds,
-				RecordCount:  rowCount,
-				TableRecords: getResults,
+			Value: GetResultType{
+				Records:  nil,
+				Stats:    GetStatType{},
+				TaskType: crud.TaskType,
+				LogRes:   mcresponse.ResponseMessage{},
 			},
 		})
 	}
-
-	// update cache
-	_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getResults, uint(crud.CacheExpire))
 
 	// perform audit-log
 	logRes := mcresponse.ResponseMessage{}
@@ -286,23 +274,27 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 		}
 	}
 
+	getValue := GetResultType{
+		Records: getResults,
+		Stats: GetStatType{
+			Skip:              crud.Skip,
+			Limit:             crud.Limit,
+			RecordsCount:      rowCount,
+			TotalRecordsCount: totalRows,
+			QueryParam:        crud.QueryParams,
+			RecordIds:         crud.RecordIds,
+		},
+		TaskType: crud.TaskType,
+		LogRes:   logRes,
+	}
+
+	// update cache
+	_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getValue, uint(crud.CacheExpire))
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
-			Records: getResults,
-			Stats: GetStatType{
-				Skip:              crud.Skip,
-				Limit:             crud.Limit,
-				RecordsCount:      rowCount,
-				TotalRecordsCount: totalRows,
-				QueryParam:        crud.QueryParams,
-				RecordIds:         crud.RecordIds,
-			},
-			TaskType: crud.TaskType,
-			LogRes:   logRes,
-		},
+		Value:   getValue,
 	})
-
 }
 
 // GetByParam method fetches/gets/reads records that met the specified query-params or where conditions,
@@ -336,14 +328,12 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	}
 	// include where-condition / placeholders (add to query-exec)
 	getQuery += getQueryObj.WhereQuery.WhereQuery
-	// perform crud-task action
 
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS totalRows FROM %v", crud.TableName)
 	countRows, tRowErr := crud.AppDb.Query(context.Background(), countQuery)
 	if tRowErr != nil {
-		// TODO: rollback
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
 			Value:   nil,
@@ -352,7 +342,6 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	for countRows.Next() {
 		cErr := countRows.Scan(&totalRows)
 		if cErr != nil {
-			// TODO: rollback
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Db query Error: %v", cErr.Error()),
 				Value:   nil,
@@ -360,6 +349,7 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 		}
 	}
 
+	// perform crud-task action
 	rows, qRowErr := crud.AppDb.Query(context.Background(), getQuery, getQueryObj.WhereQuery.FieldValues...)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -402,17 +392,14 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value: CrudResultType{
-				QueryParam:   crud.QueryParams,
-				RecordIds:    crud.RecordIds,
-				RecordCount:  rowCount,
-				TableRecords: getResults,
+			Value: GetResultType{
+				Records:  nil,
+				Stats:    GetStatType{},
+				TaskType: crud.TaskType,
+				LogRes:   mcresponse.ResponseMessage{},
 			},
 		})
 	}
-
-	// update cache
-	_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getResults, uint(crud.CacheExpire))
 
 	// perform audit-log
 	logRes := mcresponse.ResponseMessage{}
@@ -429,23 +416,27 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 		}
 	}
 
+	getValue := GetResultType{
+		Records: getResults,
+		Stats: GetStatType{
+			Skip:              crud.Skip,
+			Limit:             crud.Limit,
+			RecordsCount:      rowCount,
+			TotalRecordsCount: totalRows,
+			QueryParam:        crud.QueryParams,
+			RecordIds:         crud.RecordIds,
+		},
+		TaskType: crud.TaskType,
+		LogRes:   logRes,
+	}
+
+	// update cache
+	_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getValue, uint(crud.CacheExpire))
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
-			Records: getResults,
-			Stats: GetStatType{
-				Skip:              crud.Skip,
-				Limit:             crud.Limit,
-				RecordsCount:      rowCount,
-				TotalRecordsCount: totalRows,
-				QueryParam:        crud.QueryParams,
-				RecordIds:         crud.RecordIds,
-			},
-			TaskType: crud.TaskType,
-			LogRes:   logRes,
-		},
+		Value:   getValue,
 	})
-
 }
 
 // GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
@@ -466,7 +457,7 @@ func (crud *Crud) GetAll(modelRef interface{}) mcresponse.ResponseMessage {
 	if crud.Skip > 0 {
 		getQuery += fmt.Sprintf(" OFFSET %v", crud.Skip)
 	}
-	// perform crud-task action
+
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS totalRows FROM %v", crud.TableName)
@@ -540,9 +531,6 @@ func (crud *Crud) GetAll(modelRef interface{}) mcresponse.ResponseMessage {
 		})
 	}
 
-	// update cache | *****don't cache all-table-records, due to large/unknown size*****
-	//_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getResults, uint(crud.CacheExpire))
-
 	// perform audit-log | initialize log-variables
 	logMessage := ""
 	logRes := mcresponse.ResponseMessage{}
@@ -559,20 +547,25 @@ func (crud *Crud) GetAll(modelRef interface{}) mcresponse.ResponseMessage {
 		}
 	}
 
+	getValue := GetResultType{
+		Records: getResults,
+		Stats: GetStatType{
+			Skip:              crud.Skip,
+			Limit:             crud.Limit,
+			RecordsCount:      rowCount,
+			TotalRecordsCount: totalRows,
+			QueryParam:        crud.QueryParams,
+			RecordIds:         crud.RecordIds,
+		},
+		TaskType: crud.TaskType,
+		LogRes:   logRes,
+	}
+
+	// update cache | *****don't cache all-table-records, due to large/unknown size*****
+	//_ = mccache.SetHashCache(crud.CacheKey, crud.TableName, getResults, uint(crud.CacheExpire))
+
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
-		Value: GetResultType{
-			Records: getResults,
-			Stats: GetStatType{
-				Skip:              crud.Skip,
-				Limit:             crud.Limit,
-				RecordsCount:      rowCount,
-				TotalRecordsCount: totalRows,
-				QueryParam:        crud.QueryParams,
-				RecordIds:         crud.RecordIds,
-			},
-			TaskType: crud.TaskType,
-			LogRes:   logRes,
-		},
+		Value:   getValue,
 	})
 }

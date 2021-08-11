@@ -45,7 +45,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	if tableName == "" || recordId == "" || modelRef == nil {
 		return "", errors.New("model (struct), table-name and record-id are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface (underscore_fields) from the modelRef (struct)
+	// compute map[string]interface (underscore_fields) from the modelRef (struct)
 	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return "", mapErr
@@ -66,7 +66,7 @@ func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds [
 	if tableName == "" || len(recordIds) < 1 || modelRef == nil {
 		return "", errors.New("model (struct), table-name and record-ids are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface (underscore_fields) from the modelRef (struct)
+	// compute map[string]interface (underscore_fields) from the modelRef (struct)
 	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return "", mapErr
@@ -96,7 +96,7 @@ func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryPara
 	if tableName == "" || len(queryParam) < 1 || modelRef == nil {
 		return selectErrMessage("model (struct), table-name, and queryParam are required to perform the select operation")
 	}
-	// TODO: compute map[string]interface (underscore_fields) from the modelRef (struct)
+	// compute map[string]interface (underscore_fields) from the modelRef (struct)
 	mapMod, mapErr := mccrud.StructToMapUnderscore(modelRef)
 	if mapErr != nil {
 		return selectErrMessage(fmt.Sprintf("%v", mapErr.Error()))
