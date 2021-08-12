@@ -24,8 +24,8 @@ type Category struct {
 	Priority  uint      `json:"priority" mcorm:"priority"`
 	ParentId  *string   `json:"parentId" mcorm:"parent_id"`
 	GroupId   string    `json:"groupId" mcorm:"group_id"`
-	Group     Group     `json:"group" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" mcorm:"group"`
-	Parent    *Category `json:"parent" gorm:"foreignKey:ParentId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" mcorm:"parent"`
+	Group     Group     `json:"group" mcorm:"group"`
+	Parent    *Category `json:"parent" mcorm:"parent"`
 	IconStyle string    `json:"iconStyle" mcorm:"icon_style"`
 }
 
