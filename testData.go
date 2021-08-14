@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"github.com/abbeymart/mcauditlog"
 	"time"
 )
 
@@ -49,54 +48,16 @@ var TestUserInfo = UserInfoType{
 	Role:      "TBD",
 }
 
-// audit-logs records for create / update / delete / read log-
-
-type AuditCreateRecordType struct {
-	Name     string  `json:"name" mcorm:"name"`
-	Desc     string  `json:"desc" mcorm:"desc"`
-	Url      string  `json:"url" mcorm:"url"`
-	Priority int     `json:"priority" mcorm:"priority"`
-	Cost     float64 `json:"cost" mcorm:"cost"`
-}
-
-var Recs = AuditCreateRecordType{Name: "Abi", Desc: "Testing only", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var TableRecords, _ = DataToValueParam(Recs)
-
-var NewRecs = AuditCreateRecordType{Name: "Abi Akindele", Desc: "Testing only - updated", Url: "localhost:9900", Priority: 1, Cost: 2000.00}
-var NewTableRecords, _ = DataToValueParam(NewRecs)
-
-// AuditUpdateRecordType update record(s)
-type AuditUpdateRecordType struct {
-	Id            string
-	TableName     string
-	LogRecords    interface{}
-	NewLogRecords interface{}
-	LogBy         string
-	LogType       string
-	LogAt         time.Time
-}
-
-var upRecs = AuditCreateRecordType{Name: "Abi100", Desc: "Testing only100", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var upTableRecords, _ = DataToValueParam(upRecs)
-var upRecs2 = AuditCreateRecordType{Name: "Abi200", Desc: "Testing only200", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-var upTableRecords2, _ = DataToValueParam(upRecs2)
-var UpdateRecordA = AuditUpdateRecordType{
-	Id:            "d46a29db-a9a3-47b9-9598-e17a7338e474",
-	TableName:     "services",
-	LogRecords:    upTableRecords,
-	NewLogRecords: NewTableRecords,
-	LogBy:         UserId,
-	LogType:       mcauditlog.UpdateLog,
-	LogAt:         time.Now(),
-}
-var UpdateRecordB = AuditUpdateRecordType{
-	Id:            "8fcdc5d5-f4e3-4f98-ba19-16e798f81070",
-	TableName:     "services2",
-	LogRecords:    upTableRecords2,
-	NewLogRecords: NewTableRecords,
-	LogBy:         UserId,
-	LogType:       mcauditlog.UpdateLog,
-	LogAt:         time.Now(),
+var userInfo = map[string]interface{}{
+	"userId":    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
+	"loginName": "abbeymart",
+	"email":     "abbeya1@yahoo.com",
+	"language":  "en-US",
+	"firstname": "Abi",
+	"lastname":  "Akindele",
+	"token":     "",
+	"expire":    0,
+	"role":      "guest",
 }
 
 var TestCrudParamOptions = CrudOptionsType{
