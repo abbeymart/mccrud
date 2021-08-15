@@ -27,14 +27,14 @@ type Group struct {
 
 type Category struct {
 	BaseModelType
-	Name      string    `json:"name"  mcorm:"name"`
-	OwnerId   string    `json:"ownerId" mcorm:"owner_id"`
-	Path      string    `json:"path" mcorm:"path"`
-	Priority  uint      `json:"priority" mcorm:"priority"`
-	ParentId  *string   `json:"parentId" mcorm:"parent_id"`
-	GroupId   string    `json:"groupId" mcorm:"group_id"`
-	GroupName string    `json:"groupName" mcorm:"group_name"`
-	IconStyle string    `json:"iconStyle" mcorm:"icon_style"`
+	Name      string  `json:"name"  mcorm:"name"`
+	OwnerId   string  `json:"ownerId" mcorm:"owner_id"`
+	Path      string  `json:"path" mcorm:"path"`
+	Priority  uint    `json:"priority" mcorm:"priority"`
+	ParentId  *string `json:"parentId" mcorm:"parent_id"`
+	GroupId   string  `json:"groupId" mcorm:"group_id"`
+	GroupName string  `json:"groupName" mcorm:"group_name"`
+	IconStyle string  `json:"iconStyle" mcorm:"icon_style"`
 }
 
 const GroupTable = "groups"
@@ -45,18 +45,6 @@ const TestAuditTable = "audits"
 
 const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de"
 
-var TestUserInfo0 = UserInfoType{
-	UserId:    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
-	LoginName: "abbeymart",
-	Email:     "abbeya1@yahoo.com",
-	Language:  "en-US",
-	Firstname: "Abi",
-	Lastname:  "Akindele",
-	Token:     "",
-	Expire:    0,
-	Role:      "TBD",
-}
-
 var TestUserInfo = map[string]interface{}{
 	"userId":    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
 	"loginName": "abbeymart",
@@ -66,7 +54,7 @@ var TestUserInfo = map[string]interface{}{
 	"lastname":  "Akindele",
 	"token":     "",
 	"expire":    0,
-	"role":      "guest",
+	"role":      "win-20_000_000",
 }
 
 var TestCrudParamOptions = CrudOptionsType{
@@ -102,12 +90,14 @@ var GroupCreateRec2 = ActionParamType{
 }
 
 var GroupUpdateRec1 = ActionParamType{
+	"id":   "tbd",
 	"name": "Location",
-	"desc": "Location group - updated",
+	"desc": "location group - updated",
 }
 var GroupUpdateRec2 = ActionParamType{
+	"id":   "tbd",
 	"name": "Address",
-	"desc": "Address group - updated",
+	"desc": "address group - updated",
 }
 
 var CategoryCreateRec1 = ActionParamType{
@@ -119,11 +109,15 @@ var CategoryCreateRec2 = ActionParamType{
 }
 
 var CategoryUpdateRec1 = ActionParamType{
-	"name": "services",
+	"id":   "tbd",
+	"name": "country",
+	"desc": "simple-update",
 }
 
 var CategoryUpdateRec2 = ActionParamType{
-	"name": "services",
+	"id":   "tbd",
+	"name": "business",
+	"desc": "simple-update",
 }
 
 var GroupCreateActionParams = ActionParamsType{
@@ -136,61 +130,44 @@ var CategoryCreateActionParams = ActionParamsType{
 	CategoryCreateRec2,
 }
 
-// TODO: update and delete params (ids, queryParams)
-
-var GroupUpdateRecordById = ActionParamType{
-	"name": "services2",
-}
-
-var CategoryUpdateRecordById = ActionParamType{
-	"name": "services2",
-}
-
-var GroupUpdateRecordByParam = ActionParamType{
-	"name": "services2",
-}
-
-var CategoryUpdateRecordByParam = ActionParamType{
-	"name": "services2",
-}
-
-var GroupUpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GroupUpdateParams = QueryParamType{}
-
-var CategoryUpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var CategoryUpdateParams = QueryParamType{}
-
-var UpdateIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var UpdateParams = QueryParamType{}
-
 var GroupUpdateActionParams = ActionParamsType{
 	GroupUpdateRec1,
 	GroupUpdateRec2,
 }
 
-var GroupUpdateActionParamsById = ActionParamsType{
-	GroupUpdateRecordById,
-}
-var GroupUpdateActionParamsByParam = ActionParamsType{
-	GroupUpdateRecordByParam,
-	GroupUpdateRecordByParam,
+var CategoryUpdateActionParams = ActionParamsType{
+	CategoryUpdateRec1,
+	CategoryUpdateRec2,
 }
 
-// GetRecordType get record(s)
-type GetRecordType struct {
-	Id            string
-	TableName     string
-	LogRecords    interface{}
-	NewLogRecords interface{}
-	LogBy         string
-	LogType       string
-	LogAt         time.Time
+// TODO: update and delete params, by ids / queryParams
+
+var GroupUpdateRecordById = ActionParamType{
+	"name": "location",
+	"desc": "updated-by-id",
+}
+
+var CategoryUpdateRecordById = ActionParamType{
+	"name": "country",
+	"desc": "updated-by-id",
+}
+
+var GroupUpdateRecordByParam = ActionParamType{
+	"name": "address",
+	"desc": "updated-by-param",
+}
+
+var CategoryUpdateRecordByParam = ActionParamType{
+	"name": "business",
+	"desc": "updated-by-param",
 }
 
 // GetIds get by ids & params
-var GetIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GetParams = QueryParamType{}
 
-// DeleteIds delete record(s) by ids & params
-var DeleteIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
-var DeleteParams = QueryParamType{}
+var GetGroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
+var GetGroupByParams = QueryParamType{}
+
+// DeleteIds delete record(s) by ids & queryParams
+
+var DeleteByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
+var DeleteByParams = QueryParamType{}
