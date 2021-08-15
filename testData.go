@@ -10,6 +10,16 @@ import (
 
 // Models
 
+type Audit struct {
+	Id            string      `json:"id" mcorm:"id"`
+	TableName     string      `json:"tableName" mcorm:"table_name"`
+	LogRecords    interface{} `json:"logRecords" mcorm:"log_records"`
+	NewLogRecords interface{} `json:"newLogRecords" mcorm:"new_log_records"`
+	LogType       string      `json:"logType" mcorm:"log_type"`
+	LogBy         string      `json:"logBy" mcorm:"log_by"`
+	LogAt         time.Time   `json:"logAt" mcorm:"log_at"`
+}
+
 type Group struct {
 	BaseModelType
 	Name string `json:"name" gorm:"unique" mcorm:"name"`
@@ -23,8 +33,7 @@ type Category struct {
 	Priority  uint      `json:"priority" mcorm:"priority"`
 	ParentId  *string   `json:"parentId" mcorm:"parent_id"`
 	GroupId   string    `json:"groupId" mcorm:"group_id"`
-	Group     Group     `json:"group" mcorm:"group"`
-	Parent    *Category `json:"parent" mcorm:"parent"`
+	GroupName string    `json:"groupName" mcorm:"group_name"`
 	IconStyle string    `json:"iconStyle" mcorm:"icon_style"`
 }
 
@@ -36,7 +45,7 @@ const TestAuditTable = "audits"
 
 const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de"
 
-var TestUserInfo = UserInfoType{
+var TestUserInfo0 = UserInfoType{
 	UserId:    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
 	LoginName: "abbeymart",
 	Email:     "abbeya1@yahoo.com",
@@ -48,7 +57,7 @@ var TestUserInfo = UserInfoType{
 	Role:      "TBD",
 }
 
-var userInfo = map[string]interface{}{
+var TestUserInfo = map[string]interface{}{
 	"userId":    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
 	"loginName": "abbeymart",
 	"email":     "abbeya1@yahoo.com",
@@ -84,21 +93,25 @@ var TestCrudParamOptions = CrudOptionsType{
 // create record(s)
 
 var GroupCreateRec1 = ActionParamType{
-	"name": "services",
+	"name": "Location",
+	"desc": "Location group",
 }
 var GroupCreateRec2 = ActionParamType{
-	"name": "services",
+	"name": "Address",
+	"desc": "Address group",
 }
 
 var GroupUpdateRec1 = ActionParamType{
-	"name": "services",
+	"name": "Location",
+	"desc": "Location group - updated",
 }
 var GroupUpdateRec2 = ActionParamType{
-	"name": "services",
+	"name": "Address",
+	"desc": "Address group - updated",
 }
 
 var CategoryCreateRec1 = ActionParamType{
-	"name": "services",
+	"name": "Region",
 }
 
 var CategoryCreateRec2 = ActionParamType{
