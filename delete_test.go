@@ -48,8 +48,8 @@ func TestDelete(t *testing.T) {
 		UserInfo:  TestUserInfo,
 	}
 
-	var deleteCrud = NewCrud(deleteCrudParams, TestCrudParamOptions)
-	var deleteAllCrud = NewCrud(deleteAllCrudParams, TestCrudParamOptions)
+	var deleteCrud = NewCrud(deleteCrudParams, CrudParamOptions)
+	var deleteAllCrud = NewCrud(deleteAllCrudParams, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by Ids and return success:",

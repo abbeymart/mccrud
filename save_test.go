@@ -71,10 +71,10 @@ func TestSave(t *testing.T) {
 
 	//fmt.Printf("test-action-params: %#v \n", createCrudParams.ActionParams)
 
-	var crud interface{} = NewCrud(createCrudParams, TestCrudParamOptions)
-	var updateCrud = NewCrud(updateCrudParams, TestCrudParamOptions)
-	var updateIdCrud = NewCrud(updateCrudParamsById, TestCrudParamOptions)
-	var updateParamCrud = NewCrud(updateCrudParamsByParam, TestCrudParamOptions)
+	var crud interface{} = NewCrud(createCrudParams, CrudParamOptions)
+	var updateCrud = NewCrud(updateCrudParams, CrudParamOptions)
+	var updateIdCrud = NewCrud(updateCrudParamsById, CrudParamOptions)
+	var updateParamCrud = NewCrud(updateCrudParamsByParam, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should connect to the Audit-DB and return an instance object:",

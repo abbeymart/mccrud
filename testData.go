@@ -1,6 +1,6 @@
 // @Author: abbeymart | Abi Akindele | @Created: 2020-12-28 | @Updated: 2020-12-28
 // @Company: mConnect.biz | @License: MIT
-// @Description: go: mConnect
+// @Description: test-cases data
 
 package mccrud
 
@@ -41,11 +41,10 @@ const GroupTable = "groups"
 const CategoryTable = "categories"
 const AuditTable = "audits"
 const DeleteAllTable = "audits_test2"
-const TestAuditTable = "audits"
 
-const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de"
+const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de" // TODO: review/update
 
-var TestUserInfo = map[string]interface{}{
+var UserInfo = map[string]interface{}{
 	"userId":    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
 	"loginName": "abbeymart",
 	"email":     "abbeya1@yahoo.com",
@@ -57,7 +56,7 @@ var TestUserInfo = map[string]interface{}{
 	"role":      "win-20_000_000",
 }
 
-var TestCrudParamOptions = CrudOptionsType{
+var CrudParamOptions = CrudOptionsType{
 	AuditTable:    "audits",
 	UserTable:     "users",
 	ProfileTable:  "profiles",
@@ -101,23 +100,37 @@ var GroupUpdateRec2 = ActionParamType{
 }
 
 var CategoryCreateRec1 = ActionParamType{
-	"name": "Region",
+	"name":      "Region",
+	"groupId":   "tbd",
+	"groupName": "Location",
+	"path":      "reg",
+	"desc":      "regional location",
 }
 
 var CategoryCreateRec2 = ActionParamType{
-	"name": "services",
+	"name":      "business",
+	"groupId":   "tbd",
+	"groupName": "Address",
+	"path":      "bus",
+	"desc":      "business address",
 }
 
 var CategoryUpdateRec1 = ActionParamType{
-	"id":   "tbd",
-	"name": "country",
-	"desc": "simple-update",
+	"id":        "tbd",
+	"name":      "Region",
+	"groupId":   "tbd",
+	"groupName": "Location",
+	"path":      "reg-up",
+	"desc":      "regional location - update",
 }
 
 var CategoryUpdateRec2 = ActionParamType{
-	"id":   "tbd",
-	"name": "business",
-	"desc": "simple-update",
+	"id":        "tbd",
+	"name":      "business",
+	"groupId":   "tbd",
+	"groupName": "Address",
+	"path":      "bus-up",
+	"desc":      "business address - update",
 }
 
 var GroupCreateActionParams = ActionParamsType{

@@ -46,7 +46,7 @@ func TestGet(t *testing.T) {
 		QueryParams: GetParams,
 	}
 
-	var getCrud = NewCrud(getCrudParams, TestCrudParamOptions)
+	var getCrud = NewCrud(getCrudParams, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by Ids and return success:",
