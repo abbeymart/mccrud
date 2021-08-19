@@ -175,12 +175,22 @@ var CategoryUpdateRecordByParam = ActionParamType{
 	"desc": "updated-by-param",
 }
 
-// GetIds get by ids & params
+// GetIds: for get-records by ids & params
 
 var GetGroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GetGroupByParams = QueryParamType{}
+var GetGroupByParams = QueryParamType{
+	"name": "Location",
+}
 
-// DeleteIds delete record(s) by ids & queryParams
+var GetCategoryByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
+var GetCategoryByParams = QueryParamType{
+	"name": "Region",
+	"groupName": "Location",
+}
+
+// DeleteIds delete record(s) by ids & queryParams - temporary tables
 
 var DeleteByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
-var DeleteByParams = QueryParamType{}
+var DeleteByParams = QueryParamType{
+	"logType": "create",
+}

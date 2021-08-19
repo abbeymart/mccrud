@@ -2,13 +2,13 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: go: mConnect
 
-package tests
+package test
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mctypes"
+	"github.com/abbeymart/mccrud"
 	"github.com/asaskevich/govalidator"
 	"reflect"
 )
@@ -44,7 +44,7 @@ var jsonQueryParams = `
 `
 
 // convert/decode jsonQueryParams to queryParams
-var queryParams mctypes.QueryParamType
+var queryParams mccrud.QueryParamType
 var _ = json.Unmarshal([]byte(jsonQueryParams), &queryParams)
 //var _ = JsonDataETL([]byte(jsonQueryParams), queryParams)
 
@@ -68,12 +68,12 @@ func JsonDataETL(jsonRec []byte, rec interface{}) error {
 	}
 }
 
-// DataToValueParam method accepts only a struct record/param (type/model) and returns the ActionParamType
+// DataToActionParam method accepts only a struct record/param (type/model) and returns the ActionParamType
 // data camel/Pascal-case keys are converted to underscore-keys to match table-field/columns specs
-func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
+func DataToActionParam(rec interface{}) (mccrud.ActionParamType, error) {
 	switch rec.(type) {
 	case struct{}:
-		dataValue := mctypes.ValueParamType{}
+		dataValue := mccrud.ActionParamType{}
 		v := reflect.ValueOf(rec)
 		typeOfS := v.Type()
 
@@ -87,12 +87,12 @@ func DataToValueParam(rec interface{}) (mctypes.ValueParamType, error) {
 	}
 }
 
-// convert dataToValueParam record(s) to action-params
-var actionParams = mctypes.ActionParamsType{
-	mctypes.ValueParamType{},
-	mctypes.ValueParamType{},
-	mctypes.ValueParamType{},
-	mctypes.ValueParamType{},
+// convert dataToActionParam record(s) to action-params
+var actionParams = mccrud.ActionParamsType{
+	mccrud.ActionParamType{},
+	mccrud.ActionParamType{},
+	mccrud.ActionParamType{},
+	mccrud.ActionParamType{},
 }
 
 func main() {
