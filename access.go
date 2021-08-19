@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"strings"
@@ -136,7 +135,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 		return item.ServiceCategory == tableId
 	}
 	recordFunc := func(item RoleServiceType) bool {
-		return helper.ArrayStringContains(recordIds, item.ServiceCategory)
+		return ArrayStringContains(recordIds, item.ServiceCategory)
 	}
 
 	var (
@@ -494,7 +493,7 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 // CheckLoginStatus method checks if the user exists and has active login status/token
 func (crud *Crud) CheckLoginStatus(params UserInfoType) mcresponse.ResponseMessage {
 	// check if user exists, from users table
-	emailUsername := helper.EmailUsername(params.LoginName)
+	emailUsername := EmailUsername(params.LoginName)
 	email := emailUsername.Email
 	username := emailUsername.Username
 	var uId string

@@ -9,7 +9,6 @@ import (
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
-	"time"
 )
 
 func TestDelete(t *testing.T) {
@@ -35,12 +34,14 @@ func TestDelete(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
+
+	deleteId := "TBD"		// TODO: set id
 	deleteCrudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
-		TableName:   TestTable,
+		TableName:   DeleteTable,
 		UserInfo:    TestUserInfo,
-		RecordIds:   DeleteIds,
-		QueryParams: DeleteParams,
+		RecordIds:   DeleteByIds,
+		QueryParams: DeleteByParams,
 	}
 	deleteAllCrudParams := CrudParamsType{
 		AppDb:     dbc.DbConn,
@@ -51,10 +52,12 @@ func TestDelete(t *testing.T) {
 	var deleteCrud = NewCrud(deleteCrudParams, CrudParamOptions)
 	var deleteAllCrud = NewCrud(deleteAllCrudParams, CrudParamOptions)
 
+	modelRef := Audit{}
+
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by Ids and return success:",
 		TestFunc: func() {
-			res := deleteCrud.DeleteById()
+			res := deleteCrud.DeleteById(modelRef, deleteId)
 			fmt.Printf("delete-by-ids: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
 		},
@@ -62,7 +65,7 @@ func TestDelete(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by query-params and return success:",
 		TestFunc: func() {
-			res := deleteCrud.DeleteByParam()
+			res := deleteCrud.DeleteByParam(modelRef)
 			fmt.Printf("delete-by-params: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params should return code: success")
 		},
@@ -80,63 +83,12 @@ func TestDelete(t *testing.T) {
 	})
 
 	mctest.McTest(mctest.OptionValue{
-		Name: "should delete two records by Ids, log-task, and return success:",
-		TestFunc: func() {
-			var (
-				id            string
-				tableName     string
-				logRecords    interface{}
-				newLogRecords interface{}
-				logBy         string
-				logType       string
-				logAt         time.Time
-			)
-			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			res := deleteCrud.DeleteByIdLog(DeleteSelectTableFields, tableFieldPointers)
-			fmt.Printf("delete-by-ids-log: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "delete-by-id-log should return code: success")
-		},
-	})
-	mctest.McTest(mctest.OptionValue{
-		Name: "should delete two records by query-params, log-task and return success:",
-		TestFunc: func() {
-			var (
-				id            string
-				tableName     string
-				logRecords    interface{}
-				newLogRecords interface{}
-				logBy         string
-				logType       string
-				logAt         time.Time
-			)
-			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			res := deleteCrud.DeleteByParamLog(DeleteSelectTableFields, tableFieldPointers)
-			fmt.Printf("delete-by-params-log: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
-		},
-	})
-
-	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by Ids and return success[delete-record-method]:",
 		TestFunc: func() {
-			var (
-				id            string
-				tableName     string
-				logRecords    interface{}
-				newLogRecords interface{}
-				logBy         string
-				logType       string
-				logAt         time.Time
-			)
-			deleteCrud.RecordIds = DeleteIds
+			deleteCrud.RecordIds = DeleteByIds
 			deleteCrud.QueryParams = QueryParamType{}
-			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
 			// get-record method params
-			deleteRecParams := DeleteCrudParamsType{
-				GetTableFields:     GetTableFields,
-				TableFieldPointers: tableFieldPointers,
-			}
-			res := deleteCrud.DeleteRecord(deleteRecParams)
+			res := deleteCrud.DeleteRecord(modelRef)
 			fmt.Printf("delete-by-ids[delete-record]: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
 		},
@@ -144,24 +96,9 @@ func TestDelete(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by query-params and return success[delete-record-method]:",
 		TestFunc: func() {
-			var (
-				id            string
-				tableName     string
-				logRecords    interface{}
-				newLogRecords interface{}
-				logBy         string
-				logType       string
-				logAt         time.Time
-			)
 			deleteCrud.RecordIds = []string{}
-			deleteCrud.QueryParams = DeleteParams
-			tableFieldPointers := []interface{}{&id, &tableName, &logRecords, &newLogRecords, &logBy, &logType, &logAt}
-			// get-record method params
-			deleteRecParams := DeleteCrudParamsType{
-				GetTableFields:     GetTableFields,
-				TableFieldPointers: tableFieldPointers,
-			}
-			res := deleteCrud.DeleteRecord(deleteRecParams)
+			deleteCrud.QueryParams = DeleteByParams
+			res := deleteCrud.DeleteRecord(modelRef)
 			fmt.Printf("delete-by-params[delete-record]: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
 		},

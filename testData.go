@@ -40,6 +40,7 @@ type Category struct {
 const GroupTable = "groups"
 const CategoryTable = "categories"
 const AuditTable = "audits"
+const DeleteTable = "audits_test1"
 const DeleteAllTable = "audits_test2"
 
 const UserId = "085f48c5-8763-4e22-a1c6-ac1a68ba07de" // TODO: review/update
@@ -55,6 +56,19 @@ var UserInfo = map[string]interface{}{
 	"expire":    0,
 	"role":      "win-20_000_000",
 }
+
+var TestUserInfo = UserInfoType{
+	UserId:    "085f48c5-8763-4e22-a1c6-ac1a68ba07de",
+	LoginName: "abbeymart",
+	Email:     "abbeya1@yahoo.com",
+	Language:  "en-US",
+	Firstname: "Abi",
+	Lastname:  "Akindele",
+	Token:     "",
+	Expire:    0,
+	Role:     "TBD: win-20_000_000",
+}
+
 
 var CrudParamOptions = CrudOptionsType{
 	AuditTable:    "audits",
