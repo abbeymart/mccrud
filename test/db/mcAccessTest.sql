@@ -3,6 +3,7 @@ CREATE TABLE "groups" (
 "name" varchar(255) NOT NULL,
 "owner_id" uuid,
 "desc" text NOT NULL,
+"language" varchar(25) DEFAULT 'en-US',
 "is_active" bool NOT NULL DEFAULT true,
 "created_by" uuid,
 "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -23,7 +24,7 @@ CREATE TABLE "categories" (
 "group_name" varchar(64),
 "parent_id" uuid,
 "icon_style" varchar(255),
-"language" varchar(25) DEFAULT en-US,
+"language" varchar(25) DEFAULT 'en-US',
 "desc" text,
 "is_active" bool NOT NULL DEFAULT true,
 "created_by" uuid,
@@ -51,7 +52,7 @@ CREATE TABLE "audits" (
 PRIMARY KEY ("id") 
 )
 WITHOUT OIDS;
-COMMENT ON TABLE "audits" IS 'Transactions audit log table to capature CRUD, access and systems related logs';
+COMMENT ON TABLE "audits" IS 'Transactions audit log table to capture CRUD, access and systems related logs';
 
 
 ALTER TABLE "categories" ADD CONSTRAINT "group_id" FOREIGN KEY ("group_id") REFERENCES "groups" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
