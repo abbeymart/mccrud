@@ -28,7 +28,6 @@ type Group struct {
 type Category struct {
 	BaseModelType
 	Name      string  `json:"name"  mcorm:"name"`
-	OwnerId   string  `json:"ownerId" mcorm:"owner_id"`
 	Path      string  `json:"path" mcorm:"path"`
 	Priority  uint    `json:"priority" mcorm:"priority"`
 	ParentId  *string `json:"parentId" mcorm:"parent_id"`

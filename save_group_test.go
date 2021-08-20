@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestSave(t *testing.T) {
+func TestSaveGroup(t *testing.T) {
 	myDb := mcdb.DbConfig{
 		DbType:   "postgres",
 		Host:     "localhost",
