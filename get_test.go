@@ -39,20 +39,20 @@ func TestGet(t *testing.T) {
 
 	getCrudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
-		TableName:   CategoryTable,
+		TableName:   AuditTable,
 		UserInfo:    TestUserInfo,
-		RecordIds:   GetCategoryByIds,
-		QueryParams: GetCategoryByParams,
+		RecordIds:   GetAuditByIds,
+		QueryParams: GetAuditByParams,
 	}
 	//modelRefGroup := Group{}
-	modelRefCat := Category{}
+	modelRefAudit := Audit{}
 	recId := ""		// TODO: set id
 	var getCrud = NewCrud(getCrudParams, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by Id and return success:",
 		TestFunc: func() {
-			res := getCrud.GetById(modelRefCat, recId)
+			res := getCrud.GetById(modelRefAudit, recId)
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 
 			value, _ := res.Value.(CrudResultType)
@@ -69,9 +69,9 @@ func TestGet(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by Ids and return success:",
 		TestFunc: func() {
-			getCrud.RecordIds = GetCategoryByIds
+			getCrud.RecordIds = GetAuditByIds
 			getCrud.QueryParams = QueryParamType{}
-			res := getCrud.GetByIds(modelRefCat)
+			res := getCrud.GetByIds(modelRefAudit)
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 
 			value, _ := res.Value.(CrudResultType)
@@ -88,8 +88,8 @@ func TestGet(t *testing.T) {
 		Name: "should get records by query-params and return success:",
 		TestFunc: func() {
 			getCrud.RecordIds = []string{}
-			getCrud.QueryParams = DeleteByParams
-			res := getCrud.GetByParam(modelRefCat)
+			getCrud.QueryParams = GetAuditByParams
+			res := getCrud.GetByParam(modelRefAudit)
 			//fmt.Printf("get-by-param-response: %#v\n", res)
 			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-param-value: %#v\n", value.TableRecords)
@@ -105,14 +105,14 @@ func TestGet(t *testing.T) {
 		TestFunc: func() {
 			getCrud.RecordIds = []string{}
 			getCrud.QueryParams = QueryParamType{}
-			res := getCrud.GetAll(modelRefCat)
+			res := getCrud.GetAll(modelRefAudit)
 			value, _ := res.Value.(CrudResultType)
 			fmt.Printf("get-by-all-value[0]: %#v\n", value.TableRecords[0])
 			fmt.Printf("get-by-all-value[1]: %#v\n", value.TableRecords[1])
 			fmt.Printf("get-by-all-count: %v\n", value.RecordCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
-			mctest.AssertEquals(t, value.RecordCount >= 10, true, "get-task-count should be >= 10")
-			mctest.AssertEquals(t, len(value.TableRecords) >= 10, true, "get-result-count should be >= 10")
+			mctest.AssertEquals(t, value.RecordCount >= 100, true, "get-task-count should be >= 10")
+			mctest.AssertEquals(t, len(value.TableRecords) >= 100, true, "get-result-count should be >= 10")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{

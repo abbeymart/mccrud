@@ -35,13 +35,12 @@ func TestDelete(t *testing.T) {
 		return
 	}
 
-	deleteId := "TBD"		// TODO: set id
 	deleteCrudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
 		TableName:   DeleteTable,
 		UserInfo:    TestUserInfo,
-		RecordIds:   DeleteByIds,
-		QueryParams: DeleteByParams,
+		RecordIds:   DeleteAuditByIds,
+		QueryParams: DeleteAuditByParams,
 	}
 	deleteAllCrudParams := CrudParamsType{
 		AppDb:     dbc.DbConn,
@@ -55,37 +54,18 @@ func TestDelete(t *testing.T) {
 	modelRef := Audit{}
 
 	mctest.McTest(mctest.OptionValue{
-		Name: "should delete two records by Ids and return success:",
-		TestFunc: func() {
-			res := deleteCrud.DeleteById(modelRef, deleteId)
-			fmt.Printf("delete-by-ids: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
-		},
-	})
-	mctest.McTest(mctest.OptionValue{
-		Name: "should delete two records by query-params and return success:",
-		TestFunc: func() {
-			res := deleteCrud.DeleteByParam(modelRef)
-			fmt.Printf("delete-by-params: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "delete-by-params should return code: success")
-		},
-	})
-	mctest.McTest(mctest.OptionValue{
 		Name: "should delete all table records and return success:",
 		TestFunc: func() {
-			res := deleteAllCrud.DeleteAll()
+			res := deleteAllCrud.DeleteRecord(modelRef)
 			fmt.Printf("delete-all: %v : %v \n", res.Message, res.ResCode)
-			value := res.Value
-			deleted, _ := value.(bool)
-			mctest.AssertEquals(t, res.Code, "success", "delete-all should return code: success")
-			mctest.AssertEquals(t, deleted, true, "deleted() must be true")
+			mctest.AssertEquals(t, res.Code, "removeError", "delete-task permitted by ids or queryParams only: removeError code expected" )
 		},
 	})
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should delete two records by Ids and return success[delete-record-method]:",
 		TestFunc: func() {
-			deleteCrud.RecordIds = DeleteByIds
+			deleteCrud.RecordIds = DeleteAuditByIds
 			deleteCrud.QueryParams = QueryParamType{}
 			// get-record method params
 			res := deleteCrud.DeleteRecord(modelRef)
@@ -97,7 +77,7 @@ func TestDelete(t *testing.T) {
 		Name: "should delete two records by query-params and return success[delete-record-method]:",
 		TestFunc: func() {
 			deleteCrud.RecordIds = []string{}
-			deleteCrud.QueryParams = DeleteByParams
+			deleteCrud.QueryParams = DeleteAuditByParams
 			res := deleteCrud.DeleteRecord(modelRef)
 			fmt.Printf("delete-by-params[delete-record]: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")

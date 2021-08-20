@@ -65,11 +65,11 @@ var TestUserInfo = UserInfoType{
 	Lastname:  "Akindele",
 	Token:     "",
 	Expire:    0,
-	Role:     "TBD: win-20_000_000",
+	Role:      "TBD: win-20_000_000",
 }
 
-
 var CrudParamOptions = CrudOptionsType{
+	CheckAccess:   false,
 	AuditTable:    "audits",
 	UserTable:     "users",
 	ProfileTable:  "profiles",
@@ -112,58 +112,14 @@ var GroupUpdateRec2 = ActionParamType{
 	"desc": "address group - updated",
 }
 
-var CategoryCreateRec1 = ActionParamType{
-	"name":      "Region",
-	"groupId":   "tbd",
-	"groupName": "Location",
-	"path":      "reg",
-	"desc":      "regional location",
-}
-
-var CategoryCreateRec2 = ActionParamType{
-	"name":      "business",
-	"groupId":   "tbd",
-	"groupName": "Address",
-	"path":      "bus",
-	"desc":      "business address",
-}
-
-var CategoryUpdateRec1 = ActionParamType{
-	"id":        "tbd",
-	"name":      "Region",
-	"groupId":   "tbd",
-	"groupName": "Location",
-	"path":      "reg-up",
-	"desc":      "regional location - update",
-}
-
-var CategoryUpdateRec2 = ActionParamType{
-	"id":        "tbd",
-	"name":      "business",
-	"groupId":   "tbd",
-	"groupName": "Address",
-	"path":      "bus-up",
-	"desc":      "business address - update",
-}
-
 var GroupCreateActionParams = ActionParamsType{
 	GroupCreateRec1,
 	GroupCreateRec2,
 }
 
-var CategoryCreateActionParams = ActionParamsType{
-	CategoryCreateRec1,
-	CategoryCreateRec2,
-}
-
 var GroupUpdateActionParams = ActionParamsType{
 	GroupUpdateRec1,
 	GroupUpdateRec2,
-}
-
-var CategoryUpdateActionParams = ActionParamsType{
-	CategoryUpdateRec1,
-	CategoryUpdateRec2,
 }
 
 // TODO: update and delete params, by ids / queryParams
@@ -173,37 +129,26 @@ var GroupUpdateRecordById = ActionParamType{
 	"desc": "updated-by-id",
 }
 
-var CategoryUpdateRecordById = ActionParamType{
-	"name": "country",
-	"desc": "updated-by-id",
-}
-
 var GroupUpdateRecordByParam = ActionParamType{
 	"name": "address",
 	"desc": "updated-by-param",
 }
 
-var CategoryUpdateRecordByParam = ActionParamType{
-	"name": "business",
-	"desc": "updated-by-param",
-}
-
 // GetIds: for get-records by ids & params
 
-var GetGroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GetGroupByParams = QueryParamType{
+var GroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
+var GroupByParams = QueryParamType{
 	"name": "Location",
 }
 
-var GetCategoryByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
-var GetCategoryByParams = QueryParamType{
-	"name": "Region",
-	"groupName": "Location",
+var GetAuditByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
+var GetAuditByParams = QueryParamType{
+	"logType": "create",
 }
 
-// DeleteIds delete record(s) by ids & queryParams - temporary tables
+// DeleteIds delete record(s) by ids & queryParams - temporary audit-tables
 
-var DeleteByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
-var DeleteByParams = QueryParamType{
+var DeleteAuditByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
+var DeleteAuditByParams = QueryParamType{
 	"logType": "create",
 }

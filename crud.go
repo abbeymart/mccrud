@@ -245,7 +245,7 @@ func (crud *Crud) DeleteRecord(modelRef interface{}) mcresponse.ResponseMessage 
 	// delete-all ***RESTRICTED***
 	// otherwise return error
 	return mcresponse.GetResMessage("removeError", mcresponse.ResponseMessageOptions{
-		Message: "Remove error: incomplete or invalid query-conditions provided",
+		Message: "You may delete records by ids or queryParams only.",
 		Value:   nil,
 	})
 }

@@ -60,14 +60,14 @@ func TestSaveGroup(t *testing.T) {
 		TableName:    GroupTable,
 		UserInfo:     TestUserInfo,
 		ActionParams: ActionParamsType{GroupUpdateRecordById},
-		RecordIds:    GetGroupByIds,
+		RecordIds:    GroupByIds,
 	}
 	updateCrudParamsByParam := CrudParamsType{
 		AppDb:        dbc.DbConn,
 		TableName:    GroupTable,
 		UserInfo:     TestUserInfo,
 		ActionParams: ActionParamsType{GroupUpdateRecordByParam},
-		QueryParams:  GetGroupByParams,
+		QueryParams:  GroupByParams,
 	}
 
 	//fmt.Printf("test-action-params: %#v \n", createCrudParams.ActionParams)
@@ -76,43 +76,6 @@ func TestSaveGroup(t *testing.T) {
 	var updateCrud = NewCrud(updateCrudParams, CrudParamOptions)
 	var updateIdCrud = NewCrud(updateCrudParamsById, CrudParamOptions)
 	var updateParamCrud = NewCrud(updateCrudParamsByParam, CrudParamOptions)
-
-	// category-table-records
-	catModelRef := Category{}
-	createCatCrudParams := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: CategoryCreateActionParams,
-	}
-	updateCatCrudParams := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: CategoryUpdateActionParams,
-	}
-	updateCatCrudParamsById := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: ActionParamsType{CategoryUpdateRecordById},
-		RecordIds:    GetCategoryByIds,
-	}
-	updateCatCrudParamsByParam := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: ActionParamsType{CategoryUpdateRecordByParam},
-		QueryParams:  GetCategoryByParams,
-	}
-
-	//fmt.Printf("test-action-params: %#v \n", createCrudParams.ActionParams)
-
-	var catCrud interface{} = NewCrud(createCatCrudParams, CrudParamOptions)
-	var catUpdateCrud = NewCrud(updateCatCrudParams, CrudParamOptions)
-	var catUpdateIdCrud = NewCrud(updateCatCrudParamsById, CrudParamOptions)
-	var catUpdateParamCrud = NewCrud(updateCatCrudParamsByParam, CrudParamOptions)
-
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should connect to the Audit-DB and return an instance object:",
@@ -137,7 +100,7 @@ func TestSaveGroup(t *testing.T) {
 			if !ok {
 				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
 			}
-			res := crud.SaveRecord([]string{})
+			res := crud.SaveRecord(groupModelRef)
 			fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
@@ -164,48 +127,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two group-records by query-params and return success:",
 		TestFunc: func() {
-			res := updateParamCrud.SaveRecord([]string{})
-			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
-		},
-	})
-
-	// category-table test cases
-	mctest.McTest(mctest.OptionValue{
-		Name: "should create two new cat-records and return success:",
-		TestFunc: func() {
-			crud, ok := catCrud.(*Crud)
-			if !ok {
-				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-			}
-			res := crud.SaveRecord([]string{})
-			fmt.Println(res.Message, res.ResCode)
-			value, _ := res.Value.(CrudResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
-		},
-	})
-	mctest.McTest(mctest.OptionValue{
-		Name: "should update two cat-records and return success:",
-		TestFunc: func() {
-			res := catUpdateCrud.SaveRecord(catModelRef)
-			fmt.Printf("updates: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "update should return code: success")
-		},
-	})
-	mctest.McTest(mctest.OptionValue{
-		Name: "should update two cat-records by Ids and return success:",
-		TestFunc: func() {
-			res := catUpdateIdCrud.SaveRecord(catModelRef)
-			fmt.Printf("update-by-ids: %v : %v \n", res.Message, res.ResCode)
-			mctest.AssertEquals(t, res.Code, "success", "update-by-id should return code: success")
-		},
-	})
-	mctest.McTest(mctest.OptionValue{
-		Name: "should update two cat-records by query-params and return success:",
-		TestFunc: func() {
-			res := catUpdateParamCrud.SaveRecord(catModelRef)
+			res := updateParamCrud.SaveRecord(groupModelRef)
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
 		},
