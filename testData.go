@@ -136,19 +136,19 @@ var GroupUpdateRecordByParam = ActionParamType{
 
 // GetIds: for get-records by ids & params
 
-var GroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
+var GroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"} // TODO: updated ids, after create-task
 var GroupByParams = QueryParamType{
 	"name": "Location",
 }
 
-var GetAuditByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
+var GetAuditByIds = []string{"d46a29db-a9a3-47b9-9598-e17a7338e474", "8fcdc5d5-f4e3-4f98-ba19-16e798f81070"}
 var GetAuditByParams = QueryParamType{
 	"logType": "create",
 }
 
 // DeleteIds delete record(s) by ids & queryParams - temporary audit-tables
 
-var DeleteAuditByIds = []string{"dba4adbb-4482-4f3d-bb05-0db80c30876b", "02f83bc1-8fa3-432a-8432-709f0df3f3b0"}
+var DeleteAuditByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"}
 var DeleteAuditByParams = QueryParamType{
-	"logType": "create",
+	"logType": "read",
 }
