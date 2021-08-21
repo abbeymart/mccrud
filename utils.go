@@ -292,7 +292,6 @@ func ArrayMapToStruct(actParams ActionParamsType, recs interface{}) (interface{}
 			}
 		}
 	default:
-		fmt.Printf("recs-type: %v : %v", rType)
 		return nil, errors.New(fmt.Sprintf("rec parameter must be of type []struct{}: %v", rType))
 	}
 	// compute json records from actParams

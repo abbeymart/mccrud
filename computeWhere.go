@@ -68,7 +68,7 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) (WhereQueryO
 		}
 
 		fieldValues = append(fieldValues, currentFieldValue)
-		whereQuery += fmt.Sprintf("%v=$%v", fieldName, fieldLength)
+		whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 		fieldCount += 1
 		fieldLength += 1
 		if whereFieldLength > 1 && fieldCount < whereFieldLength {
