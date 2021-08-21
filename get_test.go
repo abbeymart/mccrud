@@ -46,13 +46,14 @@ func TestGet(t *testing.T) {
 	}
 	//modelRefGroup := Group{}
 	modelRefAudit := Audit{}
-	recId := ""		// TODO: set id
+	recId := "55d1552b-9c3c-46f4-8273-1ff4b2d58447"
 	var getCrud = NewCrud(getCrudParams, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by Id and return success:",
 		TestFunc: func() {
-			res := getCrud.GetById(modelRefAudit, recId)
+			getCrud.RecordIds = []string{recId}
+			res := getCrud.GetRecord(modelRefAudit)
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 
 			value, _ := res.Value.(CrudResultType)
@@ -61,8 +62,8 @@ func TestGet(t *testing.T) {
 			jsonRecs, _ := json.Marshal(value.TableRecords)
 			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
-			mctest.AssertEquals(t, value.RecordCount, 2, "get-task-count should be: 2")
-			mctest.AssertEquals(t, len(value.TableRecords), 2, "get-result-count should be: 2")
+			mctest.AssertEquals(t, value.RecordCount, 1, "get-task-count should be: 2")
+			mctest.AssertEquals(t, len(value.TableRecords), 1, "get-result-count should be: 2")
 		},
 	})
 
