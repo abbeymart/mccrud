@@ -62,8 +62,8 @@ func TestGet(t *testing.T) {
 			jsonRecs, _ := json.Marshal(value.TableRecords)
 			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
-			mctest.AssertEquals(t, value.RecordCount, 1, "get-task-count should be: 2")
-			mctest.AssertEquals(t, len(value.TableRecords), 1, "get-result-count should be: 2")
+			mctest.AssertEquals(t, value.RecordCount, 1, "get-task-count should be: 1")
+			mctest.AssertEquals(t, len(value.TableRecords), 1, "get-result-count should be: 1")
 		},
 	})
 
@@ -96,8 +96,8 @@ func TestGet(t *testing.T) {
 			fmt.Printf("get-by-param-value: %#v\n", value.TableRecords)
 			fmt.Printf("get-by-param-count: %v\n", value.RecordCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
-			mctest.AssertEquals(t, value.RecordCount >= 0, true, "get-task-count should be >= 0")
-			mctest.AssertEquals(t, len(value.TableRecords) >= 0, true, "get-result-count should be >= 0")
+			mctest.AssertEquals(t, value.RecordCount > 0, true, "get-task-count should be >= 0")
+			mctest.AssertEquals(t, len(value.TableRecords) > 0, true, "get-result-count should be >= 0")
 		},
 	})
 
