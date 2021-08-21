@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
-	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 )
 
@@ -23,7 +22,7 @@ func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.Respons
 		crud.CurrentRecords = value.TableRecords
 	}
 	// compute delete query by record-ids
-	deleteQuery, dQErr := helper.ComputeDeleteQueryById(crud.TableName, id)
+	deleteQuery, dQErr := ComputeDeleteQueryById(crud.TableName, id)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
@@ -76,7 +75,7 @@ func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 		crud.CurrentRecords = value.TableRecords
 	}
 	// compute delete query by record-ids
-	deleteQuery, dQErr := helper.ComputeDeleteQueryByIds(crud.TableName, crud.RecordIds)
+	deleteQuery, dQErr := ComputeDeleteQueryByIds(crud.TableName, crud.RecordIds)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),
@@ -129,7 +128,7 @@ func (crud *Crud) DeleteByParam(modelRef interface{}) mcresponse.ResponseMessage
 		crud.CurrentRecords = value.TableRecords
 	}
 	// compute delete query by query-params
-	delQueryObj, dQErr := helper.ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
+	delQueryObj, dQErr := ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if dQErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing delete-query: %v", dQErr.Error()),

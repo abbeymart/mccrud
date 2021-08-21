@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
-	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 	"github.com/jackc/pgx/v4"
 )
@@ -17,7 +16,7 @@ import (
 // Create method creates new record(s)
 func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	// compute query
-	createQueryObject, qErr := helper.ComputeCreateQuery(crud.TableName, recs)
+	createQueryObject, qErr := ComputeCreateQuery(crud.TableName, recs)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -99,7 +98,7 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
-	createQuery, qErr := helper.ComputeCreateQuery(crud.TableName, createRecs)
+	createQuery, qErr := ComputeCreateQuery(crud.TableName, createRecs)
 	if qErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
@@ -184,7 +183,7 @@ func (crud *Crud) Update(modelRef interface{}, updateRecs ActionParamsType) mcre
 	// create from updatedRecs (actionParams)
 	var updateQueryObjects []UpdateQueryObject
 	for _, rec := range updateRecs {
-		updateQueryObject, err := helper.ComputeUpdateQuery(crud.TableName, rec)
+		updateQueryObject, err := ComputeUpdateQuery(crud.TableName, rec)
 		if err != nil {
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -277,7 +276,7 @@ func (crud *Crud) UpdateById(modelRef interface{}, updateRec ActionParamType, id
 		crud.CurrentRecords = value.TableRecords
 	}
 	// create from updatedRecs (actionParams)
-	upQueryObj, err := helper.ComputeUpdateQueryById(crud.TableName, updateRec, id)
+	upQueryObj, err := ComputeUpdateQueryById(crud.TableName, updateRec, id)
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -358,7 +357,7 @@ func (crud *Crud) UpdateByIds(modelRef interface{}, updateRec ActionParamType) m
 		crud.CurrentRecords = value.TableRecords
 	}
 	// create from updatedRecs (actionParams)
-	upQueryObj, err := helper.ComputeUpdateQueryByIds(crud.TableName, updateRec, crud.RecordIds)
+	upQueryObj, err := ComputeUpdateQueryByIds(crud.TableName, updateRec, crud.RecordIds)
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
@@ -439,7 +438,7 @@ func (crud *Crud) UpdateByParam(modelRef interface{}, updateRec ActionParamType)
 		crud.CurrentRecords = value.TableRecords
 	}
 	// create from updatedRecs (actionParams)
-	updateQueryObject, err := helper.ComputeUpdateQueryByParam(crud.TableName, updateRec, crud.QueryParams)
+	updateQueryObject, err := ComputeUpdateQueryByParam(crud.TableName, updateRec, crud.QueryParams)
 	if err != nil {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),

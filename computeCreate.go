@@ -2,19 +2,18 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: compute create-SQL script, for bulk/copy insert operation
 
-package helper
+package mccrud
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
 	"github.com/asaskevich/govalidator"
 	"time"
 )
 
-func errMessage(errMsg string) (mccrud.CreateQueryObject, error) {
-	return mccrud.CreateQueryObject{
+func errMessage(errMsg string) (CreateQueryObject, error) {
+	return CreateQueryObject{
 		CreateQuery: "",
 		FieldNames:  nil,
 		FieldValues: nil,
@@ -22,7 +21,7 @@ func errMessage(errMsg string) (mccrud.CreateQueryObject, error) {
 }
 
 // ComputeCreateQuery function computes insert SQL scripts. It returns createScripts []string and err error
-func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType) (mccrud.CreateQueryObject, error) {
+func ComputeCreateQuery(tableName string, actionParams ActionParamsType) (CreateQueryObject, error) {
 	if tableName == "" || len(actionParams) < 1 {
 		return errMessage("table-name is required for the create operation")
 	}
@@ -217,7 +216,7 @@ func ComputeCreateQuery(tableName string, actionParams mccrud.ActionParamsType) 
 	}
 
 	// result
-	return mccrud.CreateQueryObject{
+	return CreateQueryObject{
 		CreateQuery: createQuery,
 		FieldNames: fieldNames,
 		FieldValues: fieldValues,

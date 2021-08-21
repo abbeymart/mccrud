@@ -2,22 +2,21 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: compute update-SQL scripts
 
-package helper
+package mccrud
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
 	"github.com/asaskevich/govalidator"
 	"time"
 )
 
-func updateErrMessage(errMsg string) (mccrud.UpdateQueryObject, error) {
-	return mccrud.UpdateQueryObject{
+func updateErrMessage(errMsg string) (UpdateQueryObject, error) {
+	return UpdateQueryObject{
 		UpdateQuery: "",
 		FieldNames:  nil,
-		WhereQuery:  mccrud.WhereQueryObject{},
+		WhereQuery:  WhereQueryObject{},
 		FieldValues: nil,
 	}, errors.New(errMsg)
 }
@@ -25,7 +24,7 @@ func updateErrMessage(errMsg string) (mccrud.UpdateQueryObject, error) {
 // TODO: review/refactor
 
 // ComputeUpdateQuery function computes update SQL script. It returns updateScript, updateValues []interface{} and/or err error
-func ComputeUpdateQuery(tableName string, actionParam mccrud.ActionParamType) (mccrud.UpdateQueryObject, error) {
+func ComputeUpdateQuery(tableName string, actionParam ActionParamType) (UpdateQueryObject, error) {
 	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
 		return updateErrMessage("table-name and actionParam are required for the update operation")
 	}
@@ -216,7 +215,7 @@ func ComputeUpdateQuery(tableName string, actionParam mccrud.ActionParamType) (m
 	}
 
 	// result
-	return mccrud.UpdateQueryObject{
+	return UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
 		FieldValues: fieldValues,
@@ -224,7 +223,7 @@ func ComputeUpdateQuery(tableName string, actionParam mccrud.ActionParamType) (m
 }
 
 // ComputeUpdateQueryById function computes update SQL script by recordId. It returns updateScript, updateValues []interface{} and/or err error
-func ComputeUpdateQueryById(tableName string, actionParam mccrud.ActionParamType, recordId string) (mccrud.UpdateQueryObject, error) {
+func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recordId string) (UpdateQueryObject, error) {
 	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
 		return updateErrMessage("table-name and actionParam are required for the update operation")
 	}
@@ -415,7 +414,7 @@ func ComputeUpdateQueryById(tableName string, actionParam mccrud.ActionParamType
 	}
 
 	// result
-	return mccrud.UpdateQueryObject{
+	return UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
 		FieldValues: fieldValues,
@@ -423,7 +422,7 @@ func ComputeUpdateQueryById(tableName string, actionParam mccrud.ActionParamType
 }
 
 // ComputeUpdateQueryByIds function computes update SQL script by recordIds. It returns updateScript, updateValues []interface{} and/or err error
-func ComputeUpdateQueryByIds(tableName string, actionParam mccrud.ActionParamType, recordIds []string) (mccrud.UpdateQueryObject, error) {
+func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, recordIds []string) (UpdateQueryObject, error) {
 	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
 		return updateErrMessage("table-name and actionParam are required for the update operation")
 	}
@@ -622,7 +621,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam mccrud.ActionParamTyp
 	}
 
 	// result
-	return mccrud.UpdateQueryObject{
+	return UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
 		FieldValues: fieldValues,
@@ -630,7 +629,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam mccrud.ActionParamTyp
 }
 
 // ComputeUpdateQueryByParam function computes update SQL scripts by queryParams. It returns updateScript, updateValues []interface{} and/or err error
-func ComputeUpdateQueryByParam(tableName string, actionParam mccrud.ActionParamType, queryParams mccrud.QueryParamType) (mccrud.UpdateQueryObject, error) {
+func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, queryParams QueryParamType) (UpdateQueryObject, error) {
 	if tableName == "" || len(actionParam) < 1 || actionParam == nil {
 		return updateErrMessage("table-name and actionParam are required for the update operation")
 	}
@@ -821,7 +820,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam mccrud.ActionParamT
 	}
 
 	// result
-	return mccrud.UpdateQueryObject{
+	return UpdateQueryObject{
 		UpdateQuery: updateQuery,
 		FieldNames:  fieldNames,
 		WhereQuery:  whereQuery,

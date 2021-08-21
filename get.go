@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
-	"github.com/abbeymart/mccrud/helper"
 	"github.com/abbeymart/mcresponse"
 )
 
@@ -27,7 +26,7 @@ func (crud *Crud) GetById(modelRef interface{}, id string) mcresponse.ResponseMe
 		})
 	}
 	logMessage := ""
-	getQuery, err := helper.ComputeSelectQueryById(modelRef, crud.TableName, id)
+	getQuery, err := ComputeSelectQueryById(modelRef, crud.TableName, id)
 	if err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
@@ -172,7 +171,7 @@ func (crud Crud) GetByIds(modelRef interface{}) mcresponse.ResponseMessage {
 			})
 	}
 	logMessage := ""
-	getQuery, err := helper.ComputeSelectQueryByIds(modelRef, crud.TableName, crud.RecordIds)
+	getQuery, err := ComputeSelectQueryByIds(modelRef, crud.TableName, crud.RecordIds)
 	if err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
@@ -311,7 +310,7 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 	}
 
 	logMessage := ""
-	getQueryObj, err := helper.ComputeSelectQueryByParam(modelRef, crud.TableName, crud.QueryParams)
+	getQueryObj, err := ComputeSelectQueryByParam(modelRef, crud.TableName, crud.QueryParams)
 	if err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),
@@ -442,7 +441,7 @@ func (crud *Crud) GetByParam(modelRef interface{}) mcresponse.ResponseMessage {
 // GetAll method fetches/gets/reads all record(s), constrained by optional skip and limit parameters
 func (crud *Crud) GetAll(modelRef interface{}) mcresponse.ResponseMessage {
 	// compute select-query
-	getQuery, err := helper.ComputeSelectQueryAll(modelRef, crud.TableName)
+	getQuery, err := ComputeSelectQueryAll(modelRef, crud.TableName)
 	if err != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error computing select/read-query: %v", err.Error()),

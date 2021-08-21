@@ -2,26 +2,25 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: compute where-SQL script
 
-package helper
+package mccrud
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
 	"github.com/asaskevich/govalidator"
 	"time"
 )
 
-func whereErrMessage(errMsg string) (mccrud.WhereQueryObject, error) {
-	return mccrud.WhereQueryObject{
+func whereErrMessage(errMsg string) (WhereQueryObject, error) {
+	return WhereQueryObject{
 		WhereQuery:  "",
 		FieldValues: nil,
 	}, errors.New(errMsg)
 }
 
 // ComputeWhereQuery function computes the multi-cases where-conditions for crud-operations
-func ComputeWhereQuery(queryParams mccrud.QueryParamType, fieldLength int) (mccrud.WhereQueryObject, error) {
+func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) (WhereQueryObject, error) {
 	if len(queryParams) < 1 || fieldLength < 1 {
 		return whereErrMessage("queryParams condition and fieldLength(the start of the where-query-value-placeholders are required")
 	}
@@ -78,7 +77,7 @@ func ComputeWhereQuery(queryParams mccrud.QueryParamType, fieldLength int) (mccr
 	}
 
 	// if all went well, return valid queryParams script
-	return mccrud.WhereQueryObject{
+	return WhereQueryObject{
 		WhereQuery:  whereQuery,
 		FieldValues: fieldValues,
 	}, nil

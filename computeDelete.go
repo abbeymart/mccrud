@@ -2,19 +2,18 @@
 // @Company: mConnect.biz | @License: MIT
 // @Description: compute delete-SQL scripts
 
-package helper
+package mccrud
 
 import (
 	"errors"
 	"fmt"
-	"github.com/abbeymart/mccrud"
 )
 
-func deleteErrMessage(errMsg string) (mccrud.DeleteQueryObject, error) {
-	return mccrud.DeleteQueryObject{
+func deleteErrMessage(errMsg string) (DeleteQueryObject, error) {
+	return DeleteQueryObject{
 		DeleteQuery: "",
 		FieldValues: nil,
-		WhereQuery:  mccrud.WhereQueryObject{},
+		WhereQuery:  WhereQueryObject{},
 	}, errors.New(errMsg)
 }
 
@@ -48,14 +47,14 @@ func ComputeDeleteQueryByIds(tableName string, recordIds []string) (string, erro
 }
 
 // ComputeDeleteQueryByParam function computes delete SQL script by parameter specifications
-func ComputeDeleteQueryByParam(tableName string, where mccrud.QueryParamType) (mccrud.DeleteQueryObject, error) {
+func ComputeDeleteQueryByParam(tableName string, where QueryParamType) (DeleteQueryObject, error) {
 	if tableName == "" || len(where) < 1 {
 		return deleteErrMessage("table/collection name and where/query-condition are required for the delete-by-param operation")
 	}
 	whereParam, err := ComputeWhereQuery(where, 1)
 	if err == nil {
 		//deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
-		return mccrud.DeleteQueryObject{
+		return DeleteQueryObject{
 			DeleteQuery: fmt.Sprintf("DELETE FROM %v ", tableName),
 			WhereQuery: whereParam,
 			FieldValues: nil,
