@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/asaskevich/govalidator"
 	"time"
@@ -42,17 +41,18 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 	fieldCount := 0
 	for fieldName := range actionParams[0] {
 		fieldCount += 1
-		fieldNames = append(fieldNames, fieldName)
-		itemQuery += fmt.Sprintf(" %v", fieldName)
-		itemValuePlaceholder += fmt.Sprintf(" $%v", fieldCount)
+		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
+		fieldNames = append(fieldNames, fieldNameUnderScore)
+		itemQuery += fmt.Sprintf("%v", fieldNameUnderScore)
+		itemValuePlaceholder += fmt.Sprintf("$%v", fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			itemQuery += ", "
 			itemValuePlaceholder += ", "
 		}
 	}
 	// close item-script/value-placeholder
-	itemQuery += " )"
-	itemValuePlaceholder += " )"
+	itemQuery += ")"
+	itemValuePlaceholder += ")"
 	// add/append item-script & value-placeholder to the createScript
 	createQuery = itemQuery + itemValuePlaceholder + " RETURNING id"
 
@@ -62,7 +62,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 		// item-values-computation variable
 		var recFieldValues []interface{}
 		for _, fieldName := range fieldNames {
-			fieldValue, ok := rec[fieldName]
+			fieldValue, ok := rec[govalidator.UnderscoreToCamelCase(fieldName)]
 			// check for required field in each record
 			if !ok {
 				return errMessage(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recIndex, rec, fieldName, fieldValue))
@@ -93,121 +93,8 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 						currentFieldValue = "'" + fVal + "'"
 					}
 				}
-			case bool:
-				if fVal, ok := fieldValue.(bool); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case int8:
-				if fVal, ok := fieldValue.(int8); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case int16:
-				if fVal, ok := fieldValue.(int16); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case int32:
-				if fVal, ok := fieldValue.(int32); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case int64:
-				if fVal, ok := fieldValue.(int64); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case int:
-				if fVal, ok := fieldValue.(int); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case uint8:
-				if fVal, ok := fieldValue.(uint8); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case uint16:
-				if fVal, ok := fieldValue.(uint16); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case uint32:
-				if fVal, ok := fieldValue.(uint32); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case uint64:
-				if fVal, ok := fieldValue.(uint64); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case uint:
-				if fVal, ok := fieldValue.(uint); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case float32:
-				if fVal, ok := fieldValue.(float32); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case float64:
-				if fVal, ok := fieldValue.(float64); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case []string:
-				if fVal, ok := fieldValue.([]string); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case []int:
-				if fVal, ok := fieldValue.([]int); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case []float32:
-				if fVal, ok := fieldValue.([]float32); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case []float64:
-				if fVal, ok := fieldValue.([]float64); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
-			case []struct{}:
-				if fVal, ok := fieldValue.([]struct{}); !ok {
-					return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-				} else {
-					currentFieldValue = fVal
-				}
 			default:
-				// json-stringify fieldValue
-				if fVal, err := json.Marshal(fieldValue); err != nil {
-					return errMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
-				} else {
-					currentFieldValue = string(fVal)
-				}
+				currentFieldValue = fieldValue
 			}
 			// add itemValue
 			recFieldValues = append(recFieldValues, currentFieldValue)
@@ -225,7 +112,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 			FieldNames:  fieldNames,
 			FieldValues: fieldValues,
 		},
-		Ok: true,
+		Ok:      true,
 		Message: "success",
 	}
 }
