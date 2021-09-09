@@ -1,6 +1,6 @@
 // @Author: abbeymart | Abi Akindele | @Created: 2020-12-01 | @Updated: 2020-12-01
 // @Company: mConnect.biz | @License: MIT
-// @Description: Base type/function CRUD operations for PgDB
+// @Description: Base type/method CRUD operations for PgDB
 
 package mccrud
 
@@ -62,7 +62,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 		crudInstance.AuditTable = "audits"
 	}
 	if crudInstance.AccessTable == "" {
-		crudInstance.AccessTable = "access_keys"
+		crudInstance.AccessTable = "accesses"
 	}
 	if crudInstance.RoleTable == "" {
 		crudInstance.RoleTable = "roles"
@@ -111,14 +111,14 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	return crudInstance
 }
 
-// String() function implementation for crud instance/object
+// String() method implementation for crud instance/object
 func (crud Crud) String() string {
 	return fmt.Sprintf("CRUD Instance Information: %#v \n\n", crud)
 }
 
 // Methods
 
-// SaveRecord function creates new record(s) or updates existing record(s)
+// SaveRecord method creates new record(s) or updates existing record(s)
 func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 	//  compute taskType-records from actionParams: create or update
 	var (
@@ -127,7 +127,7 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 		recIds     []string             // capture recordIds for separate/multiple updates
 	)
 	for _, rec := range crud.ActionParams {
-		// determine if record exists (update), cast id into string or is new (create)
+		// determine if record exists (update), cast id into string or new (create)
 		recId, ok := rec["id"]
 		recIdStr, idOk := recId.(string)
 		if ok && recId != nil && idOk && recIdStr != "" {
@@ -141,23 +141,21 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 			createRecs = append(createRecs, rec)
 		}
 	}
-
-	// set action-type (create or update)
+	// validate and set task-type, create or update
 	if len(createRecs) > 0 && len(updateRecs) > 0 {
-		// return only create or update task permitted
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 			Message: "You may only create or update record(s), not both at the same time",
 			Value:   nil,
 		})
 	}
-	// task-type:
+	// set task-type
 	if len(createRecs) > 0 {
 		crud.TaskType = CreateTask
 	} else if len(updateRecs) > 0 {
 		crud.TaskType = UpdateTask
 	} else {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			Message: "Inputs errors (actionParams required) to complete create or update tasks.",
+			Message: "Inputs errors: actionParams required to complete create or update task.",
 			Value:   nil,
 		})
 	}
@@ -171,15 +169,12 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 				return accessRes
 			}
 		}
-		// save-record(s): create/insert new record(s): len(recordIds) = 0 && len(createRecs) > 0
 		return crud.Create(createRecs)
 	}
 
-	// update existing records
+	// update existing record(s), by record-id(s) or queryParams | or perform multiple updates
 	if crud.TaskType == UpdateTask {
-		// update 1 or more records by ids or queryParams
 		if len(updateRecs) == 1 {
-			// update the record by recordId
 			if len(crud.RecordIds) == 1 {
 				// check task-permission
 				if crud.CheckAccess {
@@ -190,7 +185,6 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 				}
 				return crud.UpdateById(updateRecs[0], crud.RecordIds[0])
 			}
-			// update record(s) by recordIds
 			if len(crud.RecordIds) > 1 {
 				// check task-permission
 				if crud.CheckAccess {
@@ -201,7 +195,6 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 				}
 				return crud.UpdateByIds(updateRecs[0])
 			}
-			// update record(s) by queryParams
 			if len(crud.QueryParams) > 0 {
 				// check task-permission
 				if crud.CheckAccess {
@@ -224,16 +217,14 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 		}
 		return crud.Update(updateRecs)
 	}
-
 	// otherwise, return saveError
 	return mcresponse.GetResMessage("saveError", mcresponse.ResponseMessageOptions{
-		Message: "Save error: incomplete or invalid action/query-params provided",
+		Message: "Save error: incomplete or invalid parameters (action/query-params/record-ids) provided",
 		Value:   nil,
 	})
-
 }
 
-// DeleteRecord function deletes/removes record(s) by id(s) or params
+// DeleteRecord method deletes/removes record(s) by recordIds or queryParams
 func (crud *Crud) DeleteRecord() mcresponse.ResponseMessage {
 	if len(crud.RecordIds) == 1 {
 		if crud.CheckAccess {
@@ -265,12 +256,12 @@ func (crud *Crud) DeleteRecord() mcresponse.ResponseMessage {
 	// delete-all ***RESTRICTED***
 	// otherwise return error
 	return mcresponse.GetResMessage("removeError", mcresponse.ResponseMessageOptions{
-		Message: "You may delete records by ids or queryParams only.",
+		Message: "You may delete records by recordIds or queryParams only.",
 		Value:   nil,
 	})
 }
 
-// GetRecord function get records by id, params or all
+// GetRecord method fetches records by recordIds, queryParams or all
 func (crud *Crud) GetRecord() mcresponse.ResponseMessage {
 	if len(crud.RecordIds) == 1 {
 		if crud.CheckAccess {
@@ -299,10 +290,16 @@ func (crud *Crud) GetRecord() mcresponse.ResponseMessage {
 		}
 		return crud.GetByParam()
 	}
+	if crud.CheckAccess {
+		accessRes := crud.CheckTaskAccess()
+		if accessRes.Code != "success" {
+			return accessRes
+		}
+	}
 	return crud.GetAll()
 }
 
-// GetRecords function get records by id, params or all - lookup-items (no-access-constraint)
+// GetRecords method fetches records by recordIds, queryParams or all - lookup-items (no-access-constraint)
 func (crud *Crud) GetRecords() mcresponse.ResponseMessage {
 	if len(crud.RecordIds) == 1 {
 		return crud.GetById(crud.RecordIds[0])
