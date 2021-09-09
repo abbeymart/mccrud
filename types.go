@@ -80,17 +80,17 @@ func CrudTasks() CrudTasksType {
 }
 
 const (
-	CreateTask = "create"
-	InsertTask = "insert"
-	UpdateTask = "update"
-	ReadTask   = "read"
-	DeleteTask = "delete"
-	RemoveTask = "remove"
-	LoginTask  = "login"
-	LogoutTask = "logout"
-	SystemTask = "system"
-	AppTask    = "app"
-	Unknown    = "unknown"
+	CreateTask  = "create"
+	InsertTask  = "insert"
+	UpdateTask  = "update"
+	ReadTask    = "read"
+	DeleteTask  = "delete"
+	RemoveTask  = "remove"
+	LoginTask   = "login"
+	LogoutTask  = "logout"
+	SystemTask  = "system"
+	AppTask     = "app"
+	UnknownTask = "unknown"
 )
 
 type UserInfoType struct {
@@ -171,6 +171,7 @@ type QueryParamsType []QueryParamItemType
 
 // CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
 type CrudParamsType struct {
+	ModelRef      interface{}      `json:"-"`
 	AppDb         *pgxpool.Pool    `json:"-"`
 	TableName     string           `json:"-"`
 	UserInfo      UserInfoType     `json:"userInfo"`
@@ -216,8 +217,8 @@ type CrudOptionsType struct {
 }
 
 type SelectQueryOptions struct {
-	Skip                  int
-	Limit                 int
+	Skip  int
+	Limit int
 }
 
 type MessageObject map[string]string

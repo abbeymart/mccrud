@@ -35,9 +35,9 @@ type TaskPermissionType struct {
 	Groups   []string
 }
 
-// TaskPermission method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
+// TaskPermissionById method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
 // for various : create/insert, update, delete/remove, read
-func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
+func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage {
 	// permit crud : by owner, role/group (on coll/table or doc/record(s)) or admin
 	// task permission access variables
 	var (
@@ -179,7 +179,7 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	}
 
 	roleRecFunc := func(it1 string, roleRecs []RoleServiceType, roleFunc RoleFuncType) bool {
-		// test if any/some of the roleRecords it1/it2 met the access condition
+		// test if any or some of the roleRecords it1/it2 met the access condition
 		for _, it2 := range roleRecs {
 			if roleFunc(it1, it2) {
 				return true
@@ -307,6 +307,38 @@ func (crud *Crud) TaskPermission(taskType string) mcresponse.ResponseMessage {
 	})
 }
 
+func (crud *Crud) TaskPermissionByParam(taskType string) mcresponse.ResponseMessage {
+	// ids of records, from queryParams
+	var recordIds []string
+	if len(crud.CurrentRecords) < 1 {
+		currentRecRes := crud.GetByParam()
+		if currentRecRes.Code != "success" {
+			return currentRecRes
+		}
+		result, ok := currentRecRes.Value.(GetResultType)
+		if !ok {
+			return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+				Message: "Missing or Invalid record(s) for task-permission-by-queryParams",
+				Value:   result,
+			})
+		}
+		crud.CurrentRecords = result.Records
+	}
+	for _, rec := range crud.CurrentRecords {
+		val, _ := rec.(ActionParamType)
+		id, ok := val["id"].(string)
+		if !ok {
+			return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+				Message: "Missing record(s) for task-permission-by-queryParams",
+				Value:   val,
+			})
+		}
+		recordIds = append(recordIds, id)
+	}
+	crud.RecordIds = recordIds
+	return crud.TaskPermissionById(taskType)
+}
+
 // CheckTaskAccess method determines the access by role-assignment
 func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 	// validate current user active status: by token (API) and user/loggedIn-status
@@ -382,8 +414,20 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 		TableId:      tableId,
 	}
 
-	// if all went well
-	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+	if permittedRes.IsActive && permittedRes.IsAdmin {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "Action authorised / permitted.",
+			Value:   permittedRes,
+		})
+	}
+	recLen := len(permittedRes.RoleServices)
+	if permittedRes.IsActive && recLen > 0 && recLen >= len(crud.RecordIds) {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Access permitted for %v of %v service-items/records", recLen, len(crud.RecordIds)),
+			Value:   permittedRes,
+		})
+	}
+	return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
 		Message: "Action authorised / permitted.",
 		Value:   permittedRes,
 	})

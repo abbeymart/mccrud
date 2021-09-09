@@ -16,13 +16,14 @@ import (
 // Create method creates new record(s)
 func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	// compute query
-	createQueryObject, qErr := ComputeCreateQuery(crud.TableName, recs)
-	if qErr != nil {
+	createQueryRes := ComputeCreateQuery(crud.TableName, recs)
+	if !createQueryRes.Ok {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
+			Message: createQueryRes.Message,
 			Value:   nil,
 		})
 	}
+
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -43,8 +44,8 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	var insertIds []string
 	var insertId string
 	// create new records by fieldValues
-	for _, fValues := range createQueryObject.FieldValues {
-		insertErr := tx.QueryRow(context.Background(), createQueryObject.CreateQuery, fValues...).Scan(&insertId)
+	for _, fValues := range createQueryRes.CreateQueryObject.FieldValues {
+		insertErr := tx.QueryRow(context.Background(), createQueryRes.CreateQueryObject.CreateQuery, fValues...).Scan(&insertId)
 		if insertErr != nil {
 			_ = tx.Rollback(context.Background())
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -85,30 +86,26 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
 		Value: CrudResultType{
-			RecordIds:   insertIds,
-			RecordCount: insertCount,
-			TaskType:    crud.TaskType,
-			LogRes:      logRes,
+			RecordIds:    insertIds,
+			RecordsCount: insertCount,
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 }
 
 // CreateCopy method creates new record(s) using Pg CopyFrom
 // resolve sql-values parsing error (incorrect binary data format (SQLSTATE 22P03) - ?uuid primary key?)
-func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) CreateCopy(recs ActionParamsType) mcresponse.ResponseMessage {
 	// create from createRecs (actionParams)
 	// compute query
-	createQuery, qErr := ComputeCreateQuery(crud.TableName, createRecs)
-	if qErr != nil {
+	createQueryRes := ComputeCreateQuery(crud.TableName, recs)
+	if !createQueryRes.Ok {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing create-query: %v", qErr.Error()),
+			Message: createQueryRes.Message,
 			Value:   nil,
 		})
 	}
-	//fmt.Printf("create-query: %v \n", createQuery)
-	//fmt.Printf("create-query-fields: %v \n", createQuery.FieldNames)
-	//fmt.Printf("create-query-values: %v \n\n", createQuery.FieldValues)
-	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
 		return mcresponse.GetResMessage("insertError", mcresponse.ResponseMessageOptions{
@@ -127,8 +124,8 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMes
 	copyCount, cErr := tx.CopyFrom(
 		context.Background(),
 		pgx.Identifier{crud.TableName},
-		createQuery.FieldNames,
-		pgx.CopyFromRows(createQuery.FieldValues),
+		createQueryRes.CreateQueryObject.FieldNames,
+		pgx.CopyFromRows(createQueryRes.CreateQueryObject.FieldValues),
 	)
 	if cErr != nil {
 		_ = tx.Rollback(context.Background())
@@ -152,7 +149,7 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMes
 
 	// perform audit-log
 	logMessage := ""
-	if crud.LogCreate {
+	if crud.LogCreate || crud.LogCrud {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: crud.ActionParams,
@@ -166,31 +163,27 @@ func (crud *Crud) CreateCopy(createRecs ActionParamsType) mcresponse.ResponseMes
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: logMessage,
 		Value: CrudResultType{
-			RecordIds:   crud.RecordIds,
-			RecordCount: int(copyCount),
+			RecordIds:    crud.RecordIds,
+			RecordsCount: int(copyCount),
 		},
 	})
 }
 
 // Update method updates existing record(s)
-func (crud *Crud) Update(modelRef interface{}, updateRecs ActionParamsType) mcresponse.ResponseMessage {
+func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	// include audit-log feature
 	if crud.LogUpdate || crud.LogCrud {
-		getRes := crud.GetByIds(modelRef)
+		getRes := crud.GetByIds()
 		value, _ := getRes.Value.(CrudResultType)
-		crud.CurrentRecords = value.TableRecords
+		crud.CurrentRecords = value.Records
 	}
 	// create from updatedRecs (actionParams)
-	var updateQueryObjects []UpdateQueryObject
-	for _, rec := range updateRecs {
-		updateQueryObject, err := ComputeUpdateQuery(crud.TableName, rec)
-		if err != nil {
-			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
-				Value:   nil,
-			})
-		}
-		updateQueryObjects = append(updateQueryObjects, updateQueryObject)
+	updateQueryRes := ComputeUpdateQuery(crud.TableName, recs)
+	if !updateQueryRes.Ok {
+		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
+			Message: updateQueryRes.Message,
+			Value:   nil,
+		})
 	}
 
 	// perform update action, via transaction:
@@ -210,11 +203,8 @@ func (crud *Crud) Update(modelRef interface{}, updateRecs ActionParamsType) mcre
 	}(tx, context.Background())
 	// perform records' updates
 	updateCount := 0
-	for _, upQuery := range updateQueryObjects {
-		updateQuery := upQuery.UpdateQuery + upQuery.WhereQuery.WhereQuery
-		var updateFieldValues []interface{}
-		updateFieldValues = append(upQuery.FieldValues, upQuery.WhereQuery.FieldValues...)
-		commandTag, updateErr := tx.Exec(context.Background(), updateQuery, updateFieldValues...)
+	for _, upQuery := range updateQueryRes.UpdateQueryObjects {
+		commandTag, updateErr := tx.Exec(context.Background(), upQuery.UpdateQuery, upQuery.FieldValues...)
 		if updateErr != nil {
 			_ = tx.Rollback(context.Background())
 			return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -242,9 +232,10 @@ func (crud *Crud) Update(modelRef interface{}, updateRecs ActionParamsType) mcre
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			LogRecords:    currentRecs,
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -257,29 +248,29 @@ func (crud *Crud) Update(modelRef interface{}, updateRecs ActionParamsType) mcre
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam:  crud.QueryParams,
-			RecordIds:   crud.RecordIds,
-			RecordCount: updateCount,
-			TaskType:    crud.TaskType,
-			LogRes:      logRes,
+			QueryParam:   crud.QueryParams,
+			RecordIds:    crud.RecordIds,
+			RecordsCount: updateCount,
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 
 }
 
 // UpdateById method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateById(modelRef interface{}, updateRec ActionParamType, id string) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.ResponseMessage {
 	// include audit-log feature
 	if crud.LogUpdate || crud.LogCrud {
-		getRes := crud.GetById(modelRef, id)
+		getRes := crud.GetById(id)
 		value, _ := getRes.Value.(CrudResultType)
-		crud.CurrentRecords = value.TableRecords
+		crud.CurrentRecords = value.Records
 	}
 	// create from updatedRecs (actionParams)
-	upQueryObj, err := ComputeUpdateQueryById(crud.TableName, updateRec, id)
-	if err != nil {
+	updateQueryRes := ComputeUpdateQueryById(crud.TableName, rec, id)
+	if !updateQueryRes.Ok {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
+			Message: updateQueryRes.Message,
 			Value:   nil,
 		})
 	}
@@ -297,7 +288,7 @@ func (crud *Crud) UpdateById(modelRef interface{}, updateRec ActionParamType, id
 
 		}
 	}(tx, context.Background())
-	commandTag, updateErr := tx.Exec(context.Background(), upQueryObj.UpdateQuery, upQueryObj.FieldValues...)
+	commandTag, updateErr := tx.Exec(context.Background(), updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -323,9 +314,10 @@ func (crud *Crud) UpdateById(modelRef interface{}, updateRec ActionParamType, id
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			LogRecords:    currentRecs,
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -338,29 +330,29 @@ func (crud *Crud) UpdateById(modelRef interface{}, updateRec ActionParamType, id
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam:  crud.QueryParams,
-			RecordIds:   crud.RecordIds,
-			RecordCount: int(commandTag.RowsAffected()),
-			TaskType:    crud.TaskType,
-			LogRes:      logRes,
+			QueryParam:   crud.QueryParams,
+			RecordIds:    crud.RecordIds,
+			RecordsCount: int(commandTag.RowsAffected()),
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 
 }
 
 // UpdateByIds method updates existing records (in batch) that met the specified record-id(s)
-func (crud *Crud) UpdateByIds(modelRef interface{}, updateRec ActionParamType) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 	// include audit-log feature
 	if crud.LogUpdate || crud.LogCrud {
-		getRes := crud.GetByIds(modelRef)
+		getRes := crud.GetByIds()
 		value, _ := getRes.Value.(CrudResultType)
-		crud.CurrentRecords = value.TableRecords
+		crud.CurrentRecords = value.Records
 	}
 	// create from updatedRecs (actionParams)
-	upQueryObj, err := ComputeUpdateQueryByIds(crud.TableName, updateRec, crud.RecordIds)
-	if err != nil {
+	updateQueryRes := ComputeUpdateQueryByIds(crud.TableName, rec, crud.RecordIds)
+	if !updateQueryRes.Ok {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
+			Message: updateQueryRes.Message,
 			Value:   nil,
 		})
 	}
@@ -378,7 +370,7 @@ func (crud *Crud) UpdateByIds(modelRef interface{}, updateRec ActionParamType) m
 
 		}
 	}(tx, context.Background())
-	commandTag, updateErr := tx.Exec(context.Background(), upQueryObj.UpdateQuery, upQueryObj.FieldValues...)
+	commandTag, updateErr := tx.Exec(context.Background(), updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -404,9 +396,10 @@ func (crud *Crud) UpdateByIds(modelRef interface{}, updateRec ActionParamType) m
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			LogRecords:    currentRecs,
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -419,29 +412,29 @@ func (crud *Crud) UpdateByIds(modelRef interface{}, updateRec ActionParamType) m
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam:  crud.QueryParams,
-			RecordIds:   crud.RecordIds,
-			RecordCount: int(commandTag.RowsAffected()),
-			TaskType:    crud.TaskType,
-			LogRes:      logRes,
+			QueryParam:   crud.QueryParams,
+			RecordIds:    crud.RecordIds,
+			RecordsCount: int(commandTag.RowsAffected()),
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 
 }
 
 // UpdateByParam method updates existing records (in batch) that met the specified query-params or where conditions
-func (crud *Crud) UpdateByParam(modelRef interface{}, updateRec ActionParamType) mcresponse.ResponseMessage {
+func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage {
 	// include audit-log feature
 	if crud.LogUpdate || crud.LogCrud {
-		getRes := crud.GetByParam(modelRef)
+		getRes := crud.GetByParam()
 		value, _ := getRes.Value.(CrudResultType)
-		crud.CurrentRecords = value.TableRecords
+		crud.CurrentRecords = value.Records
 	}
 	// create from updatedRecs (actionParams)
-	updateQueryObject, err := ComputeUpdateQueryByParam(crud.TableName, updateRec, crud.QueryParams)
-	if err != nil {
+	updateQueryRes := ComputeUpdateQueryByParam(crud.TableName, rec, crud.QueryParams)
+	if !updateQueryRes.Ok {
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error computing update-query: %v", err.Error()),
+			Message: updateQueryRes.Message,
 			Value:   nil,
 		})
 	}
@@ -459,10 +452,8 @@ func (crud *Crud) UpdateByParam(modelRef interface{}, updateRec ActionParamType)
 
 		}
 	}(tx, context.Background())
-	updateQuery := updateQueryObject.UpdateQuery + updateQueryObject.WhereQuery.WhereQuery
-	var updateFieldValues []interface{}
-	updateFieldValues = append(updateQueryObject.FieldValues, updateQueryObject.WhereQuery.FieldValues...)
-	commandTag, updateErr := tx.Exec(context.Background(), updateQuery, updateFieldValues...)
+	updateFieldValues := updateQueryRes.UpdateQueryObject.FieldValues
+	commandTag, updateErr := tx.Exec(context.Background(), updateQueryRes.UpdateQueryObject.UpdateQuery, updateFieldValues...)
 	if updateErr != nil {
 		_ = tx.Rollback(context.Background())
 		return mcresponse.GetResMessage("updateError", mcresponse.ResponseMessageOptions{
@@ -488,9 +479,10 @@ func (crud *Crud) UpdateByParam(modelRef interface{}, updateRec ActionParamType)
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    crud.CurrentRecords,
+			LogRecords:    currentRecs,
 			NewLogRecords: crud.ActionParams,
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
@@ -503,11 +495,11 @@ func (crud *Crud) UpdateByParam(modelRef interface{}, updateRec ActionParamType)
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam:  crud.QueryParams,
-			RecordIds:   crud.RecordIds,
-			RecordCount: int(commandTag.RowsAffected()),
-			TaskType:    crud.TaskType,
-			LogRes:      logRes,
+			QueryParam:   crud.QueryParams,
+			RecordIds:    crud.RecordIds,
+			RecordsCount: int(commandTag.RowsAffected()),
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 }
