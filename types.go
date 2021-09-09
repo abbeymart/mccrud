@@ -187,8 +187,6 @@ type CrudParamsType struct {
 }
 
 type CrudOptionsType struct {
-	Skip                  int
-	Limit                 int
 	CheckAccess           bool
 	AccessDb              *pgxpool.Pool
 	AuditDb               *pgxpool.Pool
@@ -215,6 +213,11 @@ type CrudOptionsType struct {
 	UsernameExistsMessage string
 	EmailExistsMessage    string
 	MsgFrom               string
+}
+
+type SelectQueryOptions struct {
+	Skip                  int
+	Limit                 int
 }
 
 type MessageObject map[string]string

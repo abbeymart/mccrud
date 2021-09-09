@@ -22,7 +22,7 @@ func selectErrMessage(errMsg string) SelectQueryResult {
 
 // ComputeSelectQueryAll compose select SQL script to retrieve all table-records.
 // The query may be constraint by skip(offset) and limit options
-func ComputeSelectQueryAll(modelRef interface{}, tableName string, options CrudOptionsType) SelectQueryResult {
+func ComputeSelectQueryAll(modelRef interface{}, tableName string, options SelectQueryOptions) SelectQueryResult {
 	if tableName == "" || modelRef == nil {
 		return selectErrMessage("tableName and modelRef(type-struct) are required.")
 	}
@@ -66,7 +66,7 @@ func ComputeSelectQueryAll(modelRef interface{}, tableName string, options CrudO
 }
 
 // ComputeSelectQueryById compose select SQL scripts by id
-func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId string, options CrudOptionsType) SelectQueryResult {
+func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId string, options SelectQueryOptions) SelectQueryResult {
 	if tableName == "" || recordId == "" || modelRef == nil {
 		return selectErrMessage("tableName, modelRef(type-struct) and record-id are required.")
 	}
@@ -111,7 +111,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 }
 
 // ComputeSelectQueryByIds compose select SQL scripts by ids
-func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds []string, options CrudOptionsType) SelectQueryResult {
+func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds []string, options SelectQueryOptions) SelectQueryResult {
 	if tableName == "" || len(recordIds) < 1 || modelRef == nil {
 		return selectErrMessage("tableName, modelRef(type-struct) and record-ids are required.")
 	}
@@ -164,7 +164,7 @@ func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds [
 }
 
 // ComputeSelectQueryByParam compose SELECT query from the where-parameters
-func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryParam QueryParamType, options CrudOptionsType) SelectQueryResult {
+func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryParam QueryParamType, options SelectQueryOptions) SelectQueryResult {
 	if tableName == "" || len(queryParam) < 1 || modelRef == nil {
 		return selectErrMessage("tableName, modelRef(type-struct) and queryParam are required.")
 	}
