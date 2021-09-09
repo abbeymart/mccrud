@@ -6,23 +6,27 @@ package mccrud
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/asaskevich/govalidator"
+	"reflect"
 	"time"
 )
 
-func whereErrMessage(errMsg string) (WhereQueryObject, error) {
-	return WhereQueryObject{
-		WhereQuery:  "",
-		FieldValues: nil,
-	}, errors.New(errMsg)
+func whereErrMessage(errMsg string) WhereQueryResult {
+	return WhereQueryResult{
+		WhereQueryObject: WhereQueryObject{
+			WhereQuery:  "",
+			FieldValues: nil,
+		},
+		Ok:      false,
+		Message: errMsg,
+	}
 }
 
 // ComputeWhereQuery function computes the multi-cases where-conditions for crud-operations
-func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) (WhereQueryObject, error) {
+func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryResult {
 	if len(queryParams) < 1 || fieldLength < 1 {
-		return whereErrMessage("queryParams condition and fieldLength(the start of the where-query-value-placeholders are required")
+		return whereErrMessage("queryParams (where-conditions) and fieldLength (starting position for the where-condition-placeholder-values) are required.")
 	}
 	// compute queryParams script from queryParams
 	whereQuery := "WHERE "
@@ -32,53 +36,100 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) (WhereQueryO
 	for fieldName, fieldValue := range queryParams {
 		// update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 		var currentFieldValue interface{}
-		switch fieldValue.(type) {
-		case time.Time:
-			if fVal, ok := fieldValue.(time.Time); !ok {
-				return whereErrMessage(fmt.Sprintf("field_name: %v [date-type] | field_value: %v error: ", fieldName, fieldValue))
-			} else {
-				currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
-			}
-		case string:
-			if fVal, ok := fieldValue.(string); !ok {
-				return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-			} else {
-				if govalidator.IsUUID(fVal) {
-					currentFieldValue = fVal
-				} else if govalidator.IsJSON(fVal) {
-					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
-						return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-					} else {
-						fmt.Printf("string-toJson-value: %v\n\n", fValue)
-						currentFieldValue = fValue
-					}
+		// validate field-value type
+		fieldType := fmt.Sprintf("%v", reflect.TypeOf(fieldValue).Kind())
+		switch fieldType {
+		case "slice":
+			if fVal, ok := fieldValue.([]string); !ok {
+				if fVal2, ok2 := fieldValue.([]interface{}); !ok2 {
+					return whereErrMessage(fmt.Sprintf("field_name: %v [slice-type] | field_value: %v error: ", fieldName, fieldValue))
 				} else {
-					currentFieldValue = "'" + fVal + "'"
+					idLen := len(fVal2)
+					recIds := "("
+					for i, val := range fVal2 {
+						recIds += fmt.Sprintf("%v", val)
+						if i < idLen-1 {
+							recIds += ", "
+						}
+					}
+					recIds += ")"
+					// fieldValues.push(`${recIds}`)
+					fieldNameUnderscore := govalidator.CamelCaseToUnderscore(fieldName)
+					whereQuery += fmt.Sprintf("%v IN %v}", fieldNameUnderscore, recIds)
+				}
+			} else {
+				// compute IN clause
+				idLen := len(fVal)
+				recIds := "("
+				for i, val := range fVal {
+					recIds += "'" + val + "'"
+					if i < idLen-1 {
+						recIds += ", "
+					}
+				}
+				recIds += ")"
+				// fieldValues.push(`${recIds}`)
+				fieldNameUnderscore := govalidator.CamelCaseToUnderscore(fieldName)
+				whereQuery += fmt.Sprintf("%v IN %v}", fieldNameUnderscore, recIds)
+			}
+		default:
+			switch fieldValue.(type) {
+			case time.Time:
+				if fVal, ok := fieldValue.(time.Time); !ok {
+					return whereErrMessage(fmt.Sprintf("field_name: %v [date-type] | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
+					fieldValues = append(fieldValues, currentFieldValue)
+					whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
+				}
+			case string:
+				if fVal, ok := fieldValue.(string); !ok {
+					return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+				} else {
+					if govalidator.IsJSON(fVal) {
+						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
+							return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						} else {
+							fmt.Printf("string-toJson-value: %v\n\n", fValue)
+							currentFieldValue = fValue
+							fieldValues = append(fieldValues, currentFieldValue)
+							whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
+						}
+					} else {
+						currentFieldValue = "'" + fVal + "'"
+						fieldValues = append(fieldValues, currentFieldValue)
+						whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
+					}
+				}
+			case int, uint, float32, float64, bool:
+				currentFieldValue = fieldValue
+				fieldValues = append(fieldValues, currentFieldValue)
+				whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
+			default:
+				// json-stringify fieldValue
+				if fVal, err := json.Marshal(fieldValue); err != nil {
+					return whereErrMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
+				} else {
+					currentFieldValue = string(fVal)
+					fieldValues = append(fieldValues, currentFieldValue)
+					whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 				}
 			}
-		case int, uint, float32, float64, bool:
-			currentFieldValue = fieldValue
-		default:
-			// json-stringify fieldValue
-			if fVal, err := json.Marshal(fieldValue); err != nil {
-				return whereErrMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
-			} else {
-				currentFieldValue = string(fVal)
-			}
 		}
-
-		fieldValues = append(fieldValues, currentFieldValue)
-		whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 		fieldCount += 1
 		fieldLength += 1
 		if whereFieldLength > 1 && fieldCount < whereFieldLength {
-			whereQuery += ", "
+			whereQuery += " AND "
 		}
 	}
 
-	// if all went well, return valid queryParams script
-	return WhereQueryObject{
-		WhereQuery:  whereQuery,
-		FieldValues: fieldValues,
-	}, nil
+	// if all went well, return valid where-query-result
+	return WhereQueryResult{
+		WhereQueryObject: WhereQueryObject{
+			WhereQuery:  whereQuery,
+			FieldValues: fieldValues,
+		},
+		Ok:      true,
+		Message: "success",
+	}
 }

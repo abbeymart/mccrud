@@ -5,32 +5,42 @@
 package mccrud
 
 import (
-	"errors"
 	"fmt"
 )
 
-func deleteErrMessage(errMsg string) (DeleteQueryObject, error) {
-	return DeleteQueryObject{
-		DeleteQuery: "",
-		FieldValues: nil,
-		WhereQuery:  WhereQueryObject{},
-	}, errors.New(errMsg)
+func deleteErrMessage(errMsg string) DeleteQueryResult {
+	return DeleteQueryResult{
+		DeleteQueryObject: DeleteQueryObject{
+			DeleteQuery: "",
+			FieldValues: nil,
+			WhereQuery:  WhereQueryObject{},
+		},
+		Ok:      false,
+		Message: errMsg,
+	}
 }
 
-// ComputeDeleteQueryById function computes delete SQL script by id(s)
-func ComputeDeleteQueryById(tableName string, recordId string) (string, error) {
+// ComputeDeleteQueryById function computes delete SQL scripts by id(s)
+func ComputeDeleteQueryById(tableName string, recordId string) DeleteQueryResult {
 	if tableName == "" || recordId == "" {
-		return "", errors.New("table/collection name and record-id are required for the delete-by-id operation")
+		return deleteErrMessage("tableName and recordId are required for the delete-by-id operation.")
 	}
 	// validated recordIds, strictly contains string/UUID values, to avoid SQL-injection
-	deleteQuery := "DELETE FROM " + tableName + " WHERE id =" + recordId
-	return deleteQuery, nil
+	deleteQuery := fmt.Sprintf("DELETE FROM %v WHERE id=%v", tableName, recordId)
+	return DeleteQueryResult{
+		DeleteQueryObject: DeleteQueryObject{
+			DeleteQuery: deleteQuery,
+			FieldValues: nil,
+		},
+		Ok: true,
+		Message: "success",
+	}
 }
 
-// ComputeDeleteQueryByIds function computes delete SQL script by id(s)
-func ComputeDeleteQueryByIds(tableName string, recordIds []string) (string, error) {
+// ComputeDeleteQueryByIds function computes delete SQL scripts by id(s)
+func ComputeDeleteQueryByIds(tableName string, recordIds []string) DeleteQueryResult {
 	if tableName == "" || len(recordIds) < 1 {
-		return "", errors.New("table/collection name and record-Ids are required for the delete-by-id operation")
+		return deleteErrMessage("tableName and recordIds are required for the delete-by-ids operation.")
 	}
 	// validated recordIds, strictly contains string/UUID values, to avoid SQL-injection
 	// from / where condition (where-in-values)
@@ -42,24 +52,34 @@ func ComputeDeleteQueryByIds(tableName string, recordIds []string) (string, erro
 			whereIds += ", "
 		}
 	}
-	deleteQuery := "DELETE FROM " + tableName + " WHERE id IN(" + whereIds + ")"
-	return deleteQuery, nil
+	deleteQuery := fmt.Sprintf("DELETE FROM %v WHERE id IN (%v)", tableName, whereIds)
+	return DeleteQueryResult{
+		DeleteQueryObject: DeleteQueryObject{
+			DeleteQuery: deleteQuery,
+			FieldValues: nil,
+		},
+		Ok: true,
+		Message: "success",
+	}
 }
 
-// ComputeDeleteQueryByParam function computes delete SQL script by parameter specifications
-func ComputeDeleteQueryByParam(tableName string, where QueryParamType) (DeleteQueryObject, error) {
-	if tableName == "" || len(where) < 1 {
-		return deleteErrMessage("table/collection name and where/query-condition are required for the delete-by-param operation")
+// ComputeDeleteQueryByParam function computes delete SQL scripts by parameter specifications
+func ComputeDeleteQueryByParam(tableName string, queryParam QueryParamType) DeleteQueryResult {
+	if tableName == "" || len(queryParam) < 1 {
+		return deleteErrMessage("tableName and queryParam (where-conditions) are required for the delete-by-param operation.")
 	}
-	whereParam, err := ComputeWhereQuery(where, 1)
-	if err == nil {
-		//deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereParam)
-		return DeleteQueryObject{
-			DeleteQuery: fmt.Sprintf("DELETE FROM %v ", tableName),
-			WhereQuery: whereParam,
-			FieldValues: nil,
-		}, nil
+	whereRes := ComputeWhereQuery(queryParam, 1)
+	if whereRes.Ok {
+		deleteScript := fmt.Sprintf("DELETE FROM %v %v", tableName, whereRes.WhereQueryObject.WhereQuery)
+		return DeleteQueryResult{
+			DeleteQueryObject: DeleteQueryObject{
+				DeleteQuery: deleteScript,
+				FieldValues: whereRes.WhereQueryObject.FieldValues,
+			},
+			Ok: true,
+			Message: "success",
+		}
 	} else {
-		return deleteErrMessage(fmt.Sprintf("error computing where-query condition(s): %v", err.Error()))
+		return deleteErrMessage(fmt.Sprintf("error computing where-query condition(s): %v", whereRes.Message))
 	}
 }

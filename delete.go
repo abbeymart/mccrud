@@ -66,7 +66,7 @@ func (crud *Crud) DeleteById(modelRef interface{}, id string) mcresponse.Respons
 	})
 }
 
-// DeleteAuditByIds method deletes or removes record(s) by record-id(s)
+// DeleteByIds method deletes or removes record(s) by record-id(s)
 func (crud *Crud) DeleteByIds(modelRef interface{}) mcresponse.ResponseMessage {
 	// audit-log
 	if crud.LogDelete || crud.LogCrud {

@@ -6,22 +6,25 @@ package mccrud
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/asaskevich/govalidator"
 	"time"
 )
 
-func errMessage(errMsg string) (CreateQueryObject, error) {
-	return CreateQueryObject{
-		CreateQuery: "",
-		FieldNames:  nil,
-		FieldValues: nil,
-	}, errors.New(errMsg)
+func errMessage(errMsg string) CreateQueryResult {
+	return CreateQueryResult{
+		CreateQueryObject: CreateQueryObject{
+			CreateQuery: "",
+			FieldNames:  nil,
+			FieldValues: nil,
+		},
+		Ok:      false,
+		Message: errMsg,
+	}
 }
 
 // ComputeCreateQuery function computes insert SQL scripts. It returns createScripts []string and err error
-func ComputeCreateQuery(tableName string, actionParams ActionParamsType) (CreateQueryObject, error) {
+func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQueryResult {
 	if tableName == "" || len(actionParams) < 1 {
 		return errMessage("table-name is required for the create operation")
 	}
@@ -216,9 +219,13 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) (Create
 	}
 
 	// result
-	return CreateQueryObject{
-		CreateQuery: createQuery,
-		FieldNames: fieldNames,
-		FieldValues: fieldValues,
-	}, nil
+	return CreateQueryResult{
+		CreateQueryObject: CreateQueryObject{
+			CreateQuery: createQuery,
+			FieldNames:  fieldNames,
+			FieldValues: fieldValues,
+		},
+		Ok: true,
+		Message: "success",
+	}
 }

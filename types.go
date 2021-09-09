@@ -187,6 +187,8 @@ type CrudParamsType struct {
 }
 
 type CrudOptionsType struct {
+	Skip                  int
+	Limit                 int
 	CheckAccess           bool
 	AccessDb              *pgxpool.Pool
 	AuditDb               *pgxpool.Pool
@@ -257,6 +259,107 @@ type SelectQueryObject struct {
 	WhereQuery  WhereQueryObject
 }
 
+type CreateQueryResult struct {
+	CreateQueryObject CreateQueryObject
+	Ok                bool
+	Message           string
+}
+
+type UpdateQueryResult struct {
+	UpdateQueryObject UpdateQueryObject
+	Ok                bool
+	Message           string
+}
+
+type MultiUpdateQueryResult struct {
+	UpdateQueryObjects []UpdateQueryObject
+	Ok                 bool
+	Message            string
+}
+
+type DeleteQueryResult struct {
+	DeleteQueryObject DeleteQueryObject
+	Ok                bool
+	Message           string
+}
+
+type SelectQueryResult struct {
+	SelectQueryObject SelectQueryObject
+	Ok                bool
+	Message           string
+}
+
+type WhereQueryResult struct {
+	WhereQueryObject WhereQueryObject
+	Ok               bool
+	Message          string
+}
+
+// ErrorType provides the structure for error reporting
+type ErrorType struct {
+	Code    string
+	Message string
+}
+
+type SaveError ErrorType
+type CreateError ErrorType
+type UpdateError ErrorType
+type DeleteError ErrorType
+type ReadError ErrorType
+type AuthError ErrorType
+type ConnectError ErrorType
+type SelectQueryError ErrorType
+type WhereQueryError ErrorType
+type CreateQueryError ErrorType
+type UpdateQueryError ErrorType
+type DeleteQueryError ErrorType
+
+// sample Error() implementation
+func (err ErrorType) Error() string {
+	return fmt.Sprintf("Error-code: %v | Error-message: %v", err.Code, err.Message)
+}
+
+type LogRecordsType struct {
+	TableFields  []string       `json:"tableFields"`
+	TableRecords []interface{}  `json:"tableRecords"`
+	QueryParam   QueryParamType `json:"queryParam"`
+	RecordIds    []string       `json:"recordIds"`
+}
+
+type CrudResultType struct {
+	QueryParam   QueryParamType             `json:"queryParam"`
+	RecordIds    []string                   `json:"recordIds"`
+	RecordsCount int                        `json:"recordsCount"`
+	Records      []interface{}              `json:"records"`
+	TaskType     string                     `json:"taskType"`
+	LogRes       mcresponse.ResponseMessage `json:"logRes"`
+}
+
+type GetStatType struct {
+	Skip              int            `json:"skip"`
+	Limit             int            `json:"limit"`
+	RecordsCount      int            `json:"recordsCount"`
+	TotalRecordsCount int            `json:"totalRecordsCount"`
+	QueryParam        QueryParamType `json:"queryParam"`
+	RecordIds         []string       `json:"recordIds"`
+	Expire            int            `json:"expire"`
+}
+
+type GetResultType struct {
+	Records  []interface{}              `json:"value"`
+	Stats    GetStatType                `json:"stats"`
+	LogRes   mcresponse.ResponseMessage `json:"logRes"`
+	TaskType string                     `json:"taskType"`
+}
+
+type SaveResultType struct {
+	QueryParam   QueryParamType             `json:"queryParam"`
+	RecordIds    []string                   `json:"recordIds"`
+	RecordsCount int                        `json:"recordsCount"`
+	TaskType     string                     `json:"taskType"`
+	LogRes       mcresponse.ResponseMessage `json:"logRes"`
+}
+
 // TODO: remove, not required
 
 type SaveParamsType struct {
@@ -306,68 +409,4 @@ type GetCrudParamsType struct {
 	GetTableFields     []string
 	TableFieldPointers []interface{}
 	AuditLog           bool
-}
-
-// ErrorType provides the structure for error reporting
-type ErrorType struct {
-	Code    string
-	Message string
-}
-
-type SaveError ErrorType
-type CreateError ErrorType
-type UpdateError ErrorType
-type DeleteError ErrorType
-type ReadError ErrorType
-type AuthError ErrorType
-type ConnectError ErrorType
-type SelectQueryError ErrorType
-type WhereQueryError ErrorType
-type CreateQueryError ErrorType
-type UpdateQueryError ErrorType
-type DeleteQueryError ErrorType
-
-// sample Error() implementation
-func (err ErrorType) Error() string {
-	return fmt.Sprintf("Error-code: %v | Error-message: %v", err.Code, err.Message)
-}
-
-type LogRecordsType struct {
-	TableFields  []string       `json:"tableFields"`
-	TableRecords []interface{}  `json:"tableRecords"`
-	QueryParam   QueryParamType `json:"queryParam"`
-	RecordIds    []string       `json:"recordIds"`
-}
-
-type CrudResultType struct {
-	QueryParam   QueryParamType             `json:"queryParam"`
-	RecordIds    []string                   `json:"recordIds"`
-	RecordCount  int                        `json:"recordCount"`
-	TableRecords []interface{}              `json:"tableRecords"`
-	TaskType     string                     `json:"taskType"`
-	LogRes       mcresponse.ResponseMessage `json:"logRes"`
-}
-
-type GetStatType struct {
-	Skip              int            `json:"skip"`
-	Limit             int            `json:"limit"`
-	RecordsCount      int            `json:"recordsCount"`
-	TotalRecordsCount int            `json:"totalRecordsCount"`
-	QueryParam        QueryParamType `json:"queryParam"`
-	RecordIds         []string       `json:"recordIds"`
-}
-
-type GetResultType struct {
-	Records  []interface{}              `json:"value"`
-	Stats    GetStatType                `json:"stats"`
-	TaskType string                     `json:"taskType"`
-	LogRes   mcresponse.ResponseMessage `json:"logRes"`
-}
-
-type SaveResultType struct {
-	QueryParam   QueryParamType             `json:"queryParam"`
-	RecordIds    []string                   `json:"recordIds"`
-	RecordsCount int                        `json:"recordsCount"`
-	TaskType     string                     `json:"taskType"`
-	LogRes       mcresponse.ResponseMessage `json:"logRes"`
 }
