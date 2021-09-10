@@ -136,6 +136,10 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 			rec["updatedAt"] = time.Now()
 			recIds = append(recIds, recIdStr)
 			updateRecs = append(updateRecs, rec)
+		} else if len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0 {
+			rec["updatedBy"] = crud.UserInfo.UserId
+			rec["updatedAt"] = time.Now()
+			updateRecs = append(updateRecs, rec)
 		} else {
 			rec["createdBy"] = crud.UserInfo.UserId
 			rec["createdAt"] = time.Now()
