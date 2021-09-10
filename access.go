@@ -31,14 +31,14 @@ type TaskPermissionType struct {
 	IsAdmin  bool
 	IsActive bool
 	UserId   string
-	Group    string
-	Groups   []string
+	Role     string
+	Roles    []string
 }
 
 // TaskPermissionById method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
 // for various : create/insert, update, delete/remove, read
 func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage {
-	// permit crud : by owner, role/group (on coll/table or doc/record(s)) or admin
+	// permit crud : by owner, role (on table or record(s)) or admin
 	// task permission access variables
 	var (
 		taskPermitted   = false
@@ -53,14 +53,12 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 		groups          []string
 		roleServices    []RoleServiceType
 	)
-
 	// check role-based access
 	accessRes := crud.CheckTaskAccess()
 	// capture roleServices value
 	if accessRes.Code != "success" {
 		return accessRes
 	}
-
 	// get access-record
 	accessRec, ok := accessRes.Value.(CheckAccessType)
 	if !ok {
@@ -77,7 +75,6 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 	group = accessRec.RoleId
 	groups = accessRec.RoleIds
 	tableId = accessRec.TableId
-
 	// validate active status
 	if !isActive {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
@@ -94,11 +91,9 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 	}
 
 	// determine records/documents ownership, for all records (atomic)
-	accessUserId := accessRec.UserId
 	recordIds := crud.RecordIds
-	if len(recordIds) > 0 && accessUserId != "" && accessRec.IsActive {
+	if len(recordIds) > 0 && accessRec.UserId != "" && accessRec.IsActive {
 		// SQL script
-		sqlScript := fmt.Sprintf("SELECT id FROM %v WHERE id IN ($1) AND created_by = $2", crud.TableName)
 		inValues := ""
 		idLen := len(recordIds)
 		for idCount, id := range recordIds {
@@ -107,7 +102,8 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 				inValues += ", "
 			}
 		}
-		rows, err := crud.AppDb.Query(context.Background(), sqlScript, inValues, accessUserId)
+		sqlScript := fmt.Sprintf("SELECT id FROM %v WHERE id IN (%v) AND created_by = $1", crud.TableName, inValues)
+		rows, err := crud.AppDb.Query(context.Background(), sqlScript, accessRec.UserId)
 		if err != nil {
 			errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -120,16 +116,15 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 		var rowCount = 0
 		for rows.Next() {
 			var id string
-			if err := rows.Scan(&id); err == nil {
+			if recErr := rows.Scan(&id); recErr == nil {
 				rowCount += 1
 			}
 		}
-		// ensure complete record count, as requested
+		// ensure complete records count, as requested
 		if rowCount == len(recordIds) {
 			ownerPermitted = true
 		}
 	}
-
 	// filter the roleServices by categories ("collection | table" or "record | document")
 	collTabFunc := func(item RoleServiceType) bool {
 		return item.ServiceCategory == tableId
@@ -153,7 +148,6 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 			}
 		}
 	}
-
 	// helper functions
 	canCreateFunc := func(item RoleServiceType) bool {
 		return item.CanCreate
@@ -187,7 +181,6 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 		}
 		return false
 	}
-
 	// taskType specific permission(s)
 	if !isAdmin && len(roleServices) > 0 {
 		switch taskType {
@@ -292,7 +285,6 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 			},
 		})
 	}
-	// const value = {...ok, ...{isAdmin, isActive, userId, group, groups}};
 	// if all went well
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Action authorised / permitted.",
@@ -301,8 +293,8 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 			IsAdmin:  isAdmin,
 			IsActive: isActive,
 			UserId:   userId,
-			Group:    group,
-			Groups:   groups,
+			Role:     group,
+			Roles:    groups,
 		},
 	})
 }
@@ -346,7 +338,6 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 	if accessRes.Code != "success" {
 		return accessRes
 	}
-
 	// set current-user info for next steps
 	var (
 		uId      string
@@ -367,7 +358,6 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-
 	// if all the above checks passed, check for role-services access by taskType
 	// obtain table/collName id(_id) from serviceTable/Coll (repo for all resources)
 	var (
@@ -391,7 +381,7 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 		tableId = serviceId
 		serviceIds = append(serviceIds, serviceId)
 	}
-
+	// compute service-items/records
 	var roleServices []RoleServiceType
 	var rsErr error
 	if len(serviceIds) > 0 {
@@ -433,10 +423,9 @@ func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
 	})
 }
 
-// GetRoleServices method process and returns the permission to user / user-group for the specified service items
-func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, groupId string, serviceIds []string) ([]RoleServiceType, error) {
+// GetRoleServices method process and returns the permission to user / user-group/roleId for the specified service items
+func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, userRoleId string, serviceIds []string) ([]RoleServiceType, error) {
 	var roleServices []RoleServiceType
-	roleScript := fmt.Sprintf("SELECT id, service_id, service_category, can_read, can_create, can_delete, can_update from %v WHERE service_id IN ($1) AND group_id=$2 AND is_active=$3", roleTable)
 	// where-in-values
 	inValues := ""
 	idLen := len(serviceIds)
@@ -446,19 +435,19 @@ func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, grou
 			inValues += ", "
 		}
 	}
-
-	rows, err := accessDb.Query(context.Background(), roleScript, inValues, groupId, true)
+	roleScript := fmt.Sprintf("SELECT role_id, service_id, service_category, can_read, can_create, can_delete, can_update, can_crud from %v WHERE service_id IN (%v) AND role_id=$1 AND is_active=$2", roleTable, inValues)
+	rows, err := accessDb.Query(context.Background(), roleScript, userRoleId, true)
 	if err != nil {
 		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
 		return roleServices, errors.New(fmt.Sprintf("%v", err.Error()))
 	}
 	defer rows.Close()
 	var (
-		roleId, serviceId, serviceCategory       string
-		canRead, canCreate, canDelete, canUpdate bool
+		roleId, serviceId, serviceCategory                string
+		canRead, canCreate, canDelete, canUpdate, canCrud bool
 	)
 	for rows.Next() {
-		if err := rows.Scan(&roleId, &serviceId, &serviceCategory, &canRead, &canCreate, &canDelete, &canUpdate); err == nil {
+		if err := rows.Scan(&roleId, &serviceId, &serviceCategory, &canRead, &canCreate, &canDelete, &canUpdate, &canCrud); err == nil {
 			roleServices = append(roleServices, RoleServiceType{
 				ServiceId:       serviceId,
 				RoleId:          roleId,
@@ -467,6 +456,7 @@ func (crud *Crud) GetRoleServices(accessDb *pgxpool.Pool, roleTable string, grou
 				CanCreate:       canCreate,
 				CanUpdate:       canUpdate,
 				CanDelete:       canDelete,
+				CanCrud:         canCrud,
 			})
 		}
 	}
@@ -484,7 +474,7 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 	var accessExpire int64
 	if err := rowAccess.Scan(&accessExpire); err != nil {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: "Unauthorized: please ensure that you are logged-in",
+			Message: fmt.Sprintf("Unauthorized: please ensure that you are logged-in: %v", err.Error()),
 			Value:   nil,
 		})
 	} else {
@@ -498,36 +488,26 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 	// check the current-user status/info
 	var (
 		uId      string
-		group    string
-		groups   []string
+		roleIds  []string
 		isAdmin  bool
 		isActive bool
+		profile  Profile
 	)
-	userScript := fmt.Sprintf("SELECT id, groups, isAdmin, isActive from %v WHERE id=$1 AND is_active=$2", crud.UserTable)
+	userScript := fmt.Sprintf("SELECT id, role_ids, is_admin, profile, is_active from %v WHERE id=$1 AND is_active=$2", crud.UserTable)
 	rowUser := crud.AccessDb.QueryRow(context.Background(), userScript, crud.UserInfo.UserId, true)
-	if err := rowUser.Scan(&uId, &groups, &isAdmin, &isActive); err != nil {
+	if err := rowUser.Scan(&uId, &roleIds, &isAdmin, &profile, &isActive); err != nil {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: "Unauthorized: user information not found or is inactive",
+			Message: fmt.Sprintf("Unauthorized: user information not found or is inactive: %v", err.Error()),
 			Value:   nil,
 		})
 	}
-	// get default-group from user profile
-	pScript := fmt.Sprintf("SELECT group from %v WHERE user_id=$1 is_active=$2", crud.ProfileTable)
-	userProfile := crud.AccessDb.QueryRow(context.Background(), pScript, crud.UserInfo.UserId, true)
-	if err := userProfile.Scan(&group); err != nil {
-		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: "Unauthorized: user-profile-group information not found or is inactive",
-			Value:   nil,
-		})
-	}
-
 	// if all went well
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Action authorised / permitted.",
 		Value: AccessInfoType{
 			UserId:   uId,
-			RoleId:   group,
-			RoleIds:  groups,
+			RoleId:   profile.RoleId,
+			RoleIds:  roleIds,
 			IsAdmin:  isAdmin,
 			IsActive: isActive,
 		},
@@ -542,22 +522,22 @@ func (crud *Crud) CheckLoginStatus(params UserInfoType) mcresponse.ResponseMessa
 	username := emailUsername.Username
 	var uId string
 	if email != "" {
-		query := fmt.Sprintf("SELECT id from $1 WHERE id=$2 AND email=$3")
-		row := crud.AccessDb.QueryRow(context.Background(), query, crud.UserTable, params.UserId, email)
+		query := fmt.Sprintf("SELECT id from %v WHERE id=$1 AND email=$2", crud.UserTable)
+		row := crud.AccessDb.QueryRow(context.Background(), query, params.UserId, email)
 		err := row.Scan(&uId)
 		if err != nil {
 			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Record not found for %v. Register a new account", params.LoginName),
+				Message: fmt.Sprintf("Record not found for %v. Register a new account: %v", params.LoginName, err.Error()),
 				Value:   nil,
 			})
 		}
 	} else if username != "" {
-		query := fmt.Sprintf("SELECT id from $1 WHERE id=$2 AND username=$3")
-		row := crud.AccessDb.QueryRow(context.Background(), query, crud.UserTable, params.UserId, username)
+		query := fmt.Sprintf("SELECT id from %v WHERE id=$1 AND username=$2", crud.UserTable)
+		row := crud.AccessDb.QueryRow(context.Background(), query, params.UserId, username)
 		err := row.Scan(&uId)
 		if err != nil {
 			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Record not found for %v. Register a new account", params.LoginName),
+				Message: fmt.Sprintf("Record not found for %v. Register a new account: %v", params.LoginName, err.Error()),
 				Value:   nil,
 			})
 		}
@@ -568,15 +548,14 @@ func (crud *Crud) CheckLoginStatus(params UserInfoType) mcresponse.ResponseMessa
 			Value:   nil,
 		})
 	}
-
 	// check loginName, userId and token validity... from access_keys table
 	var expire int64
-	query := fmt.Sprintf("SELECT expire from $1 WHERE id=$2 AND login_name=$3 AND token=$4")
-	row := crud.AccessDb.QueryRow(context.Background(), query, crud.AccessTable, params.UserId, params.LoginName, params.Token)
+	query := fmt.Sprintf("SELECT expire from %v WHERE id=$1 AND login_name=$2 AND token=$3", crud.AccessTable)
+	row := crud.AccessDb.QueryRow(context.Background(), query, params.UserId, params.LoginName, params.Token)
 	err := row.Scan(&expire)
 	if err != nil {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Access information for %v not found. Login first, or contact system administrator", params.LoginName),
+			Message: fmt.Sprintf("Access information for %v not found. Login first, or contact system administrator: %v", params.LoginName, err.Error()),
 			Value:   nil,
 		})
 	}
@@ -589,7 +568,6 @@ func (crud *Crud) CheckLoginStatus(params UserInfoType) mcresponse.ResponseMessa
 			Value:   nil,
 		})
 	}
-
 	// if all went well
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Action authorised / Access permitted.",

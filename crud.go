@@ -56,6 +56,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.LogDelete = options.LogDelete
 	crudInstance.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
 	crudInstance.CacheExpire = options.CacheExpire // cache expire in secs
+	crudInstance.BulkCreate = options.BulkCreate
 
 	// Default values
 	if crudInstance.AuditTable == "" {
@@ -168,6 +169,9 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 			if accessRes.Code != "success" {
 				return accessRes
 			}
+		}
+		if crud.BulkCreate {
+			return crud.CreateCopy(createRecs)
 		}
 		return crud.Create(createRecs)
 	}

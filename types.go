@@ -106,7 +106,7 @@ type UserInfoType struct {
 }
 
 type BaseModelType struct {
-	ID        string    `json:"id" mcorm:"id"`
+	Id        string    `json:"id" mcorm:"id"`
 	Language  string    `json:"language" mcorm:"language"`
 	Desc      string    `json:"desc" mcorm:"desc"`
 	AppId     string    `json:"appId" mcorm:"app_id"`       // application-id in a multi-hosted apps environment (e.g. cloud-env)
@@ -116,6 +116,28 @@ type BaseModelType struct {
 	UpdatedBy string    `json:"updatedBy" mcorm:"updated_by"`
 	UpdatedAt time.Time `json:"updatedAt" mcorm:"updated_at"`
 	DeletedAt time.Time `json:"deletedAt" mcorm:"deleted_at"`
+}
+
+type EmailAddressType = map[string]string
+
+type Profile struct {
+	BaseModelType
+	UserID        string
+	Firstname     string             `json:"firstname"`
+	Lastname      string             `json:"lastname"`
+	Middlename    string             `json:"middlename"`
+	Fullname      string             `json:"fullname"`
+	Phone         string             `json:"phone"`
+	RecEmail      string             `json:"recEmail"`
+	RoleId        string             `json:"roleId"`
+	Emails        []EmailAddressType `json:"emails"`
+	DateOfBirth   time.Time          `json:"dateOfBirth"`
+	TwoFactorAuth bool               `json:"twoFactorAuth"`
+	AuthAgent     string             `json:"authAgent"`
+	AuthPhone     string             `json:"authPhone"`
+	PostalCode    string             `json:"postalCode"`
+	UserInfo      UserInfoType       `json:"userInfo"`
+	ReqUrl        string             `json:"reqUrl"`
 }
 
 type RoleServiceType struct {
@@ -189,6 +211,7 @@ type CrudParamsType struct {
 
 type CrudOptionsType struct {
 	CheckAccess           bool
+	BulkCreate            bool
 	AccessDb              *pgxpool.Pool
 	AuditDb               *pgxpool.Pool
 	ServiceDb             *pgxpool.Pool

@@ -18,10 +18,10 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 	// get records to delete, for audit-log
 	if crud.LogDelete || crud.LogCrud {
 		getRes := crud.GetById(id)
-		value, _ := getRes.Value.(CrudResultType)
+		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.Records
 	}
-	// compute delete query by record-ids
+	// compute delete query by record-id
 	deleteQueryRes := ComputeDeleteQueryById(crud.TableName, id)
 	if !deleteQueryRes.Ok {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
@@ -36,16 +36,14 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
-
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "key")
 	// perform audit-log
 	logMessage := ""
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
-		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords}
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": []string{id}}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: currentRecs,
@@ -72,10 +70,9 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 	// audit-log
 	if crud.LogDelete || crud.LogCrud {
 		getRes := crud.GetByIds()
-		value, _ := getRes.Value.(CrudResultType)
+		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.Records
 	}
-	// compute delete query by record-ids
 	// compute delete query by record-ids
 	deleteQueryRes := ComputeDeleteQueryByIds(crud.TableName, crud.RecordIds)
 	if !deleteQueryRes.Ok {
@@ -91,16 +88,14 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
-
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "key")
 	// perform audit-log
 	logMessage := ""
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
-		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords}
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: currentRecs,
@@ -127,11 +122,10 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	// audit-log
 	if crud.LogDelete || crud.LogCrud {
 		getRes := crud.GetByParam()
-		value, _ := getRes.Value.(CrudResultType)
+		value, _ := getRes.Value.(GetResultType)
 		crud.CurrentRecords = value.Records
 	}
 	// compute delete query by query-params
-	// compute delete query by record-ids
 	deleteQueryRes := ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
 	if !deleteQueryRes.Ok {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
@@ -146,18 +140,17 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-
 	// delete cache
-	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "hash")
-
+	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "key")
 	// perform audit-log
 	logMessage := ""
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
+		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "queryParams": crud.QueryParams}
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: crud.CurrentRecords,
+			LogRecords: currentRecs,
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -170,7 +163,7 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 		Value: CrudResultType{
 			QueryParam: crud.QueryParams,
 			//RecordCount: int(commandTag.RowsAffected()),
-			TaskType: crud.TaskType,
+			TaskType: DeleteTask,
 			LogRes:   logRes,
 		},
 	})
@@ -183,34 +176,37 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING && AT-YOUR-OWN-RISK *****
 	// compute delete query
 	delQuery := fmt.Sprintf("DELETE FROM %v", crud.TableName)
-	commandTag, delErr := crud.AppDb.Exec(context.Background(), delQuery)
+	_, delErr := crud.AppDb.Exec(context.Background(), delQuery)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
 			Value:   nil,
 		})
 	}
-
 	// delete cache, by key (TableName)
 	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "key")
-
 	// perform audit-log
 	logMessage := ""
+	logRes := mcresponse.ResponseMessage{}
+	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		auditInfo := mcauditlog.PgxAuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: map[string]string{"query_desc": "all-records"},
+			LogRecords: map[string]string{"query": "all"},
 		}
-		if logRes, logErr := crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
+		if logRes, logErr = crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
 		} else {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
 		}
 	}
-
+	// response
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-		Message: "Record(s) deleted successfully | " + logMessage,
-		Value:   commandTag.Delete(),
+		Message: fmt.Sprintf("Record(s) deleted successfully [log-message: %v] ", logMessage),
+		Value: CrudResultType{
+			//RecordsCount: int(commandTag.RowsAffected()),
+			TaskType: DeleteTask,
+			LogRes:   logRes,
+		},
 	})
-
 }
