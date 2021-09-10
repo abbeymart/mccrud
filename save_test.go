@@ -7,23 +7,14 @@ package mccrud
 import (
 	"fmt"
 	"github.com/abbeymart/mcauditlog"
+	"github.com/abbeymart/mccrud/test/config/secure"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
 )
 
 func TestSaveGroup(t *testing.T) {
-	myDb := mcdb.DbConfig{
-		DbType:   "postgres",
-		Host:     "localhost",
-		Username: "postgres",
-		Password: "ab12testing",
-		Port:     5432,
-		DbName:   "mcdev",
-		Filename: "testdb.db",
-		PoolSize: 20,
-		Url:      "localhost:5432",
-	}
+	myDb := secure.MyDb
 	myDb.Options = mcdb.DbConnectOptions{}
 
 	// db-connection
