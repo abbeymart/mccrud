@@ -57,40 +57,80 @@ func TestSaveGroup(t *testing.T) {
 		},
 	})
 
-	// group-table test-cases
 	mctest.McTest(mctest.OptionValue{
-		Name: "should create two new group-records and return success:",
+		Name: "should create two new records and return success:",
 		TestFunc: func() {
+			crud.ActionParams = AuditCreateActionParams
+			crud.RecordIds = []string{}
+			crud.QueryParams = QueryParamType{}
+			recLen := len(crud.ActionParams)
 			res := crud.SaveRecord()
 			fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(CrudResultType)
-			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.RecordsCount, 2, "save-create-count should be: 2")
-			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
+			mctest.AssertEquals(t, res.Code, "success", "create should return code: success")
+			mctest.AssertEquals(t, value.RecordsCount, recLen, fmt.Sprintf("save-create-count should be: %v", recLen))
+			mctest.AssertEquals(t, len(value.RecordIds), recLen, fmt.Sprintf("save-create-recordIds-length should be: %v", recLen))
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "should update two group-records and return success:",
+		Name: "should update two existing records and return success:",
 		TestFunc: func() {
+			crud.ActionParams = AuditUpdateActionParams
+			crud.RecordIds = []string{}
+			crud.QueryParams = QueryParamType{}
+			recLen := len(crud.ActionParams)
 			res := crud.SaveRecord()
 			fmt.Printf("updates: %v : %v \n", res.Message, res.ResCode)
+			value, _ := res.Value.(CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "update should return code: success")
+			mctest.AssertEquals(t, value.RecordsCount, recLen, fmt.Sprintf("save-create-count should be: %v", recLen))
+			mctest.AssertEquals(t, len(value.RecordIds), recLen, fmt.Sprintf("save-create-recordIds-length should be: %v", recLen))
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "should update two group-records by Ids and return success:",
+		Name: "should update a record by Id and return success:",
 		TestFunc: func() {
+			crud.ActionParams = ActionParamsType{AuditUpdateRecordById}
+			crud.RecordIds = []string{UpdateAuditById}
+			crud.QueryParams = QueryParamType{}
+			idLen := len(crud.RecordIds)
+			res := crud.SaveRecord()
+			fmt.Printf("update-by-ids: %v : %v \n", res.Message, res.ResCode)
+			value, _ := res.Value.(CrudResultType)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-id should return code: success")
+			mctest.AssertEquals(t, value.RecordsCount, idLen, fmt.Sprintf("update-by-id-count should be: %v", idLen))
+			mctest.AssertEquals(t, len(value.RecordIds), idLen, fmt.Sprintf("update-by-id-recordIds-length should be: %v", idLen))
+		},
+	})
+	mctest.McTest(mctest.OptionValue{
+		Name: "should update records by Ids and return success:",
+		TestFunc: func() {
+			crud.ActionParams = ActionParamsType{AuditUpdateRecordByIds}
+			crud.RecordIds = UpdateAuditByIds
+			crud.QueryParams = QueryParamType{}
+			idLen := len(crud.RecordIds)
 			res := crud.SaveRecord()
 			fmt.Printf("update-by-ids: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-id should return code: success")
+			value, _ := res.Value.(CrudResultType)
+			mctest.AssertEquals(t, res.Code, "success", "update-by-ids should return code: success")
+			mctest.AssertEquals(t, value.RecordsCount, idLen, fmt.Sprintf("update-by-ids-count should be: %v", idLen))
+			mctest.AssertEquals(t, len(value.RecordIds), idLen, fmt.Sprintf("update-by-ids-recordIds-length should be: %v", idLen))
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "should update two group-records by query-params and return success:",
+		Name: "should update records by query-params and return success:",
 		TestFunc: func() {
+			crud.ActionParams = ActionParamsType{AuditUpdateRecordByParam}
+			crud.RecordIds = []string{}
+			crud.QueryParams = UpdateAuditByParams
+			recLen := len(crud.ActionParams)
 			res := crud.SaveRecord()
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
+			value, _ := res.Value.(CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
+			mctest.AssertEquals(t, value.RecordsCount > recLen, true, fmt.Sprintf("update-by-params-count should be >: %v", recLen))
+			mctest.AssertEquals(t, len(value.RecordIds) > recLen, true, fmt.Sprintf("update-by-params-recordIds-length should be > : %v", recLen))
 		},
 	})
 
