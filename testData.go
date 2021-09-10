@@ -144,36 +144,36 @@ var GroupUpdateRec2 = ActionParamType{
 }
 
 var AuditCreateRec1 = ActionParamType{
-	"tableName"    : "audits",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords,
-	"logType"      : CreateTask,
+	"tableName":  "audits",
+	"logAt":      time.Now(),
+	"logBy":      UserId,
+	"logRecords": LogRecords,
+	"logType":    CreateTask,
 }
 var AuditCreateRec2 = ActionParamType{
-	"tableName"    : "audits",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords2,
-	"logType"      : CreateTask,
+	"tableName":  "audits",
+	"logAt":      time.Now(),
+	"logBy":      UserId,
+	"logRecords": LogRecords2,
+	"logType":    CreateTask,
 }
 var AuditUpdateRec1 = ActionParamType{
-	"id"           : "8883ef51-d730-4645-9bc8-f986cebb7881",
-	"tableName"    : "services",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords,
+	"id":            "8883ef51-d730-4645-9bc8-f986cebb7881",
+	"tableName":     "services",
+	"logAt":         time.Now(),
+	"logBy":         UserId,
+	"logRecords":    LogRecords,
 	"newLogRecords": NewLogRecords,
-	"logType"      : UpdateTask,
+	"logType":       UpdateTask,
 }
 var AuditUpdateRec2 = ActionParamType{
-	"id"           : "ba0c5814-e7a3-4c62-8e1f-1dd38a324ece",
-	"tableName"    : "services",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords2,
+	"id":            "ba0c5814-e7a3-4c62-8e1f-1dd38a324ece",
+	"tableName":     "services",
+	"logAt":         time.Now(),
+	"logBy":         UserId,
+	"logRecords":    LogRecords2,
 	"newLogRecords": NewLogRecords2,
-	"logType"      : UpdateTask,
+	"logType":       UpdateTask,
 }
 var GroupCreateActionParams = ActionParamsType{
 	GroupCreateRec1,
@@ -204,31 +204,31 @@ var GroupUpdateRecordByParam = ActionParamType{
 }
 
 var AuditUpdateRecordById = ActionParamType{
-	"id"           : "f517ef7b-5457-4f51-a905-e427465defd0",
-	"tableName"    : "groups",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords,
+	"id":            "f517ef7b-5457-4f51-a905-e427465defd0",
+	"tableName":     "groups",
+	"logAt":         time.Now(),
+	"logBy":         UserId,
+	"logRecords":    LogRecords,
 	"newLogRecords": NewLogRecords,
-	"logType"      : DeleteTask,
+	"logType":       DeleteTask,
 }
 var AuditUpdateRecordByIds = ActionParamType{
-	"id"           : "a66a3057-028d-4f64-aa18-05ea26b1d2dc",
-	"tableName"    : "users",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords,
+	"id":            "a66a3057-028d-4f64-aa18-05ea26b1d2dc",
+	"tableName":     "users",
+	"logAt":         time.Now(),
+	"logBy":         UserId,
+	"logRecords":    LogRecords,
 	"newLogRecords": NewLogRecords,
-	"logType"      : CreateTask,
+	"logType":       CreateTask,
 }
 var AuditUpdateRecordByParam = ActionParamType{
-	"id"           : "03012156-19a4-43f9-b8ee-c1e9dd5d19b8",
-	"tableName"    : "categories",
-	"logAt"        : time.Now(),
-	"logBy"        : UserId,
-	"logRecords"   : LogRecords,
+	"id":            "03012156-19a4-43f9-b8ee-c1e9dd5d19b8",
+	"tableName":     "categories",
+	"logAt":         time.Now(),
+	"logBy":         UserId,
+	"logRecords":    LogRecords,
 	"newLogRecords": NewLogRecords,
-	"logType"      : UpdateTask,
+	"logType":       UpdateTask,
 }
 
 // GetIds: for get-records by ids & params
@@ -238,6 +238,7 @@ var GroupByParams = QueryParamType{
 	"name": "Location",
 }
 
+var GetAuditById = "a6dbc263-86ee-436a-bb41-0d3b77274f79"
 var GetAuditByIds = []string{"d46a29db-a9a3-47b9-9598-e17a7338e474", "8fcdc5d5-f4e3-4f98-ba19-16e798f81070"}
 var GetAuditByParams = QueryParamType{
 	"logType": "create",

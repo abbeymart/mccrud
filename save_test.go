@@ -16,7 +16,6 @@ import (
 func TestSaveGroup(t *testing.T) {
 	myDb := secure.MyDb
 	myDb.Options = mcdb.DbConnectOptions{}
-
 	// db-connection
 	dbc, err := myDb.OpenPgxDbPool()
 	//fmt.Printf("*****dbc-info: %v\n", dbc)
@@ -31,42 +30,18 @@ func TestSaveGroup(t *testing.T) {
 	mcLogResult := mcauditlog.PgxLogParam{AuditDb: dbc.DbConn, AuditTable: AuditTable}
 	// audit-log instance
 	mcLog := mcauditlog.NewAuditLogPgx(dbc.DbConn, AuditTable)
-
 	// group-table-records
-	groupModelRef := Group{}
-	createCrudParams := CrudParamsType{
+	modelRef := Audit{}
+	crudParams := CrudParamsType{
 		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
+		ModelRef:     modelRef,
+		TableName:    "",
 		UserInfo:     TestUserInfo,
-		ActionParams: GroupCreateActionParams,
+		ActionParams: nil,
+		RecordIds:    []string{},
+		QueryParams:  QueryParamType{},
 	}
-	updateCrudParams := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: GroupUpdateActionParams,
-	}
-	updateCrudParamsById := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: ActionParamsType{GroupUpdateRecordById},
-		RecordIds:    GroupByIds,
-	}
-	updateCrudParamsByParam := CrudParamsType{
-		AppDb:        dbc.DbConn,
-		TableName:    GroupTable,
-		UserInfo:     TestUserInfo,
-		ActionParams: ActionParamsType{GroupUpdateRecordByParam},
-		QueryParams:  GroupByParams,
-	}
-
-	//fmt.Printf("test-action-params: %#v \n", createCrudParams.ActionParams)
-
-	var crud interface{} = NewCrud(createCrudParams, CrudParamOptions)
-	var updateCrud = NewCrud(updateCrudParams, CrudParamOptions)
-	var updateIdCrud = NewCrud(updateCrudParamsById, CrudParamOptions)
-	var updateParamCrud = NewCrud(updateCrudParamsByParam, CrudParamOptions)
+	var crud = NewCrud(crudParams, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
 		Name: "should connect to the Audit-DB and return an instance object:",
@@ -76,10 +51,9 @@ func TestSaveGroup(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "should connect to the CRUD-object and return an instance object:",
+		Name: "should connect to the CRUD-DB and return an instance object:",
 		TestFunc: func() {
-			_, ok := crud.(*Crud)
-			mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
+			mctest.AssertEquals(t, crud != nil, true, "crud should be instance of mccrud.Crud")
 		},
 	})
 
@@ -87,22 +61,18 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should create two new group-records and return success:",
 		TestFunc: func() {
-			crud, ok := crud.(*Crud)
-			if !ok {
-				mctest.AssertEquals(t, ok, true, "crud should be instance of mccrud.Crud")
-			}
-			res := crud.SaveRecord(groupModelRef)
+			res := crud.SaveRecord()
 			fmt.Println(res.Message, res.ResCode)
 			value, _ := res.Value.(CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "save-create should return code: success")
-			mctest.AssertEquals(t, value.RecordCount, 2, "save-create-count should be: 2")
+			mctest.AssertEquals(t, value.RecordsCount, 2, "save-create-count should be: 2")
 			mctest.AssertEquals(t, len(value.RecordIds), 2, "save-create-recordIds-length should be: 2")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two group-records and return success:",
 		TestFunc: func() {
-			res := updateCrud.SaveRecord(groupModelRef)
+			res := crud.SaveRecord()
 			fmt.Printf("updates: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update should return code: success")
 		},
@@ -110,7 +80,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two group-records by Ids and return success:",
 		TestFunc: func() {
-			res := updateIdCrud.SaveRecord(groupModelRef)
+			res := crud.SaveRecord()
 			fmt.Printf("update-by-ids: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-id should return code: success")
 		},
@@ -118,7 +88,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two group-records by query-params and return success:",
 		TestFunc: func() {
-			res := updateParamCrud.SaveRecord(groupModelRef)
+			res := crud.SaveRecord()
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
 		},

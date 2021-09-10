@@ -12,22 +12,9 @@ import (
 	"testing"
 )
 
-var MyDb = mcdb.DbConfig{
-	DbType:   "postgres",
-	Host:     "localhost",
-	Username: "postgres",
-	Password: "ab12testing",
-	Port:     5432,
-	DbName:   "mcdev",
-	Filename: "testdb.db",
-	PoolSize: 20,
-	Url:      "localhost:5432",
-}
-
 func TestDelete(t *testing.T) {
 	myDb := secure.MyDb
 	myDb.Options = mcdb.DbConnectOptions{}
-
 	// db-connection
 	dbc, err := myDb.OpenPgxDbPool()
 	// defer dbClose
@@ -37,53 +24,61 @@ func TestDelete(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
-
-	deleteCrudParams := CrudParamsType{
-		AppDb:       dbc.DbConn,
-		TableName:   DeleteTable,
-		UserInfo:    TestUserInfo,
-		RecordIds:   DeleteAuditByIds,
-		QueryParams: DeleteAuditByParams,
-	}
-	//deleteAllCrudParams := CrudParamsType{
-	//	AppDb:     dbc.DbConn,
-	//	TableName: DeleteAllTable,
-	//	UserInfo:  TestUserInfo,
-	//}
-
-	var deleteCrud = NewCrud(deleteCrudParams, CrudParamOptions)
-	//var deleteAllCrud = NewCrud(deleteAllCrudParams, CrudParamOptions)
-
 	modelRef := Audit{}
-
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should delete all table records and return success:",
-	//	TestFunc: func() {
-	//		res := deleteAllCrud.DeleteRecord(modelRef)
-	//		fmt.Printf("delete-all: %v : %v \n", res.Message, res.ResCode)
-	//		mctest.AssertEquals(t, res.Code, "removeError", "delete-task permitted by ids or queryParams only: removeError code expected" )
-	//	},
-	//})
-
-	//mctest.McTest(mctest.OptionValue{
-	//	Name: "should delete two records by Ids and return success[delete-record-method]:",
-	//	TestFunc: func() {
-	//		deleteCrud.RecordIds = DeleteAuditByIds
-	//		deleteCrud.QueryParams = QueryParamType{}
-	//		// get-record method params
-	//		res := deleteCrud.DeleteRecord(modelRef)
-	//		fmt.Printf("delete-by-ids[delete-record]: %v : %v \n", res.Message, res.ResCode)
-	//		mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
-	//	},
-	//})
+	crudParams := CrudParamsType{
+		AppDb:       dbc.DbConn,
+		ModelRef:    modelRef,
+		TableName:   "",
+		UserInfo:    TestUserInfo,
+		RecordIds:   []string{},
+		QueryParams: QueryParamType{},
+	}
+	var crud = NewCrud(crudParams, CrudParamOptions)
 
 	mctest.McTest(mctest.OptionValue{
-		Name: "should delete two records by query-params and return success[delete-record-method]:",
+		Name: "should prevent the delete of all table records and return removeError:",
 		TestFunc: func() {
-			deleteCrud.RecordIds = []string{}
-			deleteCrud.QueryParams = DeleteAuditByParams
-			res := deleteCrud.DeleteRecord(modelRef)
-			fmt.Printf("delete-by-params[delete-record]: %v : %v \n", res.Message, res.ResCode)
+			crud.TableName = DeleteAllTable
+			res := crud.DeleteRecord()
+			fmt.Printf("delete-all: %v : %v \n", res.Message, res.ResCode)
+			mctest.AssertEquals(t, res.Code, "removeError", "delete-task permitted by ids or queryParams only: removeError code expected")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete record by Id and return success[delete-record-method]:",
+		TestFunc: func() {
+			crud.TableName = DeleteTable
+			crud.RecordIds = []string{DeleteAuditById}
+			crud.QueryParams = QueryParamType{}
+			// get-record method params
+			res := crud.DeleteRecord()
+			fmt.Printf("delete-by-ids[delete-record]: %v : %v : %#v\n", res.Message, res.ResCode, res.Value)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete records by Ids and return success[delete-record-method]:",
+		TestFunc: func() {
+			crud.TableName = DeleteTable
+			crud.RecordIds = DeleteAuditByIds
+			crud.QueryParams = QueryParamType{}
+			// get-record method params
+			res := crud.DeleteRecord()
+			fmt.Printf("delete-by-ids[delete-record]: %v : %v : %#v\n", res.Message, res.ResCode, res.Value)
+			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
+		},
+	})
+
+	mctest.McTest(mctest.OptionValue{
+		Name: "should delete records by query-params and return success[delete-record-method]:",
+		TestFunc: func() {
+			crud.TableName = DeleteTable
+			crud.RecordIds = []string{}
+			crud.QueryParams = DeleteAuditByParams
+			res := crud.DeleteRecord()
+			fmt.Printf("delete-by-params[delete-record]: %v : %v : %#v \n", res.Message, res.ResCode, res.Value)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
 		},
 	})
