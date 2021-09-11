@@ -29,6 +29,7 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	//fmt.Printf("Delete-query: %v", deleteQueryRes.DeleteQueryObject.DeleteQuery )
 	_, delErr := crud.AppDb.Exec(context.Background(), deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{

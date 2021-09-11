@@ -29,7 +29,7 @@ func TestGet(t *testing.T) {
 	crudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
 		ModelRef:    modelRef,
-		TableName:   AuditTable,
+		TableName:   GetTable,
 		UserInfo:    TestUserInfo,
 		RecordIds:   []string{},
 		QueryParams: QueryParamType{},
@@ -43,8 +43,6 @@ func TestGet(t *testing.T) {
 			res := crud.GetRecord()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("get-by-id-value: %#v\n", value.Records)
-			fmt.Printf("get-by-param-count: %v\n", value.Stats.RecordsCount)
 			jsonRecs, _ := json.Marshal(value.Records)
 			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
@@ -56,30 +54,27 @@ func TestGet(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by Ids and return success:",
 		TestFunc: func() {
+			crud.TableName = GetTable
 			crud.RecordIds = GetAuditByIds
 			crud.QueryParams = QueryParamType{}
+			recLen := len(crud.RecordIds)
 			res := crud.GetByIds()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("get-by-id-value: %#v\n", value.Records)
-			fmt.Printf("get-by-param-count: %v\n", value.Stats.RecordsCount)
-			jsonRecs, _ := json.Marshal(value.Records)
-			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
-			mctest.AssertEquals(t, value.Stats.RecordsCount, 2, "get-task-count should be: 2")
-			mctest.AssertEquals(t, len(value.Records), 2, "get-result-count should be: 2")
+			mctest.AssertEquals(t, value.Stats.RecordsCount, recLen, fmt.Sprintf("get-task-count should be: %v", recLen))
+			mctest.AssertEquals(t, len(value.Records), recLen, fmt.Sprintf("get-result-count should be: %v", recLen))
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get records by query-params and return success:",
 		TestFunc: func() {
+			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = GetAuditByParams
 			res := crud.GetByParam()
-			//fmt.Printf("get-by-param-response: %#v\n", res)
+			fmt.Printf("get-by-param-response: %#v\n", res)
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("get-by-param-value: %#v\n", value.Records)
-			fmt.Printf("get-by-param-count: %v\n", value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount > 0, true, "get-task-count should be >= 0")
 			mctest.AssertEquals(t, len(value.Records) > 0, true, "get-result-count should be >= 0")
@@ -89,13 +84,12 @@ func TestGet(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get all records and return success:",
 		TestFunc: func() {
+			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
 			res := crud.GetAll()
+			fmt.Printf("get-all-response: %#v\n", res)
 			value, _ := res.Value.(CrudResultType)
-			fmt.Printf("get-by-all-value[0]: %#v\n", value.Records[0])
-			fmt.Printf("get-by-all-value[1]: %#v\n", value.Records[1])
-			fmt.Printf("get-by-all-count: %v\n", value.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.RecordsCount > 20, true, "get-task-count should be >= 10")
 			mctest.AssertEquals(t, len(value.Records) > 20, true, "get-result-count should be >= 10")
@@ -104,15 +98,14 @@ func TestGet(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should get all records by limit/skip(offset) and return success:",
 		TestFunc: func() {
+			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
 			crud.Skip = 0
 			crud.Limit = 20
 			res := crud.GetAll()
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("get-by-all-value[0]: %#v\n", value.Records[0])
-			fmt.Printf("get-by-all-value[1]: %#v\n", value.Records[1])
-			fmt.Printf("get-by-all-limit-count: %v\n", value.Stats.RecordsCount)
+			fmt.Printf("get-all-response-limit: %#v\n", res)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount == 20, true, "get-task-count should be = 20")
 			mctest.AssertEquals(t, len(value.Records) == 20, true, "get-result-count should be = 20")

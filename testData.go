@@ -39,6 +39,7 @@ type Category struct {
 const GroupTable = "groups"
 const CategoryTable = "categories"
 const AuditTable = "audits"
+const GetTable = "audits_get"
 const DeleteTable = "audits_delete"
 const DeleteAllTable = "audits_delete_all"
 const UpdateTable = "audits_update"
@@ -79,13 +80,13 @@ var CrudParamOptions = CrudOptionsType{
 	AccessTable:   "accesses",
 	VerifyTable:   "verify_users",
 	RoleTable:     "roles",
-	LogCrud:       true,
-	LogCreate:     true,
-	LogUpdate:     true,
-	LogDelete:     true,
-	LogRead:       true,
-	LogLogin:      true,
-	LogLogout:     true,
+	LogCrud:       false,
+	LogCreate:     false,
+	LogUpdate:     false,
+	LogDelete:     false,
+	LogRead:       false,
+	LogLogin:      false,
+	LogLogout:     false,
 	MaxQueryLimit: 100000,
 	MsgFrom:       "support@mconnect.biz",
 }

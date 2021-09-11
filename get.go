@@ -36,6 +36,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	//fmt.Printf("Get-query-by-id: %v", getQueryRes.SelectQueryObject.SelectQuery )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -47,48 +48,26 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	rows, qRowErr := crud.AppDb.Query(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
+	qRowErr := crud.AppDb.QueryRow(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).Scan(&crud.ModelRef)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
+			Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", qRowErr.Error()),
 			Value:   nil,
 		})
 	}
-	defer rows.Close()
 	// check rows count
 	var rowCount = 0
 	var getRecords []interface{}
-	for rows.Next() {
-		if rowScanErr := rows.Scan(&crud.ModelRef); rowScanErr != nil {
-			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
-				Value:   nil,
-			})
-		} else {
-			// transform snapshot value from model-struct to map-value
-			mapValue, mErr := StructToMap(crud.ModelRef)
-			if mErr != nil {
-				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("%v", mErr.Error()),
-					Value:   nil,
-				})
-			}
-			getRecords = append(getRecords, mapValue)
-			rowCount += 1
-		}
-	}
-	// check record-rows error
-	if rowErr := rows.Err(); rowErr != nil {
-		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
-			Value: GetResultType{
-				Records:  nil,
-				Stats:    GetStatType{},
-				TaskType: crud.TaskType,
-				LogRes:   mcresponse.ResponseMessage{},
-			},
+	// transform snapshot value from model-struct to map-value
+	mapValue, mErr := StructToMap(crud.ModelRef)
+	if mErr != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("%v", mErr.Error()),
+			Value:   nil,
 		})
 	}
+	getRecords = append(getRecords, mapValue)
+	rowCount += 1
 	// perform audit-log
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
@@ -158,6 +137,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	//fmt.Printf("Get-query-by-ids: %#v", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -188,6 +168,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 			})
 		} else {
 			// transform snapshot value from model-struct to map-value
+			fmt.Printf("Get-query-result: %v", crud.ModelRef )
 			mapValue, mErr := StructToMap(crud.ModelRef)
 			if mErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{

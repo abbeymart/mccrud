@@ -26,11 +26,11 @@ func ComputeDeleteQueryById(tableName string, recordId string) DeleteQueryResult
 		return deleteErrMessage("tableName and recordId are required for the delete-by-id operation.")
 	}
 	// validated recordIds, strictly contains string/UUID values, to avoid SQL-injection
-	deleteQuery := fmt.Sprintf("DELETE FROM %v WHERE id=%v", tableName, recordId)
+	deleteQuery := fmt.Sprintf("DELETE FROM %v WHERE id=$1", tableName)
 	return DeleteQueryResult{
 		DeleteQueryObject: DeleteQueryObject{
 			DeleteQuery: deleteQuery,
-			FieldValues: nil,
+			FieldValues: []interface{}{recordId},
 		},
 		Ok: true,
 		Message: "success",

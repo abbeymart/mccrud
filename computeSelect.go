@@ -91,7 +91,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	// get record(s) based on projected/provided field names ([]string)
 	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", fieldText, tableName)
 	// from / where condition (where-in-values)
-	selectQuery += fmt.Sprintf("WHERE id=%v", recordId)
+	selectQuery += fmt.Sprintf("WHERE id=$1")
 	// adjust selectQuery for skip and limit options
 	if options.Limit > 0 {
 		selectQuery += fmt.Sprintf(" LIMIT %v", options.Limit)
@@ -103,7 +103,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	return SelectQueryResult{
 		SelectQueryObject: SelectQueryObject{
 			SelectQuery: selectQuery,
-			FieldValues: nil,
+			FieldValues: []interface{}{recordId},
 		},
 		Ok:      true,
 		Message: "success",

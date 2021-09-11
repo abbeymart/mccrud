@@ -28,7 +28,7 @@ func TestDelete(t *testing.T) {
 	crudParams := CrudParamsType{
 		AppDb:       dbc.DbConn,
 		ModelRef:    modelRef,
-		TableName:   "",
+		TableName:   DeleteTable,
 		UserInfo:    TestUserInfo,
 		RecordIds:   []string{},
 		QueryParams: QueryParamType{},
