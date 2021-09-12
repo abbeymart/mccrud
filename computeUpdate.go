@@ -43,6 +43,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 		updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 		var fieldValues []interface{}
 		var fieldNames []string
+		var fieldNamesUnderscore []string
 		fieldsLength := len(actParam)
 		fieldCount := 0
 		recordId := ""
@@ -55,7 +56,8 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 			// next placeholder-value-position
 			fieldCount += 1
 			fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
-			fieldNames = append(fieldNames, fieldNameUnderScore)
+			fieldNames = append(fieldNames, fieldName)
+			fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
 			// TODO: update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 			var currentFieldValue interface{}
 			switch fieldValue.(type) {
@@ -123,6 +125,7 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 	var fieldValues []interface{}
 	var fieldNames []string
+	var fieldNamesUnderscore []string
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
@@ -133,7 +136,8 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 		// next placeholder-value-position
 		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
-		fieldNames = append(fieldNames, fieldNameUnderScore)
+		fieldNames = append(fieldNames, fieldName)
+		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
 		// TODO: update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 		var currentFieldValue interface{}
 		switch fieldValue.(type) {
@@ -208,6 +212,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 	var fieldValues []interface{}
 	var fieldNames []string
+	var fieldNamesUnderscore []string
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
@@ -218,7 +223,8 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 		// next placeholder-value-position
 		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
-		fieldNames = append(fieldNames, fieldNameUnderScore)
+		fieldNames = append(fieldNames, fieldName)
+		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
 		// TODO: update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 		var currentFieldValue interface{}
 		switch fieldValue.(type) {
@@ -280,6 +286,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
 	var fieldValues []interface{}
 	var fieldNames []string
+	var fieldNamesUnderscore []string
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
@@ -290,7 +297,8 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 		// next placeholder-value-position
 		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
-		fieldNames = append(fieldNames, fieldNameUnderScore)
+		fieldNames = append(fieldNames, fieldName)
+		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
 		// TODO: update fieldValues by fieldValue-type, for correct postgres-SQL-parsing
 		var currentFieldValue interface{}
 		switch fieldValue.(type) {

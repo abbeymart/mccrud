@@ -31,6 +31,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 	// declare slice variable for create/insert queries
 	var createQuery string
 	var fieldNames []string
+	var fieldNamesUnderscore []string
 	var fieldValues [][]interface{}
 
 	// compute create script and associated values () for all the records in actionParams
@@ -42,7 +43,8 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 	for fieldName := range actionParams[0] {
 		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
-		fieldNames = append(fieldNames, fieldNameUnderScore)
+		fieldNames = append(fieldNames, fieldName)
+		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
 		itemQuery += fmt.Sprintf("%v", fieldNameUnderScore)
 		itemValuePlaceholder += fmt.Sprintf("$%v", fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
@@ -62,7 +64,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 		// item-values-computation variable
 		var recFieldValues []interface{}
 		for _, fieldName := range fieldNames {
-			fieldValue, ok := rec[govalidator.UnderscoreToCamelCase(fieldName)]
+			fieldValue, ok := rec[fieldName]
 			// check for required field in each record
 			if !ok {
 				return errMessage(fmt.Sprintf("Record #%v [%#v]: required field_name[%v] has field_value of %v ", recIndex, rec, fieldName, fieldValue))
@@ -109,7 +111,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 	return CreateQueryResult{
 		CreateQueryObject: CreateQueryObject{
 			CreateQuery: createQuery,
-			FieldNames:  fieldNames,
+			FieldNames:  fieldNamesUnderscore,
 			FieldValues: fieldValues,
 		},
 		Ok:      true,

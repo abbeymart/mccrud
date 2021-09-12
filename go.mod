@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/abbeymart/mcauditlog v0.3.4
 	github.com/abbeymart/mccache v0.3.1
-	github.com/abbeymart/mcdb v0.2.6
+	github.com/abbeymart/mcdb v0.3.1
 	github.com/abbeymart/mcresponse v0.4.2
 	github.com/abbeymart/mctest v0.5.3
 	github.com/abbeymart/mctypes v0.4.4
