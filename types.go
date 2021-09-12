@@ -193,20 +193,21 @@ type QueryParamsType []QueryParamItemType
 
 // CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
 type CrudParamsType struct {
-	ModelRef      interface{}      `json:"-"`
-	AppDb         *pgxpool.Pool    `json:"-"`
-	TableName     string           `json:"-"`
-	UserInfo      UserInfoType     `json:"userInfo"`
-	ActionParams  ActionParamsType `json:"actionParams"`
-	QueryParams   QueryParamType   `json:"queryParams"`
-	RecordIds     []string         `json:"recordIds"`
-	ProjectParams ProjectParamType `json:"projectParams"`
-	SortParams    SortParamType    `json:"sortParams"`
-	Token         string           `json:"token"`
-	Skip          int              `json:"skip"`
-	Limit         int              `json:"limit"`
-	TaskName      string           `json:"-"`
-	TaskType      string           `json:"-"`
+	ModelRef       interface{}      `json:"-"`
+	ModelFieldsRef []interface{}    `json:"-"`
+	AppDb          *pgxpool.Pool    `json:"-"`
+	TableName      string           `json:"-"`
+	UserInfo       UserInfoType     `json:"userInfo"`
+	ActionParams   ActionParamsType `json:"actionParams"`
+	QueryParams    QueryParamType   `json:"queryParams"`
+	RecordIds      []string         `json:"recordIds"`
+	ProjectParams  ProjectParamType `json:"projectParams"`
+	SortParams     SortParamType    `json:"sortParams"`
+	Token          string           `json:"token"`
+	Skip           int              `json:"skip"`
+	Limit          int              `json:"limit"`
+	TaskName       string           `json:"-"`
+	TaskType       string           `json:"-"`
 }
 
 type CrudOptionsType struct {

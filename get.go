@@ -48,7 +48,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	qRowErr := crud.AppDb.QueryRow(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).Scan(&crud.ModelRef)
+	qRowErr := crud.AppDb.QueryRow(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).Scan(crud.ModelFieldsRef...)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", qRowErr.Error()),
@@ -161,14 +161,14 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	var rowCount = 0
 	var getRecords []interface{}
 	for rows.Next() {
-		if rowScanErr := rows.Scan(&crud.ModelRef); rowScanErr != nil {
+		if rowScanErr := rows.Scan(crud.ModelFieldsRef...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
 				Value:   nil,
 			})
 		} else {
 			// transform snapshot value from model-struct to map-value
-			fmt.Printf("Get-query-result: %v", crud.ModelRef )
+			fmt.Printf("Get-query-result: %v", crud.ModelRef)
 			mapValue, mErr := StructToMap(crud.ModelRef)
 			if mErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
@@ -277,7 +277,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 	var rowCount = 0
 	var getRecords []interface{}
 	for rows.Next() {
-		if rowScanErr := rows.Scan(&crud.ModelRef); rowScanErr != nil {
+		if rowScanErr := rows.Scan(crud.ModelFieldsRef...); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
 				Value:   nil,
@@ -382,7 +382,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 	var rowCount = 0
 	var getRecords []interface{}
 	for rows.Next() {
-		rowScanErr := rows.Scan(&crud.ModelRef)
+		rowScanErr := rows.Scan(crud.ModelFieldsRef...)
 		if rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
