@@ -60,7 +60,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should create two new records and return success:",
 		TestFunc: func() {
-			crud.TableName = AuditTable
+			crud.TableName = GroupTable
 			crud.ActionParams = GroupCreateActionParams
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
@@ -77,7 +77,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two existing records and return success:",
 		TestFunc: func() {
-			crud.TableName = UpdateTable
+			crud.TableName = GroupTable
 			crud.ActionParams = GroupUpdateActionParams
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
@@ -94,7 +94,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update a record by Id and return success:",
 		TestFunc: func() {
-			crud.TableName = UpdateTable
+			crud.TableName = GroupTable
 			crud.ActionParams = ActionParamsType{GroupUpdateRecordById}
 			crud.RecordIds = []string{UpdateGroupById}
 			crud.QueryParams = QueryParamType{}
@@ -111,7 +111,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update records by Ids and return success:",
 		TestFunc: func() {
-			crud.TableName = UpdateTable
+			crud.TableName = GroupTable
 			crud.ActionParams = ActionParamsType{GroupUpdateRecordById}
 			crud.RecordIds = UpdateGroupByIds
 			crud.QueryParams = QueryParamType{}
@@ -128,7 +128,7 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update records by query-params and return success:",
 		TestFunc: func() {
-			crud.TableName = UpdateTable
+			crud.TableName = GroupTable
 			crud.ActionParams = ActionParamsType{GroupUpdateRecordByParam}
 			crud.RecordIds = []string{}
 			crud.QueryParams = UpdateGroupByParams
