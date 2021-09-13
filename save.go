@@ -23,6 +23,7 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	fmt.Printf("create-query: %v", createQueryRes.CreateQueryObject.CreateQuery)
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -180,6 +181,7 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObjects[0].UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -265,6 +267,7 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 			Value:   nil,
 		})
 	}
+	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -344,6 +347,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
@@ -423,6 +427,7 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 			Value:   nil,
 		})
 	}
+	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin(context.Background())
 	if txErr != nil {
