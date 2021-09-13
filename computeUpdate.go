@@ -40,7 +40,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 	var updateQueryObjects []UpdateQueryObject
 	for _, actParam := range actionParams {
 		// compute update script and associated place-holder values for the actionParam/record
-		updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+		updateQuery := fmt.Sprintf("UPDATE %v SET ", tableName)
 		var fieldValues []interface{}
 		var fieldNames []string
 		var fieldNamesUnderscore []string
@@ -122,7 +122,7 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 		return updateErrMessage("table-name, recordId and actionParam are required for the update operation")
 	}
 	// compute update script and associated place-holder values for the actionParam/record
-	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %v SET ", tableName)
 	var fieldValues []interface{}
 	var fieldNames []string
 	var fieldNamesUnderscore []string
@@ -169,7 +169,7 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 		}
 
 		fieldValues = append(fieldValues, currentFieldValue)
-		updateQuery += fmt.Sprintf(" %v=$%v", fieldNameUnderScore, fieldCount)
+		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			updateQuery += ", "
 		}
@@ -209,7 +209,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 	}
 	whereQuery := fmt.Sprintf(" WHERE id IN(%v)", whereIds)
 	// compute update script and associated place-holder values for the actionParam/record
-	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %v SET ", tableName)
 	var fieldValues []interface{}
 	var fieldNames []string
 	var fieldNamesUnderscore []string
@@ -256,7 +256,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 		}
 
 		fieldValues = append(fieldValues, currentFieldValue)
-		updateQuery += fmt.Sprintf(" %v=$%v", fieldNameUnderScore, fieldCount)
+		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			updateQuery += ", "
 		}
@@ -283,7 +283,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 		return updateErrMessage("table-name, queryParam and actionParam are required for the update operation")
 	}
 	// compute update script and associated place-holder values for the actionParam/record
-	updateQuery := fmt.Sprintf("UPDATE %v SET", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %v SET ", tableName)
 	var fieldValues []interface{}
 	var fieldNames []string
 	var fieldNamesUnderscore []string
@@ -330,7 +330,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 		}
 
 		fieldValues = append(fieldValues, currentFieldValue)
-		updateQuery += fmt.Sprintf(" %v=$%v", fieldNameUnderScore, fieldCount)
+		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			updateQuery += ", "
 		}

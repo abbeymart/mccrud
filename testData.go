@@ -234,7 +234,7 @@ var AuditUpdateRecordByParam = ActionParamType{
 
 // GetIds: for get-records by ids & params | TODO: update ids after create
 
-var UpdateGroupById = ""
+var UpdateGroupById = "6900d9f9-2ceb-450f-9a9e-527eb66c962f"
 var UpdateGroupByIds = []string{"6900d9f9-2ceb-450f-9a9e-527eb66c962f", "122d0f0e-3111-41a5-9103-24fa81004550"} // TODO: updated ids, after create-task
 var UpdateGroupByParams = QueryParamType{
 	"name": "Location",

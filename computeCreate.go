@@ -45,7 +45,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
-		itemQuery += fmt.Sprintf("%v", fieldNameUnderScore)
+		itemQuery += fmt.Sprintf("'%v'", fieldNameUnderScore)
 		itemValuePlaceholder += fmt.Sprintf("$%v", fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			itemQuery += ", "
@@ -56,8 +56,8 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 	itemQuery += ")"
 	itemValuePlaceholder += ")"
 	// add/append item-script & value-placeholder to the createScript
-	createQuery = itemQuery + itemValuePlaceholder + " RETURNING id"
-
+	createQuery = itemQuery + itemValuePlaceholder
+	createQuery += " RETURNING id"
 	// compute create-record-values from actionParams/records, in order of the fields-sequence
 	// value-computation for each of the actionParams / records must match the record-fields
 	for recIndex, rec := range actionParams {
