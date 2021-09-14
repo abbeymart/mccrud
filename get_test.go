@@ -40,6 +40,8 @@ func TestGet(t *testing.T) {
 		Name: "should get records by Id and return success:",
 		TestFunc: func() {
 			crud.RecordIds = []string{GetAuditById}
+			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
+			crud.ModelFieldsRef = modelFieldRef
 			res := crud.GetRecord()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
@@ -57,6 +59,8 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = GetAuditByIds
 			crud.QueryParams = QueryParamType{}
+			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
+			crud.ModelFieldsRef = modelFieldRef
 			recLen := len(crud.RecordIds)
 			res := crud.GetByIds()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
@@ -72,6 +76,8 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = GetAuditByParams
+			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
+			crud.ModelFieldsRef = modelFieldRef
 			res := crud.GetByParam()
 			fmt.Printf("get-by-param-response: %#v\n", res)
 			value, _ := res.Value.(GetResultType)
@@ -87,6 +93,8 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
+			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
+			crud.ModelFieldsRef = modelFieldRef
 			res := crud.GetAll()
 			fmt.Printf("get-all-response: %#v\n", res)
 			value, _ := res.Value.(CrudResultType)
@@ -101,6 +109,8 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
+			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
+			crud.ModelFieldsRef = modelFieldRef
 			crud.Skip = 0
 			crud.Limit = 20
 			res := crud.GetAll()
