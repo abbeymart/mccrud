@@ -48,13 +48,15 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 		fieldCount := 0
 		recordId := ""
 		for fieldName, fieldValue := range actParam {
+			// next placeholder-value-position
+			fieldCount += 1
 			// skip fieldName=="id"
 			if fieldName == "id" {
 				recordId = fmt.Sprintf("%v", actParam["id"])
+				fieldCount -= 1
+				fieldsLength -= 1
 				continue
 			}
-			// next placeholder-value-position
-			fieldCount += 1
 			fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 			fieldNames = append(fieldNames, fieldName)
 			fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
@@ -89,7 +91,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 			}
 
 			fieldValues = append(fieldValues, currentFieldValue)
-			updateQuery += fmt.Sprintf(" %v=$%v", fieldNameUnderScore, fieldCount)
+			updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 			if fieldsLength > 1 && fieldCount < fieldsLength {
 				updateQuery += ", "
 			}
@@ -97,13 +99,13 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 		// add where condition by id and the placeholder-value position
 		fieldCount += 1
 		updateQuery += fmt.Sprintf(" WHERE id=$%v", fieldCount)
-		updateQuery +=  " RETURNING id"
+		updateQuery += " RETURNING id"
 		// add id-placeholder-value
 		fieldValues = append(fieldValues, recordId)
 		// update result
 		updateQueryObjects = append(updateQueryObjects, UpdateQueryObject{
 			UpdateQuery: updateQuery,
-			FieldNames: fieldNames,
+			FieldNames:  fieldNames,
 			FieldValues: fieldValues,
 		})
 	}
@@ -111,8 +113,8 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 	// result
 	return MultiUpdateQueryResult{
 		UpdateQueryObjects: updateQueryObjects,
-		Ok: true,
-		Message: "success",
+		Ok:                 true,
+		Message:            "success",
 	}
 }
 
@@ -129,12 +131,14 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
-		// skip fieldName=="id"
-		if fieldName == "id" {
-			continue
-		}
 		// next placeholder-value-position
 		fieldCount += 1
+		// skip fieldName=="id"
+		if fieldName == "id" {
+			fieldCount -= 1
+			fieldsLength -= 1
+			continue
+		}
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
@@ -177,7 +181,7 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 	// add where condition by id and the placeholder-value position
 	fieldCount += 1
 	updateQuery += fmt.Sprintf(" WHERE id=$%v", fieldCount)
-	updateQuery +=  " RETURNING id"
+	updateQuery += " RETURNING id"
 	// add id-placeholder-value
 	fieldValues = append(fieldValues, recordId)
 
@@ -185,10 +189,10 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 	return UpdateQueryResult{
 		UpdateQueryObject: UpdateQueryObject{
 			UpdateQuery: updateQuery,
-			FieldNames: fieldNames,
+			FieldNames:  fieldNames,
 			FieldValues: fieldValues,
 		},
-		Ok: true,
+		Ok:      true,
 		Message: "success",
 	}
 }
@@ -216,12 +220,14 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
-		// skip fieldName=="id"
-		if fieldName == "id" {
-			continue
-		}
 		// next placeholder-value-position
 		fieldCount += 1
+		// skip fieldName=="id"
+		if fieldName == "id" {
+			fieldCount -= 1
+			fieldsLength -= 1
+			continue
+		}
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
@@ -254,7 +260,6 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 		default:
 			currentFieldValue = fieldValue
 		}
-
 		fieldValues = append(fieldValues, currentFieldValue)
 		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
@@ -262,17 +267,16 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 		}
 	}
 	// add where condition by id and the placeholder-value position
-	fieldCount += 1
 	updateQuery += whereQuery
 
 	// result
 	return UpdateQueryResult{
 		UpdateQueryObject: UpdateQueryObject{
 			UpdateQuery: updateQuery,
-			FieldNames: fieldNames,
-			FieldValues: nil,
+			FieldNames:  fieldNames,
+			FieldValues: fieldValues,
 		},
-		Ok: true,
+		Ok:      true,
 		Message: "success",
 	}
 }
@@ -290,12 +294,14 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
-		// skip fieldName=="id"
-		if fieldName == "id" {
-			continue
-		}
 		// next placeholder-value-position
 		fieldCount += 1
+		// skip fieldName=="id"
+		if fieldName == "id" {
+			fieldCount -= 1
+			fieldsLength -= 1
+			continue
+		}
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
@@ -335,10 +341,8 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 			updateQuery += ", "
 		}
 	}
-	// add where condition by id and the placeholder-value position
-	fieldCount += 1
-
-	whereRes := ComputeWhereQuery(queryParam, 1)
+	// where-query
+	whereRes := ComputeWhereQuery(queryParam, fieldCount+1)
 	if !whereRes.Ok {
 		return updateErrMessage(fmt.Sprintf("error computing where-query condition(s): %v", whereRes.Message))
 	}
@@ -349,10 +353,10 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 	return UpdateQueryResult{
 		UpdateQueryObject: UpdateQueryObject{
 			UpdateQuery: updateQuery,
-			FieldNames: fieldNames,
-			FieldValues: whereRes.WhereQueryObject.FieldValues,
+			FieldNames:  fieldNames,
+			FieldValues: append(fieldValues, whereRes.WhereQueryObject.FieldValues...),
 		},
-		Ok: true,
+		Ok:      true,
 		Message: "success",
 	}
 }

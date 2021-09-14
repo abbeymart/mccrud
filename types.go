@@ -191,6 +191,12 @@ type QueryParamItemType struct {
 }
 type QueryParamsType []QueryParamItemType
 
+type ModelOptionsType struct {
+	TimeStamp   bool
+	ActiveStamp bool
+	ActorStamp  bool
+}
+
 // CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
 type CrudParamsType struct {
 	ModelRef       interface{}      `json:"-"`
@@ -238,6 +244,7 @@ type CrudOptionsType struct {
 	UsernameExistsMessage string
 	EmailExistsMessage    string
 	MsgFrom               string
+	ModelOptions          ModelOptionsType
 }
 
 type SelectQueryOptions struct {

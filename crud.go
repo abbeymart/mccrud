@@ -16,6 +16,8 @@ import (
 type Crud struct {
 	CrudParamsType
 	CrudOptionsType
+	CreateItems    ActionParamsType
+	UpdateItems    ActionParamsType
 	CurrentRecords []interface{}
 	TransLog       mcauditlog.PgxLogParam
 	CacheKey       string // Unique for exactly the same query
@@ -58,6 +60,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.CheckAccess = options.CheckAccess // Dec 09/2020: user to implement auth as a middleware
 	crudInstance.CacheExpire = options.CacheExpire // cache expire in secs
 	crudInstance.BulkCreate = options.BulkCreate
+	crudInstance.ModelOptions = options.ModelOptions
 
 	// Default values
 	if crudInstance.AuditTable == "" {
@@ -128,24 +131,66 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 		updateRecs = ActionParamsType{} // records with id field-value
 		recIds     []string             // capture recordIds for separate/multiple updates
 	)
-	for _, rec := range crud.ActionParams {
+	// cases - actionParams.length === 1 OR > 1
+	if len(crud.ActionParams) == 1 {
+		rec := crud.ActionParams[0]
 		// determine if record exists (update), cast id into string or new (create)
 		recId, ok := rec["id"]
 		recIdStr, idOk := recId.(string)
-		if ok && recId != nil && idOk && recIdStr != "" {
-			rec["updatedBy"] = crud.UserInfo.UserId
-			rec["updatedAt"] = time.Now()
+		if len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0 {
+			if crud.ModelOptions.ActorStamp {
+				rec["updatedBy"] = crud.UserInfo.UserId
+			}
+			if crud.ModelOptions.TimeStamp {
+				rec["updatedAt"] = time.Now()
+			}
+			updateRecs = append(updateRecs, rec)
+		} else if ok && recId != nil && idOk && recIdStr != "" {
+			if crud.ModelOptions.ActorStamp {
+				rec["updatedBy"] = crud.UserInfo.UserId
+			}
+			if crud.ModelOptions.TimeStamp {
+				rec["updatedAt"] = time.Now()
+			}
 			recIds = append(recIds, recIdStr)
 			updateRecs = append(updateRecs, rec)
-		} else if len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0 {
-			rec["updatedBy"] = crud.UserInfo.UserId
-			rec["updatedAt"] = time.Now()
-			updateRecs = append(updateRecs, rec)
 		} else {
-			rec["createdBy"] = crud.UserInfo.UserId
-			rec["createdAt"] = time.Now()
+			if crud.ModelOptions.ActorStamp {
+				rec["createdBy"] = crud.UserInfo.UserId
+			}
+			if crud.ModelOptions.TimeStamp {
+				rec["createdAt"] = time.Now()
+			}
 			createRecs = append(createRecs, rec)
 		}
+		crud.CreateItems = createRecs
+		crud.UpdateItems = updateRecs
+	} else if len(crud.ActionParams) > 1 {
+		for _, rec := range crud.ActionParams {
+			// determine if record exists (update), cast id into string or new (create)
+			recId, ok := rec["id"]
+			recIdStr, idOk := recId.(string)
+			if ok && recId != nil && idOk && recIdStr != "" {
+				if crud.ModelOptions.ActorStamp {
+					rec["updatedBy"] = crud.UserInfo.UserId
+				}
+				if crud.ModelOptions.TimeStamp {
+					rec["updatedAt"] = time.Now()
+				}
+				recIds = append(recIds, recIdStr)
+				updateRecs = append(updateRecs, rec)
+			} else {
+				if crud.ModelOptions.ActorStamp {
+					rec["createdBy"] = crud.UserInfo.UserId
+				}
+				if crud.ModelOptions.TimeStamp {
+					rec["createdAt"] = time.Now()
+				}
+				createRecs = append(createRecs, rec)
+			}
+		}
+		crud.CreateItems = createRecs
+		crud.UpdateItems = updateRecs
 	}
 	// validate and set task-type, create or update
 	if len(createRecs) > 0 && len(updateRecs) > 0 {

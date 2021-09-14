@@ -45,7 +45,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
-		itemQuery += fmt.Sprintf("'%v'", fieldNameUnderScore)
+		itemQuery += fmt.Sprintf("%v", fieldNameUnderScore)
 		itemValuePlaceholder += fmt.Sprintf("$%v", fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			itemQuery += ", "

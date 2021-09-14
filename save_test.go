@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestSaveGroup(t *testing.T) {
+func TestSave(t *testing.T) {
 	myDb := secure.MyDb
 	myDb.Options = mcdb.DbConnectOptions{}
 	// db-connection
@@ -31,7 +31,7 @@ func TestSaveGroup(t *testing.T) {
 	// audit-log instance
 	mcLog := mcauditlog.NewAuditLogPgx(dbc.DbConn, AuditTable)
 	// group-table-records
-	modelRef := Group{}
+	modelRef := Audit{}
 	crudParams := CrudParamsType{
 		AppDb:        dbc.DbConn,
 		ModelRef:     modelRef,
@@ -60,8 +60,8 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should create two new records and return success:",
 		TestFunc: func() {
-			crud.TableName = GroupTable
-			crud.ActionParams = GroupCreateActionParams
+			crud.TableName = AuditTable
+			crud.ActionParams = AuditCreateActionParams
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
 			recLen := len(crud.ActionParams)
@@ -77,8 +77,8 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two existing records and return success:",
 		TestFunc: func() {
-			crud.TableName = GroupTable
-			crud.ActionParams = GroupUpdateActionParams
+			crud.TableName = AuditTable
+			crud.ActionParams = AuditUpdateActionParams
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
 			recLen := len(crud.ActionParams)
@@ -94,9 +94,9 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update a record by Id and return success:",
 		TestFunc: func() {
-			crud.TableName = GroupTable
-			crud.ActionParams = ActionParamsType{GroupUpdateRecordById}
-			crud.RecordIds = []string{UpdateGroupById}
+			crud.TableName = AuditTable
+			crud.ActionParams = ActionParamsType{AuditUpdateRecordById}
+			crud.RecordIds = []string{UpdateAuditById}
 			crud.QueryParams = QueryParamType{}
 			idLen := len(crud.RecordIds)
 			res := crud.SaveRecord()
@@ -111,9 +111,9 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update records by Ids and return success:",
 		TestFunc: func() {
-			crud.TableName = GroupTable
-			crud.ActionParams = ActionParamsType{GroupUpdateRecordById}
-			crud.RecordIds = UpdateGroupByIds
+			crud.TableName = AuditTable
+			crud.ActionParams = ActionParamsType{AuditUpdateRecordById}
+			crud.RecordIds = UpdateAuditByIds
 			crud.QueryParams = QueryParamType{}
 			idLen := len(crud.RecordIds)
 			res := crud.SaveRecord()
@@ -128,17 +128,17 @@ func TestSaveGroup(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update records by query-params and return success:",
 		TestFunc: func() {
-			crud.TableName = GroupTable
-			crud.ActionParams = ActionParamsType{GroupUpdateRecordByParam}
+			crud.TableName = AuditTable
+			crud.ActionParams = ActionParamsType{AuditUpdateRecordByParam}
 			crud.RecordIds = []string{}
-			crud.QueryParams = UpdateGroupByParams
-			recLen := len(crud.ActionParams)
+			crud.QueryParams = UpdateAuditByParams
+			recLen := 0
 			res := crud.SaveRecord()
 			fmt.Printf("update-by-params: %v : %v \n", res.Message, res.ResCode)
 			value, _ := res.Value.(CrudResultType)
 			mctest.AssertEquals(t, res.Code, "success", "update-by-params should return code: success")
-			mctest.AssertEquals(t, value.RecordsCount > recLen, true, fmt.Sprintf("update-by-params-count should be >: %v", recLen))
-			mctest.AssertEquals(t, len(value.RecordIds) > recLen, true, fmt.Sprintf("update-by-params-recordIds-length should be > : %v", recLen))
+			mctest.AssertEquals(t, value.RecordsCount >= recLen, true, fmt.Sprintf("update-by-params-count should be >: %v", recLen))
+			mctest.AssertEquals(t, len(value.RecordIds) >= recLen, true, fmt.Sprintf("update-by-params-recordIds-length should be > : %v", recLen))
 		},
 	})
 
