@@ -12,5 +12,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/jmoiron/sqlx v1.3.4 // indirect
+	github.com/lib/pq v1.10.3 // indirect
+	github.com/mattn/go-sqlite3 v1.14.8 // indirect
 	go.mongodb.org/mongo-driver v1.4.4
 )
