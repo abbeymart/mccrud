@@ -91,7 +91,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	// get record(s) based on projected/provided field names ([]string)
 	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", fieldText, tableName)
 	// from / where condition (where-in-values)
-	selectQuery += fmt.Sprintf("WHERE id=?")
+	selectQuery += fmt.Sprintf("WHERE id=$1")
 	// adjust selectQuery for skip and limit options
 	if options.Limit > 0 {
 		selectQuery += fmt.Sprintf(" LIMIT %v", options.Limit)
@@ -99,7 +99,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	if options.Skip > 0 {
 		selectQuery += fmt.Sprintf(" OFFSET %v", options.Skip)
 	}
-	// result/response
+
 	return SelectQueryResult{
 		SelectQueryObject: SelectQueryObject{
 			SelectQuery: selectQuery,
@@ -152,7 +152,7 @@ func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds [
 	if options.Skip > 0 {
 		selectQuery += fmt.Sprintf(" OFFSET %v", options.Skip)
 	}
-	// result/response
+
 	return SelectQueryResult{
 		SelectQueryObject: SelectQueryObject{
 			SelectQuery: selectQuery,
@@ -188,11 +188,11 @@ func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryPara
 	}
 
 	// get record(s) based on projected/provided field names ([]string)
-	selectQuery := fmt.Sprintf("SELECT %v FROM %v", fieldText, tableName)
+	selectQuery := fmt.Sprintf("SELECT %v FROM %v ", fieldText, tableName)
 	// add queryParam-params condition
 	whereRes := ComputeWhereQuery(queryParam, 1)
 	if whereRes.Ok {
-		selectQuery += " " + whereRes.WhereQueryObject.WhereQuery
+		selectQuery += whereRes.WhereQueryObject.WhereQuery
 		// adjust selectQuery for skip and limit options
 		if options.Limit > 0 {
 			selectQuery += fmt.Sprintf(" LIMIT %v", options.Limit)

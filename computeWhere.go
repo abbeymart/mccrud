@@ -80,7 +80,7 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 				} else {
 					currentFieldValue = "'" + fVal.Format("2006-01-02 15:04:05.000000") + "'"
 					fieldValues = append(fieldValues, currentFieldValue)
-					whereQuery += fmt.Sprintf("%v=?", govalidator.CamelCaseToUnderscore(fieldName))
+					whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 				}
 			case string:
 				if fVal, ok := fieldValue.(string); !ok {
@@ -93,18 +93,18 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 							fmt.Printf("string-toJson-value: %v\n\n", fValue)
 							currentFieldValue = fValue
 							fieldValues = append(fieldValues, currentFieldValue)
-							whereQuery += fmt.Sprintf("%v=?", govalidator.CamelCaseToUnderscore(fieldName))
+							whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 						}
 					} else {
 						currentFieldValue = "'" + fVal + "'"
 						fieldValues = append(fieldValues, currentFieldValue)
-						whereQuery += fmt.Sprintf("%v=?", govalidator.CamelCaseToUnderscore(fieldName))
+						whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 					}
 				}
 			case int, uint, float32, float64, bool:
 				currentFieldValue = fieldValue
 				fieldValues = append(fieldValues, currentFieldValue)
-				whereQuery += fmt.Sprintf("%v=?", govalidator.CamelCaseToUnderscore(fieldName))
+				whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 			default:
 				// json-stringify fieldValue
 				if fVal, err := json.Marshal(fieldValue); err != nil {
@@ -112,7 +112,7 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 				} else {
 					currentFieldValue = string(fVal)
 					fieldValues = append(fieldValues, currentFieldValue)
-					whereQuery += fmt.Sprintf("%v=?", govalidator.CamelCaseToUnderscore(fieldName))
+					whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 				}
 			}
 		}
@@ -122,6 +122,7 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 			whereQuery += " AND "
 		}
 	}
+
 	// if all went well, return valid where-query-result
 	return WhereQueryResult{
 		WhereQueryObject: WhereQueryObject{

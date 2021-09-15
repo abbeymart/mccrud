@@ -138,7 +138,8 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 				}), errors.New(errorMessage)
 		}
 		// compose SQL-script
-		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES (?, ?, ?, ?, ?)", log.AuditTable)
+		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES ($1, $2, $3, $4, $5)", log.AuditTable)
+		fmt.Printf("query: %v \n", sqlScript)
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case UpdateLog:
@@ -181,7 +182,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 				}), errors.New(errorMessage)
 		}
 		// compose SQL-script
-		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, new_log_records, log_type, log_by, log_at ) VALUES (?, ?, ?, ?, ?, ?)", log.AuditTable)
+		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, new_log_records, log_type, log_by, log_at ) VALUES ($1, $2, $3, $4, $5, $6)", log.AuditTable)
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, newLogRecords, logType, logBy, logAt)
 	case GetLog, ReadLog:
@@ -216,7 +217,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 				}), errors.New(errorMessage)
 		}
 		// compose SQL-script
-		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES (?, ?, ?, ?, ?)", log.AuditTable)
+		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES ($1, $2, $3, $4, $5)", log.AuditTable)
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case DeleteLog, RemoveLog:
@@ -251,7 +252,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 				}), errors.New(errorMessage)
 		}
 		// compose SQL-script
-		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES (?, ?, ?, ?, ?)", log.AuditTable)
+		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES ($1, $2, $3, $4, $5)", log.AuditTable)
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case LoginLog:
@@ -286,7 +287,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 				}), errors.New(errorMessage)
 		}
 		// compose SQL-script
-		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES (?, ?, ?, ?, ?)", log.AuditTable)
+		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES ($1, $2, $3, $4, $5)", log.AuditTable)
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case LogoutLog:
@@ -321,7 +322,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 				}), errors.New(errorMessage)
 		}
 		// compose SQL-script
-		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES (?, ?, ?, ?, ?)", log.AuditTable)
+		sqlScript = fmt.Sprintf("INSERT INTO %v(table_name, log_records, log_type, log_by, log_at ) VALUES ($1, $2, $3, $4, $5)", log.AuditTable)
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	default:

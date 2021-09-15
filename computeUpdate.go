@@ -91,14 +91,14 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 			}
 
 			fieldValues = append(fieldValues, currentFieldValue)
-			updateQuery += fmt.Sprintf("%v=?", fieldNameUnderScore)
+			updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 			if fieldsLength > 1 && fieldCount < fieldsLength {
 				updateQuery += ", "
 			}
 		}
 		// add where condition by id and the placeholder-value position
 		fieldCount += 1
-		updateQuery += fmt.Sprintf(" WHERE id=?")
+		updateQuery += fmt.Sprintf(" WHERE id=$%v", fieldCount)
 		updateQuery += " RETURNING id"
 		// add id-placeholder-value
 		fieldValues = append(fieldValues, recordId)
@@ -173,14 +173,14 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 		}
 
 		fieldValues = append(fieldValues, currentFieldValue)
-		updateQuery += fmt.Sprintf("%v=?", fieldNameUnderScore)
+		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			updateQuery += ", "
 		}
 	}
 	// add where condition by id and the placeholder-value position
 	fieldCount += 1
-	updateQuery += fmt.Sprintf(" WHERE id=?")
+	updateQuery += fmt.Sprintf(" WHERE id=$%v", fieldCount)
 	updateQuery += " RETURNING id"
 	// add id-placeholder-value
 	fieldValues = append(fieldValues, recordId)
@@ -261,7 +261,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 			currentFieldValue = fieldValue
 		}
 		fieldValues = append(fieldValues, currentFieldValue)
-		updateQuery += fmt.Sprintf("%v=?", fieldNameUnderScore)
+		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			updateQuery += ", "
 		}
@@ -336,7 +336,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 		}
 
 		fieldValues = append(fieldValues, currentFieldValue)
-		updateQuery += fmt.Sprintf("%v=?", fieldNameUnderScore)
+		updateQuery += fmt.Sprintf("%v=$%v", fieldNameUnderScore, fieldCount)
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			updateQuery += ", "
 		}
