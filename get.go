@@ -47,7 +47,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	qRowErr := crud.AppDb.QueryRowx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).StructScan(&crud.ModelRef)
+	qRowErr := crud.AppDb.QueryRowx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).MapScan(crud.ModelRef)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", qRowErr.Error()),
@@ -56,9 +56,9 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	}
 	// check rows count
 	var rowCount = 0
-	var getRecords []interface{}
+	var getRecords []map[string]interface{}
 	// transform snapshot value from model-struct to map-value
-	mapValue, mErr := StructToMap(crud.ModelRef)
+	mapValue, mErr := MapToMapCamelCase(crud.ModelRef)
 	if mErr != nil {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("%v", mErr.Error()),
@@ -163,16 +163,16 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	}(rows)
 	// check rows count
 	var rowCount = 0
-	var getRecords []interface{}
+	var getRecords []map[string]interface{}
 	for rows.Next() {
-		if rowScanErr := rows.StructScan(&crud.ModelRef); rowScanErr != nil {
+		if rowScanErr := rows.MapScan(crud.ModelRef); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
 				Value:   nil,
 			})
 		} else {
 			// transform snapshot value from model-struct to map-value
-			mapValue, mErr := StructToMap(crud.ModelRef)
+			mapValue, mErr := MapToMapCamelCase(crud.ModelRef)
 			if mErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("%v", mErr.Error()),
@@ -284,16 +284,16 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 	}(rows)
 	// check rows count
 	var rowCount = 0
-	var getRecords []interface{}
+	var getRecords []map[string]interface{}
 	for rows.Next() {
-		if rowScanErr := rows.StructScan(&crud.ModelRef); rowScanErr != nil {
+		if rowScanErr := rows.MapScan(crud.ModelRef); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
 				Value:   nil,
 			})
 		} else {
-			// transform snapshot value from model-struct to map-value
-			mapValue, mErr := StructToMap(crud.ModelRef)
+			// transform snapshot value from map-underscore-to-camelCase
+			mapValue, mErr := MapToMapCamelCase(crud.ModelRef)
 			if mErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("%v", mErr.Error()),
@@ -394,9 +394,9 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 	}(rows)
 	// check rows count
 	var rowCount = 0
-	var getRecords []interface{}
+	var getRecords []map[string]interface{}
 	for rows.Next() {
-		rowScanErr := rows.StructScan(&crud.ModelRef)
+		rowScanErr := rows.MapScan(crud.ModelRef)
 		if rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
@@ -404,7 +404,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 			})
 		}
 		// transform snapshot value from model-struct to map-value
-		mapValue, mErr := StructToMap(crud.ModelRef)
+		mapValue, mErr := MapToMapCamelCase(crud.ModelRef)
 		if mErr != nil {
 			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("%v", mErr.Error()),
