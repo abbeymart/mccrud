@@ -7,14 +7,13 @@ package mccrud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abbeymart/mccrud/test/config/secure"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
 )
 
 func TestGet(t *testing.T) {
-	myDb := secure.MyDb
+	myDb := MyDb
 	myDb.Options = mcdb.DbConnectOptions{}
 	// db-connection
 	dbc, err := myDb.OpenPgxDbPool()

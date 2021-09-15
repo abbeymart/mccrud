@@ -12,6 +12,7 @@ pids
 node_modules
 # data
 # db
+config.*
 config/secure
 # src/config/secure
 # micros/mc-document/config/secure

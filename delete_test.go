@@ -6,14 +6,13 @@ package mccrud
 
 import (
 	"fmt"
-	"github.com/abbeymart/mccrud/test/config/secure"
 	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
 )
 
 func TestDelete(t *testing.T) {
-	myDb := secure.MyDb
+	myDb := MyDb
 	myDb.Options = mcdb.DbConnectOptions{}
 	// db-connection
 	dbc, err := myDb.OpenPgxDbPool()

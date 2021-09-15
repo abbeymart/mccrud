@@ -2,8 +2,8 @@
 
 ## Version 0.7.0
 
-- Release date: Aug 08, 2021
-- refactored / re-write, focus on standard-simple crud-tasks
+- Release date: Sep 16, 2021
+- refactor/re-write to sql-sqlx, with multi-DB support (sqlite, pg, mysql)
 
 ## Version 0.6.5
 

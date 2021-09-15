@@ -5,14 +5,14 @@
 package mccrud
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/abbeymart/mcresponse"
-	"github.com/jackc/pgx/v4/pgxpool"
+	//"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jmoiron/sqlx"
 	"time"
 )
 
-type DbConnectionType *sql.DB
+type DbConnectionType *sqlx.DB
 
 type DbSecureType struct {
 	SecureAccess bool   `json:"secureAccess"`
@@ -164,15 +164,15 @@ type CheckAccessType struct {
 }
 
 type CheckAccessParamsType struct {
-	AccessDb     *pgxpool.Pool `json:"accessDb"`
-	UserInfo     UserInfoType  `json:"userInfo"`
-	TableName    string        `json:"tableName"`
-	RecordIds    []string      `json:"recordIds"` // for update, delete and read tasks
-	AccessTable  string        `json:"accessTable"`
-	UserTable    string        `json:"userTable"`
-	RoleTable    string        `json:"roleTable"`
-	ServiceTable string        `json:"serviceTable"`
-	ProfileTable string        `json:"profileTable"`
+	AccessDb     *sqlx.DB     `json:"accessDb"`
+	UserInfo     UserInfoType `json:"userInfo"`
+	TableName    string       `json:"tableName"`
+	RecordIds    []string     `json:"recordIds"` // for update, delete and read tasks
+	AccessTable  string       `json:"accessTable"`
+	UserTable    string       `json:"userTable"`
+	RoleTable    string       `json:"roleTable"`
+	ServiceTable string       `json:"serviceTable"`
+	ProfileTable string       `json:"profileTable"`
 }
 
 type RoleFuncType func(it1 string, it2 RoleServiceType) bool
@@ -199,29 +199,28 @@ type ModelOptionsType struct {
 
 // CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
 type CrudParamsType struct {
-	ModelRef       interface{}      `json:"-"`
-	ModelFieldsRef []interface{}    `json:"-"`
-	AppDb          *pgxpool.Pool    `json:"-"`
-	TableName      string           `json:"-"`
-	UserInfo       UserInfoType     `json:"userInfo"`
-	ActionParams   ActionParamsType `json:"actionParams"`
-	QueryParams    QueryParamType   `json:"queryParams"`
-	RecordIds      []string         `json:"recordIds"`
-	ProjectParams  ProjectParamType `json:"projectParams"`
-	SortParams     SortParamType    `json:"sortParams"`
-	Token          string           `json:"token"`
-	Skip           int              `json:"skip"`
-	Limit          int              `json:"limit"`
-	TaskName       string           `json:"-"`
-	TaskType       string           `json:"-"`
+	ModelRef      interface{}      `json:"-"`
+	AppDb         *sqlx.DB         `json:"-"`
+	TableName     string           `json:"-"`
+	UserInfo      UserInfoType     `json:"userInfo"`
+	ActionParams  ActionParamsType `json:"actionParams"`
+	QueryParams   QueryParamType   `json:"queryParams"`
+	RecordIds     []string         `json:"recordIds"`
+	ProjectParams ProjectParamType `json:"projectParams"`
+	SortParams    SortParamType    `json:"sortParams"`
+	Token         string           `json:"token"`
+	Skip          int              `json:"skip"`
+	Limit         int              `json:"limit"`
+	TaskName      string           `json:"-"`
+	TaskType      string           `json:"-"`
 }
 
 type CrudOptionsType struct {
 	CheckAccess           bool
 	BulkCreate            bool
-	AccessDb              *pgxpool.Pool
-	AuditDb               *pgxpool.Pool
-	ServiceDb             *pgxpool.Pool
+	AccessDb              *sqlx.DB
+	AuditDb               *sqlx.DB
+	ServiceDb             *sqlx.DB
 	AuditTable            string
 	ServiceTable          string
 	UserTable             string

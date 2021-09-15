@@ -27,13 +27,11 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 	if tableName == "" || len(actionParams) < 1 {
 		return errMessage("table-name is required for the create operation")
 	}
-
 	// declare slice variable for create/insert queries
 	var createQuery string
 	var fieldNames []string
 	var fieldNamesUnderscore []string
 	var fieldValues [][]interface{}
-
 	// compute create script and associated values () for all the records in actionParams
 	// compute create-query from the first actionParams
 	itemQuery := fmt.Sprintf("INSERT INTO %v(", tableName)
@@ -46,7 +44,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
 		itemQuery += fmt.Sprintf("%v", fieldNameUnderScore)
-		itemValuePlaceholder += fmt.Sprintf("$%v", fieldCount)
+		itemValuePlaceholder += "?"
 		if fieldsLength > 1 && fieldCount < fieldsLength {
 			itemQuery += ", "
 			itemValuePlaceholder += ", "
@@ -106,7 +104,6 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 		// re-initialise recFieldValues, for next update
 		recFieldValues = []interface{}{}
 	}
-
 	// result
 	return CreateQueryResult{
 		CreateQueryObject: CreateQueryObject{

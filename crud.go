@@ -7,7 +7,6 @@ package mccrud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mcresponse"
 	"time"
 )
@@ -19,7 +18,7 @@ type Crud struct {
 	CreateItems    ActionParamsType
 	UpdateItems    ActionParamsType
 	CurrentRecords []interface{}
-	TransLog       mcauditlog.PgxLogParam
+	TransLog       LogParamX
 	CacheKey       string // Unique for exactly the same query
 }
 
@@ -28,7 +27,6 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance = &Crud{}
 	// compute crud params
 	crudInstance.ModelRef = params.ModelRef
-	crudInstance.ModelFieldsRef = params.ModelFieldsRef
 	crudInstance.AppDb = params.AppDb
 	crudInstance.TableName = params.TableName
 	crudInstance.UserInfo = params.UserInfo
@@ -111,7 +109,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.CacheKey = fmt.Sprintf("%v-%v-%v-%v-%v-%v-%v", params.TableName, string(qParam), string(sParam), string(pParam), string(dIds), crudInstance.Skip, crudInstance.Limit)
 
 	// Audit/TransLog instance
-	crudInstance.TransLog = mcauditlog.NewAuditLogPgx(crudInstance.AuditDb, crudInstance.AuditTable)
+	crudInstance.TransLog = NewAuditLogx(crudInstance.AuditDb, crudInstance.AuditTable)
 
 	return crudInstance
 }
@@ -219,9 +217,6 @@ func (crud *Crud) SaveRecord() mcresponse.ResponseMessage {
 			if accessRes.Code != "success" {
 				return accessRes
 			}
-		}
-		if crud.BulkCreate {
-			return crud.CreateCopy(createRecs)
 		}
 		return crud.Create(createRecs)
 	}

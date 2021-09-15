@@ -5,9 +5,7 @@
 package mccrud
 
 import (
-	"context"
 	"fmt"
-	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mcresponse"
 )
@@ -30,7 +28,7 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 		})
 	}
 	//fmt.Printf("Delete-query: %v", deleteQueryRes.DeleteQueryObject.DeleteQuery )
-	_, delErr := crud.AppDb.Exec(context.Background(), deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
+	res, delErr := crud.AppDb.Exec(deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
@@ -45,7 +43,7 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": []string{id}}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: currentRecs,
 		}
@@ -55,13 +53,17 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
 		}
 	}
+	rowsCount, rcErr := res.RowsAffected()
+	if rcErr != nil {
+		rowsCount = 0
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) deleted successfully: [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam: crud.QueryParams,
-			//RecordCount: int(commandTag.RowsAffected()),
-			TaskType: crud.TaskType,
-			LogRes:   logRes,
+			QueryParam:   crud.QueryParams,
+			RecordsCount: int(rowsCount),
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 }
@@ -82,7 +84,7 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	_, delErr := crud.AppDb.Exec(context.Background(), deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
+	res, delErr := crud.AppDb.Exec(deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
@@ -97,7 +99,7 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: currentRecs,
 		}
@@ -107,13 +109,17 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
 		}
 	}
+	rowsCount, rcErr := res.RowsAffected()
+	if rcErr != nil {
+		rowsCount = 0
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) deleted successfully: [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam: crud.QueryParams,
-			//RecordCount: int(commandTag.RowsAffected()),
-			TaskType: crud.TaskType,
-			LogRes:   logRes,
+			QueryParam:   crud.QueryParams,
+			RecordsCount: int(rowsCount),
+			TaskType:     crud.TaskType,
+			LogRes:       logRes,
 		},
 	})
 }
@@ -134,7 +140,7 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	_, delErr := crud.AppDb.Exec(context.Background(), deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
+	res, delErr := crud.AppDb.Exec(deleteQueryRes.DeleteQueryObject.DeleteQuery, deleteQueryRes.DeleteQueryObject.FieldValues...)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
@@ -149,7 +155,7 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "queryParams": crud.QueryParams}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: currentRecs,
 		}
@@ -159,13 +165,17 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
 		}
 	}
+	rowsCount, rcErr := res.RowsAffected()
+	if rcErr != nil {
+		rowsCount = 0
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) deleted successfully: [log-message: %v]", logMessage),
 		Value: CrudResultType{
-			QueryParam: crud.QueryParams,
-			//RecordCount: int(commandTag.RowsAffected()),
-			TaskType: DeleteTask,
-			LogRes:   logRes,
+			QueryParam:   crud.QueryParams,
+			RecordsCount: int(rowsCount),
+			TaskType:     DeleteTask,
+			LogRes:       logRes,
 		},
 	})
 }
@@ -177,7 +187,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	// ***** && IF-AND-ONLY-IF-YOU-KNOW-WHAT-YOU-ARE-DOING && AT-YOUR-OWN-RISK *****
 	// compute delete query
 	delQuery := fmt.Sprintf("DELETE FROM %v", crud.TableName)
-	_, delErr := crud.AppDb.Exec(context.Background(), delQuery)
+	res, delErr := crud.AppDb.Exec(delQuery)
 	if delErr != nil {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error deleting record(s): %v", delErr.Error()),
@@ -191,7 +201,7 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: map[string]string{"query": "all"},
 		}
@@ -202,12 +212,16 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 		}
 	}
 	// response
+	rowsCount, rcErr := res.RowsAffected()
+	if rcErr != nil {
+		rowsCount = 0
+	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) deleted successfully [log-message: %v] ", logMessage),
 		Value: CrudResultType{
-			//RecordsCount: int(commandTag.RowsAffected()),
-			TaskType: DeleteTask,
-			LogRes:   logRes,
+			RecordsCount: int(rowsCount),
+			TaskType:     DeleteTask,
+			LogRes:       logRes,
 		},
 	})
 }

@@ -11,29 +11,29 @@ import (
 // Models
 
 type Audit struct {
-	Id            string      `json:"id" mcorm:"id"`
-	TableName     string      `json:"tableName" mcorm:"table_name"`
-	LogRecords    interface{} `json:"logRecords" mcorm:"log_records"`
-	NewLogRecords interface{} `json:"newLogRecords" mcorm:"new_log_records"`
-	LogType       string      `json:"logType" mcorm:"log_type"`
-	LogBy         string      `json:"logBy" mcorm:"log_by"`
-	LogAt         time.Time   `json:"logAt" mcorm:"log_at"`
+	Id            string      `json:"id" db:"id"`
+	TableName     string      `json:"tableName" db:"table_name"`
+	LogRecords    interface{} `json:"logRecords" db:"log_records"`
+	NewLogRecords interface{} `json:"newLogRecords" db:"new_log_records"`
+	LogType       string      `json:"logType" db:"log_type"`
+	LogBy         string      `json:"logBy" db:"log_by"`
+	LogAt         time.Time   `json:"logAt" db:"log_at"`
 }
 
 type Group struct {
 	BaseModelType
-	Name string `json:"name" gorm:"unique" mcorm:"name"`
+	Name string `json:"name" gorm:"unique" db:"name"`
 }
 
 type Category struct {
 	BaseModelType
-	Name      string  `json:"name"  mcorm:"name"`
-	Path      string  `json:"path" mcorm:"path"`
-	Priority  uint    `json:"priority" mcorm:"priority"`
-	ParentId  *string `json:"parentId" mcorm:"parent_id"`
-	GroupId   string  `json:"groupId" mcorm:"group_id"`
-	GroupName string  `json:"groupName" mcorm:"group_name"`
-	IconStyle string  `json:"iconStyle" mcorm:"icon_style"`
+	Name      string  `json:"name"  db:"name"`
+	Path      string  `json:"path" db:"path"`
+	Priority  uint    `json:"priority" db:"priority"`
+	ParentId  *string `json:"parentId" db:"parent_id"`
+	GroupId   string  `json:"groupId" db:"group_id"`
+	GroupName string  `json:"groupName" db:"group_name"`
+	IconStyle string  `json:"iconStyle" db:"icon_style"`
 }
 
 const GroupTable = "groups"

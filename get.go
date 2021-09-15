@@ -5,11 +5,10 @@
 package mccrud
 
 import (
-	"context"
 	"fmt"
-	"github.com/abbeymart/mcauditlog"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mcresponse"
+	"github.com/jmoiron/sqlx"
 )
 
 // GetById method fetches/gets/reads record that met the specified record-id,
@@ -40,7 +39,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
-	tRowErr := crud.AppDb.QueryRow(context.Background(), countQuery).Scan(&totalRows)
+	tRowErr := crud.AppDb.QueryRowx(countQuery).Scan(&totalRows)
 	if tRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
@@ -48,7 +47,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	qRowErr := crud.AppDb.QueryRow(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).Scan(crud.ModelFieldsRef...)
+	qRowErr := crud.AppDb.QueryRowx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...).StructScan(&crud.ModelRef)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", qRowErr.Error()),
@@ -73,7 +72,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": []string{id}}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: logRecs,
 		}
@@ -141,7 +140,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
-	tRowErr := crud.AppDb.QueryRow(context.Background(), countQuery).Scan(&totalRows)
+	tRowErr := crud.AppDb.QueryRowx(countQuery).Scan(&totalRows)
 	if tRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
@@ -149,26 +148,30 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	rows, qRowErr := crud.AppDb.Query(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
+	rows, qRowErr := crud.AppDb.Queryx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
 			Value:   nil,
 		})
 	}
-	defer rows.Close()
+	defer func(rows *sqlx.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
 	// check rows count
 	var rowCount = 0
 	var getRecords []interface{}
 	for rows.Next() {
-		if rowScanErr := rows.Scan(crud.ModelFieldsRef...); rowScanErr != nil {
+		if rowScanErr := rows.StructScan(&crud.ModelRef); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
 				Value:   nil,
 			})
 		} else {
 			// transform snapshot value from model-struct to map-value
-			fmt.Printf("Get-query-result: %v", crud.ModelRef)
 			mapValue, mErr := StructToMap(crud.ModelRef)
 			if mErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
@@ -176,6 +179,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 					Value:   nil,
 				})
 			}
+			fmt.Printf("Get-query-result: %v", mapValue)
 			getRecords = append(getRecords, mapValue)
 			rowCount += 1
 		}
@@ -197,7 +201,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": crud.RecordIds}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: logRecs,
 		}
@@ -257,7 +261,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
-	tRowErr := crud.AppDb.QueryRow(context.Background(), countQuery).Scan(&totalRows)
+	tRowErr := crud.AppDb.QueryRowx(countQuery).Scan(&totalRows)
 	if tRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
@@ -265,19 +269,24 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	rows, qRowErr := crud.AppDb.Query(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
+	rows, qRowErr := crud.AppDb.Queryx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
 			Value:   nil,
 		})
 	}
-	defer rows.Close()
+	defer func(rows *sqlx.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
 	// check rows count
 	var rowCount = 0
 	var getRecords []interface{}
 	for rows.Next() {
-		if rowScanErr := rows.Scan(crud.ModelFieldsRef...); rowScanErr != nil {
+		if rowScanErr := rows.StructScan(&crud.ModelRef); rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
 				Value:   nil,
@@ -312,7 +321,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"queryParams": crud.QueryParams}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: logRecs,
 		}
@@ -362,7 +371,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
-	tRowErr := crud.AppDb.QueryRow(context.Background(), countQuery).Scan(&totalRows)
+	tRowErr := crud.AppDb.QueryRowx(countQuery).Scan(&totalRows)
 	if tRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", tRowErr.Error()),
@@ -370,19 +379,24 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 		})
 	}
 	// perform crud-task action
-	rows, qRowErr := crud.AppDb.Query(context.Background(), getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
+	rows, qRowErr := crud.AppDb.Queryx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
 			Value:   nil,
 		})
 	}
-	defer rows.Close()
+	defer func(rows *sqlx.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
 	// check rows count
 	var rowCount = 0
 	var getRecords []interface{}
 	for rows.Next() {
-		rowScanErr := rows.Scan(crud.ModelFieldsRef...)
+		rowScanErr := rows.StructScan(&crud.ModelRef)
 		if rowScanErr != nil {
 			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("Error reading/getting records[row-scan]: %v", rowScanErr.Error()),
@@ -418,7 +432,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"query": "all"}
-		auditInfo := mcauditlog.PgxAuditLogOptionsType{
+		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
 			LogRecords: logRecs,
 		}
