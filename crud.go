@@ -17,7 +17,7 @@ type Crud struct {
 	CrudOptionsType
 	CreateItems    ActionParamsType
 	UpdateItems    ActionParamsType
-	CurrentRecords []interface{}
+	CurrentRecords []map[string]interface{}
 	TransLog       LogParamX
 	CacheKey       string // Unique for exactly the same query
 }

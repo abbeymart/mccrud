@@ -322,12 +322,12 @@ func (crud *Crud) TaskPermissionByParam(taskType string) mcresponse.ResponseMess
 		crud.CurrentRecords = result.Records
 	}
 	for _, rec := range crud.CurrentRecords {
-		val, _ := rec.(ActionParamType)
-		id, ok := val["id"].(string)
+		//val, _ := rec.(ActionParamType)
+		id, ok := rec["id"].(string)
 		if !ok {
 			return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
 				Message: "Missing record(s) for task-permission-by-queryParams",
-				Value:   val,
+				Value:   rec,
 			})
 		}
 		recordIds = append(recordIds, id)
