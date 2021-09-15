@@ -22,7 +22,7 @@ func TestDelete(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
-	modelRef := make(map[string]interface{})
+	modelRef := Audit{}
 	crudParams := CrudParamsType{
 		AppDb:       dbc,
 		ModelRef:    modelRef,

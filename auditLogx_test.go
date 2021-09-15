@@ -11,7 +11,6 @@ import (
 	"testing"
 )
 import (
-	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 )
 
@@ -30,18 +29,8 @@ func TestAuditLogx(t *testing.T) {
 	readP := map[string][]string{"keywords": {"lagos", "nigeria", "ghana", "accra"}}
 	readParams, _ := json.Marshal(readP)
 
-	myDb := mcdb.DbConfig{
-		DbType:   "postgres",
-		Host:     "localhost",
-		Username: "postgres",
-		Password: "ab12testing",
-		Port:     5432,
-		DbName:   "mcdev",
-		Filename: "testdb.db",
-		PoolSize: 20,
-		Url:      "localhost:5432",
-	}
-	myDb.Options = mcdb.DbConnectOptions{}
+	myDb := MyDb
+	myDb.Options = DbConnectOptions{}
 
 	// db-connection
 	dbc, err := myDb.OpenDb()
