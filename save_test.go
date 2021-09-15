@@ -6,33 +6,31 @@ package mccrud
 
 import (
 	"fmt"
-	"github.com/abbeymart/mcauditlog"
-	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
 )
 
 func TestSave(t *testing.T) {
 	myDb := MyDb
-	myDb.Options = mcdb.DbConnectOptions{}
+	myDb.Options = DbConnectOptions{}
 	// db-connection
-	dbc, err := myDb.OpenPgxDbPool()
+	dbc, err := myDb.OpenDbx()
 	//fmt.Printf("*****dbc-info: %v\n", dbc)
 	// defer dbClose
-	defer myDb.ClosePgxDbPool()
+	defer myDb.CloseDbx()
 	// check db-connection-error
 	if err != nil {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
 	// expected db-connection result
-	mcLogResult := mcauditlog.PgxLogParam{AuditDb: dbc.DbConn, AuditTable: AuditTable}
+	mcLogResult := LogParamX{AuditDb: dbc, AuditTable: AuditTable}
 	// audit-log instance
-	mcLog := mcauditlog.NewAuditLogPgx(dbc.DbConn, AuditTable)
+	mcLog := NewAuditLogx(dbc, AuditTable)
 	// group-table-records
 	modelRef := Audit{}
 	crudParams := CrudParamsType{
-		AppDb:        dbc.DbConn,
+		AppDb:        dbc,
 		ModelRef:     modelRef,
 		TableName:    "",
 		UserInfo:     TestUserInfo,

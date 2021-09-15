@@ -7,18 +7,17 @@ package mccrud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
 )
 
 func TestGet(t *testing.T) {
 	myDb := MyDb
-	myDb.Options = mcdb.DbConnectOptions{}
+	myDb.Options = DbConnectOptions{}
 	// db-connection
-	dbc, err := myDb.OpenPgxDbPool()
+	dbc, err := myDb.OpenDbx()
 	// defer dbClose
-	defer myDb.ClosePgxDbPool()
+	defer myDb.CloseDbx()
 	// check db-connection-error
 	if err != nil {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
@@ -26,7 +25,7 @@ func TestGet(t *testing.T) {
 	}
 	modelRef := Audit{}
 	crudParams := CrudParamsType{
-		AppDb:       dbc.DbConn,
+		AppDb:       dbc,
 		ModelRef:    modelRef,
 		TableName:   GetTable,
 		UserInfo:    TestUserInfo,
@@ -39,8 +38,6 @@ func TestGet(t *testing.T) {
 		Name: "should get records by Id and return success:",
 		TestFunc: func() {
 			crud.RecordIds = []string{GetAuditById}
-			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
-			crud.ModelFieldsRef = modelFieldRef
 			res := crud.GetRecord()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
@@ -58,8 +55,6 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = GetAuditByIds
 			crud.QueryParams = QueryParamType{}
-			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
-			crud.ModelFieldsRef = modelFieldRef
 			recLen := len(crud.RecordIds)
 			res := crud.GetByIds()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
@@ -75,8 +70,6 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = GetAuditByParams
-			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
-			crud.ModelFieldsRef = modelFieldRef
 			res := crud.GetByParam()
 			fmt.Printf("get-by-param-response: %#v\n", res)
 			value, _ := res.Value.(GetResultType)
@@ -92,8 +85,6 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
-			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
-			crud.ModelFieldsRef = modelFieldRef
 			res := crud.GetAll()
 			fmt.Printf("get-all-response: %#v\n", res)
 			value, _ := res.Value.(CrudResultType)
@@ -108,8 +99,6 @@ func TestGet(t *testing.T) {
 			crud.TableName = GetTable
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
-			modelFieldRef := []interface{}{&modelRef.Id, &modelRef.TableName, &modelRef.LogRecords, &modelRef.NewLogRecords, &modelRef.LogType, &modelRef.LogBy, &modelRef.LogAt}
-			crud.ModelFieldsRef = modelFieldRef
 			crud.Skip = 0
 			crud.Limit = 20
 			res := crud.GetAll()

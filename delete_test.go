@@ -6,18 +6,17 @@ package mccrud
 
 import (
 	"fmt"
-	"github.com/abbeymart/mcdb"
 	"github.com/abbeymart/mctest"
 	"testing"
 )
 
 func TestDelete(t *testing.T) {
 	myDb := MyDb
-	myDb.Options = mcdb.DbConnectOptions{}
+	myDb.Options = DbConnectOptions{}
 	// db-connection
-	dbc, err := myDb.OpenPgxDbPool()
+	dbc, err := myDb.OpenDbx()
 	// defer dbClose
-	defer myDb.ClosePgxDbPool()
+	defer myDb.CloseDbx()
 	// check db-connection-error
 	if err != nil {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
@@ -25,7 +24,7 @@ func TestDelete(t *testing.T) {
 	}
 	modelRef := Audit{}
 	crudParams := CrudParamsType{
-		AppDb:       dbc.DbConn,
+		AppDb:       dbc,
 		ModelRef:    modelRef,
 		TableName:   DeleteTable,
 		UserInfo:    TestUserInfo,
