@@ -208,7 +208,7 @@ func StructToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	return caseUnderscoreMapData, nil
 }
 
-// MapToMapUnderscore converts map-fields to underscore
+// MapToMapUnderscore converts map-fields to camelCase
 func MapToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as map type
 	recMap, ok := rec.(map[string]interface{})
@@ -220,6 +220,22 @@ func MapToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	// compose uMapData
 	for key, val := range recMap {
 		uMapData[govalidator.CamelCaseToUnderscore(key)] = val
+	}
+	return uMapData, nil
+}
+
+// MapToMapCamelCase converts map-fields to underscore
+func MapToMapCamelCase(rec interface{}) (map[string]interface{}, error) {
+	// validate recs as map type
+	recMap, ok := rec.(map[string]interface{})
+	if !ok || recMap == nil {
+		return nil, errors.New(fmt.Sprintf("rec parameter must be of type map[string]interface{}"))
+	}
+
+	uMapData := map[string]interface{}{}
+	// compose uMapData
+	for key, val := range recMap {
+		uMapData[govalidator.UnderscoreToCamelCase(key)] = val
 	}
 	return uMapData, nil
 }

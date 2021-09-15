@@ -199,20 +199,20 @@ type ModelOptionsType struct {
 
 // CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
 type CrudParamsType struct {
-	ModelRef      interface{}      `json:"-"`
-	AppDb         *sqlx.DB         `json:"-"`
-	TableName     string           `json:"-"`
-	UserInfo      UserInfoType     `json:"userInfo"`
-	ActionParams  ActionParamsType `json:"actionParams"`
-	QueryParams   QueryParamType   `json:"queryParams"`
-	RecordIds     []string         `json:"recordIds"`
-	ProjectParams ProjectParamType `json:"projectParams"`
-	SortParams    SortParamType    `json:"sortParams"`
-	Token         string           `json:"token"`
-	Skip          int              `json:"skip"`
-	Limit         int              `json:"limit"`
-	TaskName      string           `json:"-"`
-	TaskType      string           `json:"-"`
+	ModelRef      map[string]interface{} `json:"-"`
+	AppDb         *sqlx.DB               `json:"-"`
+	TableName     string                 `json:"-"`
+	UserInfo      UserInfoType           `json:"userInfo"`
+	ActionParams  ActionParamsType       `json:"actionParams"`
+	QueryParams   QueryParamType         `json:"queryParams"`
+	RecordIds     []string               `json:"recordIds"`
+	ProjectParams ProjectParamType       `json:"projectParams"`
+	SortParams    SortParamType          `json:"sortParams"`
+	Token         string                 `json:"token"`
+	Skip          int                    `json:"skip"`
+	Limit         int                    `json:"limit"`
+	TaskName      string                 `json:"-"`
+	TaskType      string                 `json:"-"`
 }
 
 type CrudOptionsType struct {
@@ -364,7 +364,7 @@ type CrudResultType struct {
 	QueryParam   QueryParamType             `json:"queryParam"`
 	RecordIds    []string                   `json:"recordIds"`
 	RecordsCount int                        `json:"recordsCount"`
-	Records      []interface{}              `json:"records"`
+	Records      []map[string]interface{}   `json:"records"`
 	TaskType     string                     `json:"taskType"`
 	LogRes       mcresponse.ResponseMessage `json:"logRes"`
 }
@@ -380,7 +380,7 @@ type GetStatType struct {
 }
 
 type GetResultType struct {
-	Records  []interface{}              `json:"value"`
+	Records  []map[string]interface{}   `json:"value"`
 	Stats    GetStatType                `json:"stats"`
 	LogRes   mcresponse.ResponseMessage `json:"logRes"`
 	TaskType string                     `json:"taskType"`
