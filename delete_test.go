@@ -38,7 +38,7 @@ func TestDelete(t *testing.T) {
 		TestFunc: func() {
 			crud.TableName = DeleteAllTable
 			res := crud.DeleteRecord()
-			fmt.Printf("delete-all: %v : %v \n", res.Message, res.ResCode)
+			fmt.Printf("delete-all: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "removeError", "delete-task permitted by ids or queryParams only: removeError code expected")
 		},
 	})
@@ -51,7 +51,7 @@ func TestDelete(t *testing.T) {
 			crud.QueryParams = QueryParamType{}
 			// get-record method params
 			res := crud.DeleteRecord()
-			fmt.Printf("delete-by-ids[delete-record]: %v : %v : %#v\n", res.Message, res.ResCode, res.Value)
+			fmt.Printf("delete-all: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
 		},
 	})
@@ -64,7 +64,7 @@ func TestDelete(t *testing.T) {
 			crud.QueryParams = QueryParamType{}
 			// get-record method params
 			res := crud.DeleteRecord()
-			fmt.Printf("delete-by-ids[delete-record]: %v : %v : %#v\n", res.Message, res.ResCode, res.Value)
+			fmt.Printf("delete-all: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-id should return code: success")
 		},
 	})
@@ -76,7 +76,7 @@ func TestDelete(t *testing.T) {
 			crud.RecordIds = []string{}
 			crud.QueryParams = DeleteAuditByParams
 			res := crud.DeleteRecord()
-			fmt.Printf("delete-by-params[delete-record]: %v : %v : %#v \n", res.Message, res.ResCode, res.Value)
+			fmt.Printf("delete-all: %#v \n", res)
 			mctest.AssertEquals(t, res.Code, "success", "delete-by-params-log should return code: success")
 		},
 	})

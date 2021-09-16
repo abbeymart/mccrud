@@ -5,6 +5,7 @@
 package mccrud
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -93,14 +94,15 @@ var CrudParamOptions = CrudOptionsType{
 
 // TODO: create/update, get & delete records for groups & categories tables
 
-var LogRecords = map[string]interface{}{
+var LogRecords = ActionParamType{
 	"name":     "Abi",
 	"desc":     "Testing only",
 	"url":      "localhost:9000",
 	"priority": 100,
 	"cost":     1000.00,
 }
-var NewLogRecords = map[string]interface{}{
+
+var NewLogRecords = ActionParamType{
 	"name":     "Abi Akindele",
 	"desc":     "Testing only - updated",
 	"url":      "localhost:9900",
@@ -108,14 +110,14 @@ var NewLogRecords = map[string]interface{}{
 	"cost":     2000.00,
 }
 
-var LogRecords2 = map[string]interface{}{
+var LogRecords2 = ActionParamType{
 	"name":     "Ola",
 	"desc":     "Testing only - 2",
 	"url":      "localhost:9000",
 	"priority": 1,
 	"cost":     10000.00,
 }
-var NewLogRecords2 = map[string]interface{}{
+var NewLogRecords2 = ActionParamType{
 	"name":     "Ola",
 	"desc":     "Testing only - 2 - updated",
 	"url":      "localhost:9000",
@@ -144,18 +146,23 @@ var GroupUpdateRec2 = ActionParamType{
 	"desc": "address group - updated",
 }
 
+var LogRecs, _ = json.Marshal(LogRecords)
+var NewLogRecs, _ = json.Marshal(NewLogRecords)
+var LogRecs2, _ = json.Marshal(LogRecords2)
+var NewLogRecs2, _ = json.Marshal(NewLogRecords2)
+
 var AuditCreateRec1 = ActionParamType{
 	"tableName":  "audits",
 	"logAt":      time.Now(),
 	"logBy":      UserId,
-	"logRecords": LogRecords,
+	"logRecords": string(LogRecs),
 	"logType":    CreateTask,
 }
 var AuditCreateRec2 = ActionParamType{
 	"tableName":  "audits",
 	"logAt":      time.Now(),
 	"logBy":      UserId,
-	"logRecords": LogRecords2,
+	"logRecords": string(LogRecs2),
 	"logType":    CreateTask,
 }
 var AuditUpdateRec1 = ActionParamType{
@@ -163,8 +170,8 @@ var AuditUpdateRec1 = ActionParamType{
 	"tableName":     "services",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
-	"logRecords":    LogRecords,
-	"newLogRecords": NewLogRecords,
+	"logRecords":    string(LogRecs),
+	"newLogRecords": string(NewLogRecs),
 	"logType":       UpdateTask,
 }
 var AuditUpdateRec2 = ActionParamType{
@@ -172,8 +179,8 @@ var AuditUpdateRec2 = ActionParamType{
 	"tableName":     "services",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
-	"logRecords":    LogRecords2,
-	"newLogRecords": NewLogRecords2,
+	"logRecords":    string(LogRecs2),
+	"newLogRecords": string(NewLogRecs2),
 	"logType":       UpdateTask,
 }
 var GroupCreateActionParams = ActionParamsType{

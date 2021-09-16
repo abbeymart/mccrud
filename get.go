@@ -5,6 +5,7 @@
 package mccrud
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mcresponse"
@@ -59,10 +60,18 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	var rowCount = 0
 	var getRecords []map[string]interface{}
 	// transform snapshot value from model-struct to map-value
-	mapValue, mErr := MapToMapCamelCase(mapRes)
-	if mErr != nil {
+	jByte, jErr := json.Marshal(mapRes)
+	if jErr != nil {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("%v", mErr.Error()),
+			Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+			Value:   nil,
+		})
+	}
+	mapValue := map[string]interface{}{}
+	jErr = json.Unmarshal(jByte, &mapValue)
+	if jErr != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
 			Value:   nil,
 		})
 	}
@@ -73,9 +82,10 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": []string{id}}
+		jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: logRecs,
+			LogRecords: string(jVal),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -174,16 +184,24 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 			})
 		} else {
 			// transform snapshot value from model-struct to map-value
-			mapValue, mErr := MapToMapCamelCase(mapRes)
-			if mErr != nil {
+			jByte, jErr := json.Marshal(mapRes)
+			if jErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("%v", mErr.Error()),
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
 					Value:   nil,
 				})
 			}
-			fmt.Printf("Get-query-result: %v", mapValue)
+			mapValue := map[string]interface{}{}
+			jErr = json.Unmarshal(jByte, &mapValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
 			getRecords = append(getRecords, mapValue)
 			rowCount += 1
+			//fmt.Printf("Get-query-result: %v", mapValue)
 		}
 	}
 	// check record-rows error
@@ -203,9 +221,10 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": crud.RecordIds}
+		jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: logRecs,
+			LogRecords: string(jVal),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -296,10 +315,18 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 			})
 		} else {
 			// transform snapshot value from map-underscore-to-camelCase
-			mapValue, mErr := MapToMapCamelCase(mapRes)
-			if mErr != nil {
+			jByte, jErr := json.Marshal(mapRes)
+			if jErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-					Message: fmt.Sprintf("%v", mErr.Error()),
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
+			mapValue := map[string]interface{}{}
+			jErr = json.Unmarshal(jByte, &mapValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
 					Value:   nil,
 				})
 			}
@@ -324,9 +351,10 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"queryParams": crud.QueryParams}
+		jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: logRecs,
+			LogRecords: string(jVal),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -408,10 +436,18 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 			})
 		}
 		// transform snapshot value from model-struct to map-value
-		mapValue, mErr := MapToMapCamelCase(mapRes)
-		if mErr != nil {
+		jByte, jErr := json.Marshal(mapRes)
+		if jErr != nil {
 			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("%v", mErr.Error()),
+				Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+				Value:   nil,
+			})
+		}
+		mapValue := map[string]interface{}{}
+		jErr = json.Unmarshal(jByte, &mapValue)
+		if jErr != nil {
+			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
 				Value:   nil,
 			})
 		}
@@ -436,9 +472,10 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"query": "all"}
+		jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: logRecs,
+			LogRecords: string(jVal),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

@@ -5,6 +5,7 @@
 package mccrud
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mcresponse"
@@ -36,7 +37,7 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	var insertId string
 	// create new records by fieldValues
 	for _, fValues := range createQueryRes.CreateQueryObject.FieldValues {
-		insertErr := tx.QueryRowx( createQueryRes.CreateQueryObject.CreateQuery, fValues...).Scan(&insertId)
+		insertErr := tx.QueryRowx(createQueryRes.CreateQueryObject.CreateQuery, fValues...).Scan(&insertId)
 		if insertErr != nil {
 			if rErr := tx.Rollback(); rErr != nil {
 				log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -67,9 +68,10 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogCreate {
+		jVal, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: crud.ActionParams,
+			LogRecords: string(jVal),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(CreateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -117,7 +119,7 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	// perform records' updates
 	updateCount := 0
 	for _, upQuery := range updateQueryRes.UpdateQueryObjects {
-		res, updateErr := tx.Exec( upQuery.UpdateQuery, upQuery.FieldValues...)
+		res, updateErr := tx.Exec(upQuery.UpdateQuery, upQuery.FieldValues...)
 		if updateErr != nil {
 			if rErr := tx.Rollback(); rErr != nil {
 				log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -152,10 +154,12 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
+		jVal, _ := json.Marshal(currentRecs)
+		jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    currentRecs,
-			NewLogRecords: crud.ActionParams,
+			LogRecords:    string(jVal),
+			NewLogRecords: string(jVal2),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -201,7 +205,7 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 			Value:   nil,
 		})
 	}
-	res, updateErr := tx.Exec( updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
+	res, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		if rErr := tx.Rollback(); rErr != nil {
 			log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -230,10 +234,12 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": []string{id}}
+		jVal, _ := json.Marshal(currentRecs)
+		jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    currentRecs,
-			NewLogRecords: crud.ActionParams,
+			LogRecords:    string(jVal),
+			NewLogRecords: string(jVal2),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -283,7 +289,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	res, updateErr := tx.Exec( updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
+	res, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		if rErr := tx.Rollback(); rErr != nil {
 			log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -312,10 +318,12 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
+		jVal, _ := json.Marshal(currentRecs)
+		jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    currentRecs,
-			NewLogRecords: crud.ActionParams,
+			LogRecords:    string(jVal),
+			NewLogRecords: string(jVal2),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -366,7 +374,7 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 		})
 	}
 	updateFieldValues := updateQueryRes.UpdateQueryObject.FieldValues
-	res, updateErr := tx.Exec( updateQueryRes.UpdateQueryObject.UpdateQuery, updateFieldValues...)
+	res, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateFieldValues...)
 	if updateErr != nil {
 		if rErr := tx.Rollback(); rErr != nil {
 			log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -395,10 +403,12 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "queryParams": crud.QueryParams}
+		jVal, _ := json.Marshal(currentRecs)
+		jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    currentRecs,
-			NewLogRecords: crud.ActionParams,
+			LogRecords:    string(jVal),
+			NewLogRecords: string(jVal2),
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
