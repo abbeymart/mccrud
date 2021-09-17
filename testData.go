@@ -216,8 +216,8 @@ var AuditUpdateRecordById = ActionParamType{
 	"tableName":     "groups",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
-	"logRecords":    LogRecords,
-	"newLogRecords": NewLogRecords,
+	"logRecords":    string(LogRecs),
+	"newLogRecords": string(NewLogRecs),
 	"logType":       DeleteTask,
 }
 var AuditUpdateRecordByIds = ActionParamType{
@@ -225,8 +225,8 @@ var AuditUpdateRecordByIds = ActionParamType{
 	"tableName":     "users",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
-	"logRecords":    LogRecords,
-	"newLogRecords": NewLogRecords,
+	"logRecords":    string(LogRecs),
+	"newLogRecords": string(NewLogRecs),
 	"logType":       CreateTask,
 }
 var AuditUpdateRecordByParam = ActionParamType{
@@ -234,8 +234,8 @@ var AuditUpdateRecordByParam = ActionParamType{
 	"tableName":     "categories",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
-	"logRecords":    LogRecords,
-	"newLogRecords": NewLogRecords,
+	"logRecords":    string(LogRecs),
+	"newLogRecords": string(NewLogRecs),
 	"logType":       UpdateTask,
 }
 

@@ -119,7 +119,7 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	// perform records' updates
 	updateCount := 0
 	for _, upQuery := range updateQueryRes.UpdateQueryObjects {
-		res, updateErr := tx.Exec(upQuery.UpdateQuery, upQuery.FieldValues...)
+		_, updateErr := tx.Exec(upQuery.UpdateQuery, upQuery.FieldValues...)
 		if updateErr != nil {
 			if rErr := tx.Rollback(); rErr != nil {
 				log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -129,11 +129,7 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 				Value:   nil,
 			})
 		}
-		rowsCount, rcErr := res.RowsAffected()
-		if rcErr != nil {
-			rowsCount = 0
-		}
-		updateCount += int(rowsCount)
+		updateCount += 1
 	}
 	// commit
 	txcErr := tx.Commit()
@@ -205,7 +201,7 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 			Value:   nil,
 		})
 	}
-	res, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
+	_, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		if rErr := tx.Rollback(); rErr != nil {
 			log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -248,16 +244,13 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 		}
 	}
 	// response
-	rowsCount, rcErr := res.RowsAffected()
-	if rcErr != nil {
-		rowsCount = 0
-	}
+	rowsCount := 1
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
 		Value: CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
-			RecordsCount: int(rowsCount),
+			RecordsCount: rowsCount,
 			TaskType:     crud.TaskType,
 			LogRes:       logRes,
 		},
@@ -334,7 +327,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 	// response
 	rowsCount, rcErr := res.RowsAffected()
 	if rcErr != nil {
-		rowsCount = 0
+		rowsCount = int64(len(crud.RecordIds))
 	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
