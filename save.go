@@ -282,6 +282,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	updateCount := 0
 	res, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		if rErr := tx.Rollback(); rErr != nil {
@@ -303,6 +304,13 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	updateCount += len(crud.RecordIds)
+	fmt.Printf("update-result: %v", res)
+	// TODO: review the RowsAffected option
+	// rowsCount, rcErr := res.RowsAffected()
+	//	if rcErr != nil {
+	//		updateCount += len(crud.RecordIds)
+	//	}
 	// delete cache
 	_ = mccache.DeleteHashCache(crud.TableName, crud.CacheKey, "key")
 	// perform audit-log
@@ -325,16 +333,12 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 		}
 	}
 	// response
-	rowsCount, rcErr := res.RowsAffected()
-	if rcErr != nil {
-		rowsCount = int64(len(crud.RecordIds))
-	}
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: fmt.Sprintf("Record(s) update completed successfully [log-message: %v]", logMessage),
 		Value: CrudResultType{
 			QueryParam:   crud.QueryParams,
 			RecordIds:    crud.RecordIds,
-			RecordsCount: int(rowsCount),
+			RecordsCount: updateCount,
 			TaskType:     crud.TaskType,
 			LogRes:       logRes,
 		},
@@ -409,7 +413,8 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 			logMessage = fmt.Sprintf("Audit-log-code: %v | Message: %v", logRes.Code, logRes.Message)
 		}
 	}
-	// response
+	// response | TODO: review res.RowsAffected impact
+	fmt.Printf("update-result: %v", res)
 	rowsCount, rcErr := res.RowsAffected()
 	if rcErr != nil {
 		rowsCount = 0

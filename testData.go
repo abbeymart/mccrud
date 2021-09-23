@@ -247,8 +247,8 @@ var UpdateGroupByParams = QueryParamType{
 	"name": "Location",
 }
 
-var GetAuditById = "a6dbc263-86ee-436a-bb41-0d3b77274f79"
-var GetAuditByIds = []string{"d46a29db-a9a3-47b9-9598-e17a7338e474", "8fcdc5d5-f4e3-4f98-ba19-16e798f81070"}
+var GetAuditById = "f517ef7b-5457-4f51-a905-e427465defd0"
+var GetAuditByIds = []string{"f517ef7b-5457-4f51-a905-e427465defd0", "a66a3057-028d-4f64-aa18-05ea26b1d2dc"}
 var GetAuditByParams = QueryParamType{
 	"logType": "create",
 }
