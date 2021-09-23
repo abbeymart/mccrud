@@ -185,6 +185,25 @@ func StructToTagMap(rec interface{}, tag string) (map[string]interface{}, error)
 	return tagMapData, nil
 }
 
+func ToCamelCase(text string, sep string) string {
+	// accept words/text and separator(' ', '_', '__', '.')
+	textArray := strings.Split(text, sep)
+	// convert the first word to lowercase
+	firstWord := strings.ToLower(textArray[0])
+	// convert other words: first letter to upper case and other letters to lowercase
+	remWords := textArray[1:]
+	var otherWords []string
+	for _, item := range remWords {
+		// convert first letter to upper case
+		item0 := strings.ToUpper(string(item[0]))
+		// convert other letters to lowercase
+		item1N := strings.ToLower(item[1:])
+		itemString := fmt.Sprintf("%v%v", item0, item1N)
+		otherWords = append(otherWords, itemString)
+	}
+	return fmt.Sprintf("%v%v", firstWord, strings.Join(otherWords, ""))
+}
+
 // StructToMapUnderscore converts struct to map (underscore_fields), for crud-db-table-record
 func StructToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as struct{} type
@@ -225,7 +244,7 @@ func MapToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 }
 
 // MapToMapCamelCase converts map underscore-fields to camelCase-fields
-func MapToMapCamelCase(rec interface{}) (map[string]interface{}, error) {
+func MapToMapCamelCase(rec interface{}, sep string) (map[string]interface{}, error) {
 	// validate recs as map type
 	recMap, ok := rec.(map[string]interface{})
 	if !ok || recMap == nil {
@@ -235,7 +254,7 @@ func MapToMapCamelCase(rec interface{}) (map[string]interface{}, error) {
 	uMapData := map[string]interface{}{}
 	// compose uMapData
 	for key, val := range recMap {
-		uMapData[govalidator.UnderscoreToCamelCase(key)] = val
+		uMapData[ToCamelCase(key, sep)] = val
 	}
 	return uMapData, nil
 }

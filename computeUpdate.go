@@ -47,6 +47,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 		fieldsLength := len(actParam)
 		fieldCount := 0
 		recordId := ""
+		fmt.Printf("Field-length-start:count: %v:%v \n\n", fieldsLength, fieldCount)
 		for fieldName, fieldValue := range actParam {
 			// skip fieldName=="id"
 			if fieldName == "id" {
@@ -95,6 +96,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 				updateQuery += ", "
 			}
 		}
+		fmt.Printf("Field-length-start:end: %v:%v \n\n", fieldsLength, fieldCount)
 		// add where condition by id and the placeholder-value position
 		fieldCount += 1
 		updateQuery += fmt.Sprintf(" WHERE id=$%v", fieldCount)

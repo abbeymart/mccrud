@@ -47,8 +47,12 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 					idLen := len(fVal2)
 					recIds := "("
 					for i, val := range fVal2 {
-						recIds += fmt.Sprintf("%v", val)
-						if i < idLen-1 {
+						if valStr, valStrOk := val.(string); valStrOk {
+							recIds += fmt.Sprintf("'%v'", valStr)
+						} else {
+							recIds += fmt.Sprintf("%v", val)
+						}
+						if idLen > 1 && i < idLen-1 {
 							recIds += ", "
 						}
 					}
@@ -87,14 +91,15 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 					return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
 					if govalidator.IsJSON(fVal) {
-						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
-							return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
-						} else {
-							fmt.Printf("string-toJson-value: %v\n\n", fValue)
-							currentFieldValue = fValue
-							fieldValues = append(fieldValues, currentFieldValue)
-							whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
-						}
+						fmt.Printf("string-toJson-value: %v\n\n", fVal)
+						currentFieldValue = fVal
+						fieldValues = append(fieldValues, currentFieldValue)
+						whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
+
+						//if fValue, jErr := govalidator.ToJSON(fieldValue); jErr != nil {
+						//	return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
+						//} else {
+						//}
 					} else {
 						currentFieldValue = "'" + fVal + "'"
 						fieldValues = append(fieldValues, currentFieldValue)

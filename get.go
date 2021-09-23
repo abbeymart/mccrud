@@ -59,7 +59,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 	// check rows count
-	var rowCount = 0
+	//var rowCount = 0
 	var getRecords []map[string]interface{}
 
 	// transform snapshot value from model-struct to map-value
@@ -79,8 +79,8 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 
-	fmt.Printf("map-scanned-result: %v \n", mapValue)
-	mapVal, mapErr := MapToMapCamelCase(mapValue)
+	//fmt.Printf("map-scanned-result: %v \n", mapValue)
+	mapVal, mapErr := MapToMapCamelCase(mapValue, crud.FieldSeparator)
 	if mapErr != nil {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
@@ -91,7 +91,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	fmt.Printf("map-transformed-result: %v \n", mapVal)
 	getRecords = append(getRecords, mapVal)
 
-	rowCount += len(getRecords)
+	//rowCount += len(getRecords)
 	// perform audit-log
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
@@ -114,7 +114,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		Stats: GetStatType{
 			Skip:              crud.Skip,
 			Limit:             crud.Limit,
-			RecordsCount:      rowCount,
+			RecordsCount:      len(getRecords),
 			TotalRecordsCount: totalRows,
 			QueryParam:        crud.QueryParams,
 			RecordIds:         crud.RecordIds,
@@ -189,7 +189,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 		}
 	}(rows)
 	// check rows count
-	var rowCount = 0
+	//var rowCount = 0
 	var getRecords []map[string]interface{}
 	for rows.Next() {
 		mapRes := make(map[string]interface{})
@@ -218,8 +218,8 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 				})
 			}
 
-			fmt.Printf("map-scanned-result: %v \n", mapValue)
-			mapVal, mapErr := MapToMapCamelCase(mapValue)
+			//fmt.Printf("map-scanned-result: %v \n", mapValue)
+			mapVal, mapErr := MapToMapCamelCase(mapValue, crud.FieldSeparator)
 			if mapErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
@@ -229,7 +229,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 
 			fmt.Printf("map-transformed-result: %v \n", mapVal)
 			getRecords = append(getRecords, mapVal)
-			rowCount += 1
+			//rowCount += 1
 			//fmt.Printf("Get-query-result: %v", mapValue)
 		}
 	}
@@ -267,7 +267,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 		Stats: GetStatType{
 			Skip:              crud.Skip,
 			Limit:             crud.Limit,
-			RecordsCount:      rowCount,
+			RecordsCount:      len(getRecords),
 			TotalRecordsCount: totalRows,
 			QueryParam:        crud.QueryParams,
 			RecordIds:         crud.RecordIds,
@@ -334,7 +334,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 		}
 	}(rows)
 	// check rows count
-	var rowCount = 0
+	//var rowCount = 0
 	var getRecords []map[string]interface{}
 	for rows.Next() {
 		mapRes := make(map[string]interface{})
@@ -363,7 +363,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 			}
 
 			//fmt.Printf("map-scanned-result: %v \n", mapValue)
-			mapVal, mapErr := MapToMapCamelCase(mapValue)
+			mapVal, mapErr := MapToMapCamelCase(mapValue, crud.FieldSeparator)
 			if mapErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
@@ -373,7 +373,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 
 			//fmt.Printf("map-transformed-result: %v \n", mapVal)
 			getRecords = append(getRecords, mapVal)
-			rowCount += 1
+			//rowCount += 1
 		}
 	}
 	// check record-rows error
@@ -410,7 +410,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 		Stats: GetStatType{
 			Skip:              crud.Skip,
 			Limit:             crud.Limit,
-			RecordsCount:      rowCount,
+			RecordsCount:      len(getRecords),
 			TotalRecordsCount: totalRows,
 			QueryParam:        crud.QueryParams,
 			RecordIds:         crud.RecordIds,
@@ -467,7 +467,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 		}
 	}(rows)
 	// check rows count
-	var rowCount = 0
+	//var rowCount = 0
 	var getRecords []map[string]interface{}
 	for rows.Next() {
 		mapRes := make(map[string]interface{})
@@ -497,7 +497,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 		}
 
 		//fmt.Printf("map-scanned-result: %v \n", mapValue)
-		mapVal, mapErr := MapToMapCamelCase(mapValue)
+		mapVal, mapErr := MapToMapCamelCase(mapValue, crud.FieldSeparator)
 		if mapErr != nil {
 			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
@@ -507,7 +507,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 
 		//fmt.Printf("map-transformed-result: %v \n", mapVal)
 		getRecords = append(getRecords, mapVal)
-		rowCount += 1
+		//rowCount += 1
 	}
 
 	if rowErr := rows.Err(); rowErr != nil {
@@ -544,7 +544,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 		Stats: GetStatType{
 			Skip:              crud.Skip,
 			Limit:             crud.Limit,
-			RecordsCount:      rowCount,
+			RecordsCount:      len(getRecords),
 			TotalRecordsCount: totalRows,
 			QueryParam:        crud.QueryParams,
 			RecordIds:         crud.RecordIds,

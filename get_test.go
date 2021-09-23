@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mctest"
 	"testing"
@@ -41,8 +40,9 @@ func TestGet(t *testing.T) {
 			res := crud.GetRecord()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
-			jsonRecs, _ := json.Marshal(value.Records)
-			fmt.Printf("json-records: %v\n\n", string(jsonRecs))
+			//jsonRecs, _ := json.Marshal(value.Records)
+			fmt.Printf("json-records: %#v\n\n", value.Records)
+			fmt.Printf("get-all-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount, 1, "get-task-count should be: 1")
 			mctest.AssertEquals(t, len(value.Records), 1, "get-result-count should be: 1")
@@ -59,6 +59,8 @@ func TestGet(t *testing.T) {
 			res := crud.GetByIds()
 			fmt.Printf("get-by-ids-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
+			fmt.Printf("json-records: %#v\n\n", value.Records)
+			fmt.Printf("get-all-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount, recLen, fmt.Sprintf("get-task-count should be: %v", recLen))
 			mctest.AssertEquals(t, len(value.Records), recLen, fmt.Sprintf("get-result-count should be: %v", recLen))
@@ -71,8 +73,10 @@ func TestGet(t *testing.T) {
 			crud.RecordIds = []string{}
 			crud.QueryParams = GetAuditByParams
 			res := crud.GetByParam()
-			fmt.Printf("get-by-param-response: %#v\n", res)
+			//fmt.Printf("get-by-param-response: %#v\n", res)
 			value, _ := res.Value.(GetResultType)
+			fmt.Printf("json-records: %#v\n\n", value.Records)
+			fmt.Printf("get-all-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount > 0, true, "get-task-count should be >= 0")
 			mctest.AssertEquals(t, len(value.Records) > 0, true, "get-result-count should be >= 0")
@@ -86,10 +90,10 @@ func TestGet(t *testing.T) {
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
 			res := crud.GetAll()
-			//fmt.Printf("get-all-response: %#v\n", res)
-			value, _ := res.Value.(CrudResultType)
+			value, _ := res.Value.(GetResultType)
+			fmt.Printf("get-all-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
-			mctest.AssertEquals(t, value.RecordsCount > 20, true, "get-task-count should be >= 10")
+			mctest.AssertEquals(t, value.Stats.RecordsCount > 20, true, "get-task-count should be >= 10")
 			mctest.AssertEquals(t, len(value.Records) > 20, true, "get-result-count should be >= 10")
 		},
 	})
@@ -103,7 +107,7 @@ func TestGet(t *testing.T) {
 			crud.Limit = 20
 			res := crud.GetAll()
 			value, _ := res.Value.(GetResultType)
-			//fmt.Printf("get-all-response-limit: %#v\n", res)
+			fmt.Printf("get-all-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount == 20, true, "get-task-count should be = 20")
 			mctest.AssertEquals(t, len(value.Records) == 20, true, "get-result-count should be = 20")

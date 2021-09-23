@@ -244,6 +244,7 @@ type CrudOptionsType struct {
 	EmailExistsMessage    string
 	MsgFrom               string
 	ModelOptions          ModelOptionsType
+	FieldSeparator        string
 }
 
 type SelectQueryOptions struct {

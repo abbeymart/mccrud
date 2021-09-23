@@ -59,8 +59,12 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.CacheExpire = options.CacheExpire // cache expire in secs
 	crudInstance.BulkCreate = options.BulkCreate
 	crudInstance.ModelOptions = options.ModelOptions
+	crudInstance.FieldSeparator = options.FieldSeparator
 
 	// Default values
+	if crudInstance.FieldSeparator == "" {
+		crudInstance.FieldSeparator = "_"
+	}
 	if crudInstance.AuditTable == "" {
 		crudInstance.AuditTable = "audits"
 	}

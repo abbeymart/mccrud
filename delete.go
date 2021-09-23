@@ -137,6 +137,7 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	}
 	// compute delete query by query-params
 	deleteQueryRes := ComputeDeleteQueryByParam(crud.TableName, crud.QueryParams)
+	fmt.Printf("delete-by-param-query: %v \n", deleteQueryRes.DeleteQueryObject.DeleteQuery)
 	if !deleteQueryRes.Ok {
 		return mcresponse.GetResMessage("deleteError", mcresponse.ResponseMessageOptions{
 			Message: deleteQueryRes.Message,
