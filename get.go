@@ -362,7 +362,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 				})
 			}
 
-			fmt.Printf("map-scanned-result: %v \n", mapValue)
+			//fmt.Printf("map-scanned-result: %v \n", mapValue)
 			mapVal, mapErr := MapToMapCamelCase(mapValue)
 			if mapErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
@@ -496,7 +496,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 			})
 		}
 
-		fmt.Printf("map-scanned-result: %v \n", mapValue)
+		//fmt.Printf("map-scanned-result: %v \n", mapValue)
 		mapVal, mapErr := MapToMapCamelCase(mapValue)
 		if mapErr != nil {
 			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
