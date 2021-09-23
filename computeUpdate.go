@@ -294,14 +294,13 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
-		// next placeholder-value-position
-		fieldCount += 1
 		// skip fieldName=="id"
 		if fieldName == "id" {
-			fieldCount -= 1
 			fieldsLength -= 1
 			continue
 		}
+		// next placeholder-value-position
+		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)

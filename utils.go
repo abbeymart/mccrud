@@ -208,7 +208,7 @@ func StructToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	return caseUnderscoreMapData, nil
 }
 
-// MapToMapUnderscore converts map-fields to camelCase
+// MapToMapUnderscore converts map camelCase-fields to underscore-fields
 func MapToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as map type
 	recMap, ok := rec.(map[string]interface{})
@@ -224,7 +224,7 @@ func MapToMapUnderscore(rec interface{}) (map[string]interface{}, error) {
 	return uMapData, nil
 }
 
-// MapToMapCamelCase converts map-fields to underscore
+// MapToMapCamelCase converts map underscore-fields to camelCase-fields
 func MapToMapCamelCase(rec interface{}) (map[string]interface{}, error) {
 	// validate recs as map type
 	recMap, ok := rec.(map[string]interface{})

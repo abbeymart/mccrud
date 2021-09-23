@@ -57,7 +57,7 @@ func TestGet(t *testing.T) {
 			crud.QueryParams = QueryParamType{}
 			recLen := len(crud.RecordIds)
 			res := crud.GetByIds()
-			fmt.Printf("get-by-id-response: %#v\n\n", res)
+			fmt.Printf("get-by-ids-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount, recLen, fmt.Sprintf("get-task-count should be: %v", recLen))
