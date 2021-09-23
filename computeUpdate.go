@@ -48,15 +48,14 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 		fieldCount := 0
 		recordId := ""
 		for fieldName, fieldValue := range actParam {
-			// next placeholder-value-position
-			fieldCount += 1
 			// skip fieldName=="id"
 			if fieldName == "id" {
 				recordId = fmt.Sprintf("%v", actParam["id"])
-				fieldCount -= 1
 				fieldsLength -= 1
 				continue
 			}
+			// next placeholder-value-position
+			fieldCount += 1
 			fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 			fieldNames = append(fieldNames, fieldName)
 			fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
@@ -131,14 +130,13 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
-		// next placeholder-value-position
-		fieldCount += 1
 		// skip fieldName=="id"
 		if fieldName == "id" {
-			fieldCount -= 1
 			fieldsLength -= 1
 			continue
 		}
+		// next placeholder-value-position
+		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)
@@ -220,14 +218,13 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 	fieldsLength := len(actionParam)
 	fieldCount := 0
 	for fieldName, fieldValue := range actionParam {
-		// next placeholder-value-position
-		fieldCount += 1
 		// skip fieldName=="id"
 		if fieldName == "id" {
-			fieldCount -= 1
 			fieldsLength -= 1
 			continue
 		}
+		// next placeholder-value-position
+		fieldCount += 1
 		fieldNameUnderScore := govalidator.CamelCaseToUnderscore(fieldName)
 		fieldNames = append(fieldNames, fieldName)
 		fieldNamesUnderscore = append(fieldNamesUnderscore, fieldNameUnderScore)

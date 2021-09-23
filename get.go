@@ -63,33 +63,35 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	var getRecords []map[string]interface{}
 
 	// transform snapshot value from model-struct to map-value
-	//jByte, jErr := json.Marshal(mapRes)
-	//if jErr != nil {
-	//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-	//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-	//		Value:   nil,
-	//	})
-	//}
-	//mapValue := map[string]interface{}{}
-	//jErr = json.Unmarshal(jByte, &mapValue)
-	//if jErr != nil {
-	//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-	//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-	//		Value:   nil,
-	//	})
-	//}
+	jByte, jErr := json.Marshal(mapRes)
+	if jErr != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+			Value:   nil,
+		})
+	}
+	mapValue := map[string]interface{}{}
+	jErr = json.Unmarshal(jByte, &mapValue)
+	if jErr != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+			Value:   nil,
+		})
+	}
 
-	fmt.Printf("map-scanned-result: %v \n", mapRes)
-	mapVal, mapErr := MapToMapCamelCase(mapRes)
+	fmt.Printf("map-scanned-result: %v \n", mapValue)
+	mapVal, mapErr := MapToMapCamelCase(mapValue)
 	if mapErr != nil {
 		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
 			Value:   nil,
 		})
 	}
+
 	fmt.Printf("map-transformed-result: %v \n", mapVal)
 	getRecords = append(getRecords, mapVal)
-	rowCount += 1
+
+	rowCount += len(getRecords)
 	// perform audit-log
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
@@ -197,31 +199,34 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 				Value:   nil,
 			})
 		} else {
-			// transform snapshot value from model-struct to map-value
-			//jByte, jErr := json.Marshal(mapRes)
-			//if jErr != nil {
-			//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-			//		Value:   nil,
-			//	})
-			//}
-			//mapValue := map[string]interface{}{}
-			//jErr = json.Unmarshal(jByte, &mapValue)
-			//if jErr != nil {
-			//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-			//		Value:   nil,
-			//	})
-			//}
 
-			fmt.Printf("map-scanned-result: %v \n", mapRes)
-			mapVal, mapErr := MapToMapCamelCase(mapRes)
+			// transform snapshot value from model-struct to map-value
+
+			jByte, jErr := json.Marshal(mapRes)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
+			mapValue := map[string]interface{}{}
+			jErr = json.Unmarshal(jByte, &mapValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
+
+			fmt.Printf("map-scanned-result: %v \n", mapValue)
+			mapVal, mapErr := MapToMapCamelCase(mapValue)
 			if mapErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
 					Value:   nil,
 				})
 			}
+
 			fmt.Printf("map-transformed-result: %v \n", mapVal)
 			getRecords = append(getRecords, mapVal)
 			rowCount += 1
@@ -339,30 +344,34 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 				Value:   nil,
 			})
 		} else {
-			// transform snapshot value from map-underscore-to-camelCase
-			//jByte, jErr := json.Marshal(mapRes)
-			//if jErr != nil {
-			//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-			//		Value:   nil,
-			//	})
-			//}
-			//mapValue := map[string]interface{}{}
-			//jErr = json.Unmarshal(jByte, &mapValue)
-			//if jErr != nil {
-			//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-			//		Value:   nil,
-			//	})
-			//}
 
-			mapVal, mapErr := MapToMapCamelCase(mapRes)
+			// transform snapshot value from map-underscore-to-camelCase
+			jByte, jErr := json.Marshal(mapRes)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
+			mapValue := map[string]interface{}{}
+			jErr = json.Unmarshal(jByte, &mapValue)
+			if jErr != nil {
+				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+					Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+					Value:   nil,
+				})
+			}
+
+			fmt.Printf("map-scanned-result: %v \n", mapValue)
+			mapVal, mapErr := MapToMapCamelCase(mapValue)
 			if mapErr != nil {
 				return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 					Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
 					Value:   nil,
 				})
 			}
+
+			//fmt.Printf("map-transformed-result: %v \n", mapVal)
 			getRecords = append(getRecords, mapVal)
 			rowCount += 1
 		}
@@ -471,29 +480,32 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 		}
 
 		// transform snapshot value from model-struct to map-value
-		//jByte, jErr := json.Marshal(mapRes)
-		//if jErr != nil {
-		//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-		//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-		//		Value:   nil,
-		//	})
-		//}
-		//mapValue := map[string]interface{}{}
-		//jErr = json.Unmarshal(jByte, &mapValue)
-		//if jErr != nil {
-		//	return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-		//		Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
-		//		Value:   nil,
-		//	})
-		//}
+		jByte, jErr := json.Marshal(mapRes)
+		if jErr != nil {
+			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+				Value:   nil,
+			})
+		}
+		mapValue := map[string]interface{}{}
+		jErr = json.Unmarshal(jByte, &mapValue)
+		if jErr != nil {
+			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Error transforming result-value into json-value-format: %v", jErr.Error()),
+				Value:   nil,
+			})
+		}
 
-		mapVal, mapErr := MapToMapCamelCase(mapRes)
+		fmt.Printf("map-scanned-result: %v \n", mapValue)
+		mapVal, mapErr := MapToMapCamelCase(mapValue)
 		if mapErr != nil {
 			return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
 				Message: fmt.Sprintf("map-underscore-to-camelCase-error: %v", mapErr.Error()),
 				Value:   nil,
 			})
 		}
+
+		//fmt.Printf("map-transformed-result: %v \n", mapVal)
 		getRecords = append(getRecords, mapVal)
 		rowCount += 1
 	}
