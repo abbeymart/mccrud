@@ -91,17 +91,17 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 					return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 				} else {
 					if govalidator.IsJSON(fVal) {
-						fmt.Printf("string-toJson-value: %v\n\n", fVal)
+						//fmt.Printf("string-toJson-value: %v\n\n", fVal)
 						currentFieldValue = fVal
 						fieldValues = append(fieldValues, currentFieldValue)
 						whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
-
 						//if fValue, jErr := govalidator.ToJSON(fieldValue); jErr != nil {
 						//	return whereErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						//} else {
 						//}
 					} else {
-						currentFieldValue = "'" + fVal + "'"
+						//currentFieldValue = "'" + fVal + "'"
+						currentFieldValue = fVal
 						fieldValues = append(fieldValues, currentFieldValue)
 						whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 					}
@@ -115,7 +115,7 @@ func ComputeWhereQuery(queryParams QueryParamType, fieldLength int) WhereQueryRe
 				if fVal, err := json.Marshal(fieldValue); err != nil {
 					return whereErrMessage(fmt.Sprintf("Unknown or Unsupported field-value type: %v", err.Error()))
 				} else {
-					currentFieldValue = string(fVal)
+					currentFieldValue = fVal
 					fieldValues = append(fieldValues, currentFieldValue)
 					whereQuery += fmt.Sprintf("%v=$%v", govalidator.CamelCaseToUnderscore(fieldName), fieldLength)
 				}

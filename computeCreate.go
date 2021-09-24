@@ -88,7 +88,7 @@ func ComputeCreateQuery(tableName string, actionParams ActionParamsType) CreateQ
 						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 							return errMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						} else {
-							fmt.Printf("string-toJson-value: %v\n\n", fValue)
+							//fmt.Printf("string-toJson-value: %v\n\n", fValue)
 							currentFieldValue = fValue
 						}
 					} else {

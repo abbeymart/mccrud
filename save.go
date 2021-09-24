@@ -22,7 +22,7 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("create-query: %v", createQueryRes.CreateQueryObject.CreateQuery)
+	//fmt.Printf("create-query: %v", createQueryRes.CreateQueryObject.CreateQuery)
 	// perform create/insert action, via transaction/copy-protocol:
 	tx, txErr := crud.AppDb.Beginx()
 	if txErr != nil {
@@ -107,7 +107,7 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObjects[0].UpdateQuery)
+	//fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObjects[0].UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin()
 	if txErr != nil {
@@ -192,7 +192,7 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 			Value:   nil,
 		})
 	}
-	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
+	//fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin()
 	if txErr != nil {
@@ -273,7 +273,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
+	//fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin()
 	if txErr != nil {
@@ -283,7 +283,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 		})
 	}
 	updateCount := 0
-	res, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
+	_, updateErr := tx.Exec(updateQueryRes.UpdateQueryObject.UpdateQuery, updateQueryRes.UpdateQueryObject.FieldValues...)
 	if updateErr != nil {
 		if rErr := tx.Rollback(); rErr != nil {
 			log.Fatalf("Unable to Rollback: Check DB-driver: %v", rErr.Error())
@@ -305,7 +305,7 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 		})
 	}
 	updateCount += len(crud.RecordIds)
-	fmt.Printf("update-result: %v", res)
+	//fmt.Printf("update-result: %v", res)
 	// TODO: review the RowsAffected option
 	// rowsCount, rcErr := res.RowsAffected()
 	//	if rcErr != nil {
@@ -361,7 +361,7 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 			Value:   nil,
 		})
 	}
-	fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
+	//fmt.Printf("update-query: %v", updateQueryRes.UpdateQueryObject.UpdateQuery)
 	// perform update action, via transaction:
 	tx, txErr := crud.AppDb.Begin()
 	if txErr != nil {

@@ -57,7 +57,7 @@ func TestSave(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should create two new records and return success:",
 		TestFunc: func() {
-			crud.TableName = AuditTable
+			crud.TableName = UpdateTable
 			crud.ActionParams = AuditCreateActionParams
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
@@ -74,7 +74,7 @@ func TestSave(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update two existing records and return success:",
 		TestFunc: func() {
-			crud.TableName = AuditTable
+			crud.TableName = UpdateTable
 			crud.ActionParams = AuditUpdateActionParams
 			crud.RecordIds = []string{}
 			crud.QueryParams = QueryParamType{}
@@ -91,7 +91,7 @@ func TestSave(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update a record by Id and return success:",
 		TestFunc: func() {
-			crud.TableName = AuditTable
+			crud.TableName = UpdateTable
 			crud.ActionParams = ActionParamsType{AuditUpdateRecordById}
 			crud.RecordIds = []string{UpdateAuditById}
 			crud.QueryParams = QueryParamType{}
@@ -108,7 +108,7 @@ func TestSave(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update records by Ids and return success:",
 		TestFunc: func() {
-			crud.TableName = AuditTable
+			crud.TableName = UpdateTable
 			crud.ActionParams = ActionParamsType{AuditUpdateRecordById}
 			crud.RecordIds = UpdateAuditByIds
 			crud.QueryParams = QueryParamType{}
@@ -125,7 +125,7 @@ func TestSave(t *testing.T) {
 	mctest.McTest(mctest.OptionValue{
 		Name: "should update records by query-params and return success:",
 		TestFunc: func() {
-			crud.TableName = AuditTable
+			crud.TableName = UpdateTable
 			crud.ActionParams = ActionParamsType{AuditUpdateRecordByParam}
 			crud.RecordIds = []string{}
 			crud.QueryParams = UpdateAuditByParams

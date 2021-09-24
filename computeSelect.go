@@ -41,7 +41,7 @@ func ComputeSelectQueryAll(modelRef interface{}, tableName string, options Selec
 	for i, fieldName := range fieldNames {
 		//fieldText += "'" + fieldName + "'"
 		fieldText += fieldName
-		if i < fieldLen - 1 {
+		if i < fieldLen-1 {
 			fieldText += ", "
 		}
 	}
@@ -86,7 +86,7 @@ func ComputeSelectQueryById(modelRef interface{}, tableName string, recordId str
 	for i, fieldName := range fieldNames {
 		//fieldText += "'" + fieldName + "'"
 		fieldText += fieldName
-		if i < fieldLen - 1 {
+		if i < fieldLen-1 {
 			fieldText += ", "
 		}
 	}
@@ -132,7 +132,7 @@ func ComputeSelectQueryByIds(modelRef interface{}, tableName string, recordIds [
 	for i, fieldName := range fieldNames {
 		//fieldText += "'" + fieldName + "'"
 		fieldText += fieldName
-		if i < fieldLen - 1 {
+		if i < fieldLen-1 {
 			fieldText += ", "
 		}
 	}
@@ -186,7 +186,7 @@ func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryPara
 	for i, fieldName := range fieldNames {
 		//fieldText += "'" + fieldName + "'"
 		fieldText += fieldName
-		if i < fieldLen - 1 {
+		if i < fieldLen-1 {
 			fieldText += ", "
 		}
 	}
@@ -209,7 +209,7 @@ func ComputeSelectQueryByParam(modelRef interface{}, tableName string, queryPara
 				SelectQuery: selectQuery,
 				FieldValues: whereRes.WhereQueryObject.FieldValues,
 			},
-			Ok: true,
+			Ok:      true,
 			Message: "success",
 		}
 	} else {

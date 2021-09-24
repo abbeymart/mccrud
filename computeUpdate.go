@@ -52,7 +52,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 			// skip fieldName=="id"
 			if fieldName == "id" {
 				recordId = fmt.Sprintf("%v", actParam["id"])
-				fieldsLength -= 1
+				fieldsLength = fieldsLength - 1
 				continue
 			}
 			// next placeholder-value-position
@@ -79,7 +79,7 @@ func ComputeUpdateQuery(tableName string, actionParams ActionParamsType) MultiUp
 						if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 							return updatesErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 						} else {
-							fmt.Printf("string-toJson-value: %v\n\n", fValue)
+							//fmt.Printf("string-toJson-value: %v\n\n", fValue)
 							currentFieldValue = fValue
 						}
 					} else {
@@ -134,7 +134,7 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 	for fieldName, fieldValue := range actionParam {
 		// skip fieldName=="id"
 		if fieldName == "id" {
-			fieldsLength -= 1
+			fieldsLength = fieldsLength - 1
 			continue
 		}
 		// next placeholder-value-position
@@ -161,7 +161,7 @@ func ComputeUpdateQueryById(tableName string, actionParam ActionParamType, recor
 					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 						return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fmt.Printf("string-toJson-value: %v\n\n", fValue)
+						//fmt.Printf("string-toJson-value: %v\n\n", fValue)
 						currentFieldValue = fValue
 					}
 				} else {
@@ -222,7 +222,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 	for fieldName, fieldValue := range actionParam {
 		// skip fieldName=="id"
 		if fieldName == "id" {
-			fieldsLength -= 1
+			fieldsLength = fieldsLength - 1	
 			continue
 		}
 		// next placeholder-value-position
@@ -249,7 +249,7 @@ func ComputeUpdateQueryByIds(tableName string, actionParam ActionParamType, reco
 					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 						return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fmt.Printf("string-toJson-value: %v\n\n", fValue)
+						//fmt.Printf("string-toJson-value: %v\n\n", fValue)
 						currentFieldValue = fValue
 					}
 				} else {
@@ -292,11 +292,11 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 	var fieldNamesUnderscore []string
 	fieldsLength := len(actionParam)
 	fieldCount := 0
-	fmt.Printf("Field-length-start:count: %v:%v \n\n", fieldsLength, fieldCount)
+	//fmt.Printf("Field-length-start:count: %v:%v \n\n", fieldsLength, fieldCount)
 	for fieldName, fieldValue := range actionParam {
 		// skip fieldName=="id"
 		if fieldName == "id" {
-			fieldsLength -= 1
+			fieldsLength = fieldsLength - 1
 			continue
 		}
 		// next placeholder-value-position
@@ -323,7 +323,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 					if fValue, err := govalidator.ToJSON(fieldValue); err != nil {
 						return updateErrMessage(fmt.Sprintf("field_name: %v | field_value: %v error: ", fieldName, fieldValue))
 					} else {
-						fmt.Printf("string-toJson-value: %v\n\n", fValue)
+						//fmt.Printf("string-toJson-value: %v\n\n", fValue)
 						currentFieldValue = fValue
 					}
 				} else {
@@ -340,7 +340,7 @@ func ComputeUpdateQueryByParam(tableName string, actionParam ActionParamType, qu
 			updateQuery += ", "
 		}
 	}
-	fmt.Printf("Field-length-start:end: %v:%v \n\n", fieldsLength, fieldCount)
+	//fmt.Printf("Field-length-start:end: %v:%v \n\n", fieldsLength, fieldCount)
 	// where-query
 	whereRes := ComputeWhereQuery(queryParam, fieldCount+1)
 	if !whereRes.Ok {

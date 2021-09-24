@@ -166,8 +166,8 @@ var AuditCreateRec2 = ActionParamType{
 	"logType":    CreateTask,
 }
 var AuditUpdateRec1 = ActionParamType{
-	"id":            "8883ef51-d730-4645-9bc8-f986cebb7881",
-	"tableName":     "services",
+	"id":            "f517ef7b-5457-4f51-a905-e427465defd0",
+	"tableName":     "todos",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
 	"logRecords":    string(LogRecs),
@@ -175,8 +175,8 @@ var AuditUpdateRec1 = ActionParamType{
 	"logType":       UpdateTask,
 }
 var AuditUpdateRec2 = ActionParamType{
-	"id":            "ba0c5814-e7a3-4c62-8e1f-1dd38a324ece",
-	"tableName":     "services",
+	"id":            "a66a3057-028d-4f64-aa18-05ea26b1d2dc",
+	"tableName":     "todos",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
 	"logRecords":    string(LogRecs2),
@@ -212,7 +212,7 @@ var GroupUpdateRecordByParam = ActionParamType{
 }
 
 var AuditUpdateRecordById = ActionParamType{
-	"id":            "f517ef7b-5457-4f51-a905-e427465defd0",
+	"id":            "03012156-19a4-43f9-b8ee-c1e9dd5d19b8",
 	"tableName":     "groups",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
@@ -221,7 +221,7 @@ var AuditUpdateRecordById = ActionParamType{
 	"logType":       DeleteTask,
 }
 var AuditUpdateRecordByIds = ActionParamType{
-	"id":            "a66a3057-028d-4f64-aa18-05ea26b1d2dc",
+	"id":            "be6b3f55-1724-4811-a23c-8ea481558f25",
 	"tableName":     "users",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
@@ -231,7 +231,7 @@ var AuditUpdateRecordByIds = ActionParamType{
 }
 var AuditUpdateRecordByParam = ActionParamType{
 	"id":            "03012156-19a4-43f9-b8ee-c1e9dd5d19b8",
-	"tableName":     "categories",
+	"tableName":     "contacts",
 	"logAt":         time.Now(),
 	"logBy":         UserId,
 	"logRecords":    string(LogRecs),
@@ -262,11 +262,11 @@ var DeleteAuditByIds = []string{
 var DeleteAuditByParams = QueryParamType{
 	"logType": "read",
 }
-var UpdateAuditById = "f517ef7b-5457-4f51-a905-e427465defd0"
+var UpdateAuditById = "8883ef51-d730-4645-9bc8-f986cebb7881"
 var UpdateAuditByIds = []string{
-	"a66a3057-028d-4f64-aa18-05ea26b1d2dc",
-	"03012156-19a4-43f9-b8ee-c1e9dd5d19b8",
-	"be6b3f55-1724-4811-a23c-8ea481558f25",
+	"b8ca59b8-46f4-4a0c-82aa-f689d8ce295c",
+	"a6dbc263-86ee-436a-bb41-0d3b77274f79",
+	"19604025-cb69-46cd-883a-8f51e754817b",
 }
 var UpdateAuditByParams = QueryParamType{
 	"logType": "read",
