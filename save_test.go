@@ -28,10 +28,11 @@ func TestSave(t *testing.T) {
 	// audit-log instance
 	mcLog := NewAuditLogx(dbc, AuditTable)
 	// group-table-records
-	modelRef := Audit{}
+	audit := Audit{}
 	crudParams := CrudParamsType{
 		AppDb:        dbc,
-		ModelRef:     modelRef,
+		ModelRef:     audit,
+		ModelPointer: &audit,
 		TableName:    "",
 		UserInfo:     TestUserInfo,
 		ActionParams: nil,

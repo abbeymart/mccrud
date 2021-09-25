@@ -22,14 +22,15 @@ func TestDelete(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
-	modelRef := Audit{}
+	audit := Audit{}
 	crudParams := CrudParamsType{
-		AppDb:       dbc,
-		ModelRef:    modelRef,
-		TableName:   DeleteTable,
-		UserInfo:    TestUserInfo,
-		RecordIds:   []string{},
-		QueryParams: QueryParamType{},
+		AppDb:        dbc,
+		ModelRef:     audit,
+		ModelPointer: &audit,
+		TableName:    DeleteTable,
+		UserInfo:     TestUserInfo,
+		RecordIds:    []string{},
+		QueryParams:  QueryParamType{},
 	}
 	var crud = NewCrud(crudParams, CrudParamOptions)
 
