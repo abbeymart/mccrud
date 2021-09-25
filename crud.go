@@ -27,6 +27,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance = &Crud{}
 	// compute crud params
 	crudInstance.ModelRef = params.ModelRef
+	crudInstance.ModelPointer = params.ModelPointer
 	crudInstance.AppDb = params.AppDb
 	crudInstance.TableName = params.TableName
 	crudInstance.UserInfo = params.UserInfo

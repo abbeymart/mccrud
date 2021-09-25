@@ -1,5 +1,11 @@
 # Historical logs
 
+## Version 0.7.1
+
+- Release date: Sep 24, 2021
+- resolve get-json-value-format-defect
+
+
 ## Version 0.7.0
 
 - Release date: Sep 23, 2021

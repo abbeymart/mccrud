@@ -200,6 +200,7 @@ type ModelOptionsType struct {
 // CrudParamsType is the struct type for receiving, composing and passing CRUD inputs
 type CrudParamsType struct {
 	ModelRef      interface{}      `json:"-"`
+	ModelPointer  interface{}      `json:"-"`
 	AppDb         *sqlx.DB         `json:"-"`
 	TableName     string           `json:"-"`
 	UserInfo      UserInfoType     `json:"userInfo"`

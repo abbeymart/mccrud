@@ -380,3 +380,7 @@ func GetParamsMessage(msgObject mctypes.MessageObject) mcresponse.ResponseMessag
 		Value:   nil,
 	})
 }
+
+func RowRecordToMap() {
+
+}

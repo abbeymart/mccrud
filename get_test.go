@@ -22,14 +22,15 @@ func TestGet(t *testing.T) {
 		fmt.Printf("*****db-connection-error: %v\n", err.Error())
 		return
 	}
-	modelRef := Audit{}
+	audit := Audit{}
 	crudParams := CrudParamsType{
-		AppDb:       dbc,
-		ModelRef:    modelRef,
-		TableName:   GetTable,
-		UserInfo:    TestUserInfo,
-		RecordIds:   []string{},
-		QueryParams: QueryParamType{},
+		AppDb:        dbc,
+		ModelRef:     audit,
+		ModelPointer: &audit,
+		TableName:    GetTable,
+		UserInfo:     TestUserInfo,
+		RecordIds:    []string{},
+		QueryParams:  QueryParamType{},
 	}
 	var crud = NewCrud(crudParams, CrudParamOptions)
 
@@ -41,7 +42,7 @@ func TestGet(t *testing.T) {
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
 			//jsonRecs, _ := json.Marshal(value.Records)
-			fmt.Printf("json-records: %#v\n\n", value.Records)
+			fmt.Printf("json-records: %#v\n\n %#v \n\n", value.Records[0], value.Records[0]["logRecords"])
 			fmt.Printf("get-by-id-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount, 1, "get-task-count should be: 1")
@@ -75,7 +76,7 @@ func TestGet(t *testing.T) {
 			res := crud.GetByParam()
 			//fmt.Printf("get-by-param-response: %#v\n", res)
 			value, _ := res.Value.(GetResultType)
-			fmt.Printf("json-records: %#v\n\n", value.Records)
+			//fmt.Printf("json-records: %#v\n\n", value.Records)
 			fmt.Printf("get-by-params-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount > 0, true, "get-task-count should be >= 0")
