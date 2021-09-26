@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mcresponse"
@@ -68,10 +67,10 @@ func (crud *Crud) Create(recs ActionParamsType) mcresponse.ResponseMessage {
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogCreate {
-		jVal, _ := json.Marshal(crud.ActionParams)
+		//jVal, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: crud.ActionParams},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(CreateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -149,13 +148,13 @@ func (crud *Crud) Update(recs ActionParamsType) mcresponse.ResponseMessage {
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
-		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
-		jVal, _ := json.Marshal(currentRecs)
-		jVal2, _ := json.Marshal(crud.ActionParams)
+		//currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
+		//jVal, _ := json.Marshal(currentRecs)
+		//jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    string(jVal),
-			NewLogRecords: string(jVal2),
+			LogRecords:    LogRecordsType{LogRecords: crud.CurrentRecords},
+			NewLogRecords: LogRecordsType{LogRecords: crud.ActionParams},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -229,13 +228,13 @@ func (crud *Crud) UpdateById(rec ActionParamType, id string) mcresponse.Response
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
-		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": []string{id}}
-		jVal, _ := json.Marshal(currentRecs)
-		jVal2, _ := json.Marshal(crud.ActionParams)
+		//currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": []string{id}}
+		//jVal, _ := json.Marshal(currentRecs)
+		//jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    string(jVal),
-			NewLogRecords: string(jVal2),
+			LogRecords:    LogRecordsType{LogRecords: crud.CurrentRecords},
+			NewLogRecords: LogRecordsType{LogRecords: crud.ActionParams},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -318,13 +317,13 @@ func (crud *Crud) UpdateByIds(rec ActionParamType) mcresponse.ResponseMessage {
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
-		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
-		jVal, _ := json.Marshal(currentRecs)
-		jVal2, _ := json.Marshal(crud.ActionParams)
+		//currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
+		//jVal, _ := json.Marshal(currentRecs)
+		//jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    string(jVal),
-			NewLogRecords: string(jVal2),
+			LogRecords:    LogRecordsType{LogRecords: crud.CurrentRecords},
+			NewLogRecords: LogRecordsType{LogRecords: crud.ActionParams},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -399,13 +398,13 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogUpdate || crud.LogCrud {
-		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "queryParams": crud.QueryParams}
-		jVal, _ := json.Marshal(currentRecs)
-		jVal2, _ := json.Marshal(crud.ActionParams)
+		//currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "queryParams": crud.QueryParams}
+		//jVal, _ := json.Marshal(currentRecs)
+		//jVal2, _ := json.Marshal(crud.ActionParams)
 		auditInfo := AuditLogOptionsType{
 			TableName:     crud.TableName,
-			LogRecords:    string(jVal),
-			NewLogRecords: string(jVal2),
+			LogRecords:    LogRecordsType{LogRecords: crud.CurrentRecords},
+			NewLogRecords: LogRecordsType{LogRecords: crud.ActionParams},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(UpdateTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

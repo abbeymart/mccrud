@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -28,13 +27,13 @@ func TestAuditLog(t *testing.T) {
 	tableName := "services"
 	userId := "085f48c5-8763-4e22-a1c6-ac1a68ba07de"
 	recs := TestParam{Name: "Abi", Desc: "Testing only", Url: "localhost:9000", Priority: 1, Cost: 1000.00}
-	tableRecords, _ := json.Marshal(recs)
-	//fmt.Println("table-records-json", string(tableRecords))
+	//tableRecords, _ := json.Marshal(recs)
+	//fmt.Println("table-records-json", LogRecordsType{LogRecords: tableRecords})
 	newRecs := TestParam{Name: "Abi Akindele", Desc: "Testing only - updated", Url: "localhost:9900", Priority: 1, Cost: 2000.00}
-	newTableRecords, _ := json.Marshal(newRecs)
-	//fmt.Println("new-table-records-json", string(newTableRecords))
+	//newTableRecords, _ := json.Marshal(newRecs)
+	//fmt.Println("new-table-records-json", LogRecordsType{LogRecords: newTableRecords})
 	readP := map[string][]string{"keywords": {"lagos", "nigeria", "ghana", "accra"}}
-	readParams, _ := json.Marshal(readP)
+	//readParams, _ := json.Marshal(readP)
 
 	myDb := MyDb
 	myDb.Options = DbConnectOptions{}
@@ -66,11 +65,12 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(CreateLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
-				LogRecords: string(tableRecords),
+				LogRecords: LogRecordsType{LogRecords: recs},
 			})
 			//fmt.Printf("create-log: %v", res)
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
-			mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
+			mctest.AssertEquals(t, res.Code, "succ" +
+				"ess", "log-action response-code should be: success")
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
@@ -78,8 +78,8 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(UpdateLog, userId, AuditLogOptionsType{
 				TableName:     tableName,
-				LogRecords:    string(tableRecords),
-				NewLogRecords: string(newTableRecords),
+				LogRecords:    LogRecordsType{LogRecords: recs},
+				NewLogRecords: LogRecordsType{LogRecords: newRecs},
 			})
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
@@ -90,7 +90,7 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(ReadLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
-				LogRecords: string(readParams),
+				LogRecords: LogRecordsType{LogRecords: readP},
 			})
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
@@ -101,7 +101,7 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(DeleteLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
-				LogRecords: string(tableRecords),
+				LogRecords: LogRecordsType{LogRecords: recs},
 			})
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
@@ -112,7 +112,7 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(LoginLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
-				LogRecords: string(tableRecords),
+				LogRecords: LogRecordsType{LogRecords: recs},
 			})
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
@@ -123,7 +123,7 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(LogoutLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
-				LogRecords: string(tableRecords),
+				LogRecords: LogRecordsType{LogRecords: recs},
 			})
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, res.Code, "success", "log-action response-code should be: success")
@@ -134,7 +134,7 @@ func TestAuditLog(t *testing.T) {
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(CreateLog, "", AuditLogOptionsType{
 				TableName:  tableName,
-				LogRecords: string(tableRecords),
+				LogRecords: LogRecordsType{LogRecords: recs},
 			})
 			//fmt.Printf("params-res: %#v", res)
 			mctest.AssertNotEquals(t, err, nil, "error-response should not be: nil")

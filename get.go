@@ -100,10 +100,10 @@ func (crud *Crud) GetById1(id string) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": []string{id}}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -210,10 +210,10 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": []string{id}}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -352,10 +352,10 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": crud.RecordIds}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -486,10 +486,10 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"queryParams": crud.QueryParams}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -611,10 +611,10 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"query": "all"}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -761,10 +761,10 @@ func (crud Crud) GetByIds1() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"recordIds": crud.RecordIds}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -904,10 +904,10 @@ func (crud *Crud) GetByParam1() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"queryParams": crud.QueryParams}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -1038,10 +1038,10 @@ func (crud *Crud) GetAll1() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogRead || crud.LogCrud {
 		logRecs := map[string]interface{}{"query": "all"}
-		jVal, _ := json.Marshal(logRecs)
+		//jVal, _ := json.Marshal(logRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: logRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(ReadTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

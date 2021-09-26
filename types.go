@@ -356,10 +356,11 @@ func (err ErrorType) Error() string {
 }
 
 type LogRecordsType struct {
-	TableFields  []string       `json:"tableFields"`
-	TableRecords []interface{}  `json:"tableRecords"`
+	LogRecords   interface{}    `json:"logRecords"`
 	QueryParam   QueryParamType `json:"queryParam"`
 	RecordIds    []string       `json:"recordIds"`
+	TableFields  []string       `json:"tableFields"`
+	TableRecords []interface{}  `json:"tableRecords"`
 }
 
 type CrudResultType struct {

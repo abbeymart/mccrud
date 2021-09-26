@@ -5,7 +5,6 @@
 package mccrud
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/abbeymart/mccache"
 	"github.com/abbeymart/mcresponse"
@@ -44,10 +43,10 @@ func (crud *Crud) DeleteById(id string) mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": []string{id}}
-		jVal, _ := json.Marshal(currentRecs)
+		//jVal, _ := json.Marshal(currentRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: currentRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -101,10 +100,10 @@ func (crud *Crud) DeleteByIds() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "recordIds": crud.RecordIds}
-		jVal, _ := json.Marshal(currentRecs)
+		//jVal, _ := json.Marshal(currentRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: currentRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -159,10 +158,10 @@ func (crud *Crud) DeleteByParam() mcresponse.ResponseMessage {
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
 		currentRecs := map[string]interface{}{"currentRecords": crud.CurrentRecords, "queryParams": crud.QueryParams}
-		jVal, _ := json.Marshal(currentRecs)
+		//jVal, _ := json.Marshal(currentRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: currentRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())
@@ -206,10 +205,11 @@ func (crud *Crud) DeleteAll() mcresponse.ResponseMessage {
 	logRes := mcresponse.ResponseMessage{}
 	var logErr error
 	if crud.LogDelete || crud.LogCrud {
-		jVal, _ := json.Marshal(map[string]string{"query": "all"})
+		currentRecs := map[string]string{"query": "all"}
+		//jVal, _ := json.Marshal(currentRecs)
 		auditInfo := AuditLogOptionsType{
 			TableName:  crud.TableName,
-			LogRecords: string(jVal),
+			LogRecords: LogRecordsType{LogRecords: currentRecs},
 		}
 		if logRes, logErr = crud.TransLog.AuditLog(DeleteTask, crud.UserInfo.UserId, auditInfo); logErr != nil {
 			logMessage = fmt.Sprintf("Audit-log-error: %v", logErr.Error())

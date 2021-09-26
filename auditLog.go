@@ -6,6 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mcresponse"
@@ -24,7 +25,8 @@ type AuditLogOptionsType struct {
 	TableName     string
 	LogRecords    interface{}
 	NewLogRecords interface{}
-	QueryParams   interface{}
+	QueryParams   QueryParamType
+	RecordIds     []string
 }
 
 type AuditLogger interface {
@@ -104,12 +106,16 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 		dbResult      sql.Result
 		err           error
 	)
+
+	// json-values
+	logRecs, _ := json.Marshal(options.LogRecords)
+	newLogRecs, _ := json.Marshal(options.NewLogRecords)
 	// log-cases
 	switch logType {
 	case CreateLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -145,8 +151,8 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 	case UpdateLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
-		newLogRecords = options.NewLogRecords
+		logRecords = string(logRecs)
+		newLogRecords = string(newLogRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -188,7 +194,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 	case GetLog, ReadLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -223,7 +229,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 	case DeleteLog, RemoveLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -258,7 +264,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 	case LoginLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -293,7 +299,7 @@ func (log LogParam) AuditLog(logType, userId string, options AuditLogOptionsType
 	case LogoutLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""

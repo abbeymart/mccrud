@@ -3,7 +3,7 @@
 ## Version 0.7.1
 
 - Release date: TBD
-- resolve get-json-value-format-defect
+- resolve get-json-value-format-defect && json-value-parsing/reading
 
 
 ## Version 0.7.0

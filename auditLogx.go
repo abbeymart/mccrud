@@ -6,6 +6,7 @@ package mccrud
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mcresponse"
@@ -95,11 +96,13 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 		err           error
 	)
 	// log-cases
+	logRecs, _ := json.Marshal(options.LogRecords)
+	newLogRecs, _ := json.Marshal(options.NewLogRecords)
 	switch logType {
 	case CreateLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -134,8 +137,8 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 	case UpdateLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
-		newLogRecords = options.NewLogRecords
+		logRecords = string(logRecs)
+		newLogRecords = string(newLogRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -177,7 +180,7 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 	case GetLog, ReadLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -212,7 +215,7 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 	case DeleteLog, RemoveLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -247,7 +250,7 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 	case LoginLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
@@ -282,7 +285,7 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 	case LogoutLog:
 		// set params
 		tableName = options.TableName
-		logRecords = options.LogRecords
+		logRecords = string(logRecs)
 		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
