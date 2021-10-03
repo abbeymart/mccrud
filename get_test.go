@@ -42,9 +42,10 @@ func TestGet(t *testing.T) {
 			res := crud.GetRecord()
 			fmt.Printf("get-by-id-response: %#v\n\n", res)
 			value, _ := res.Value.(GetResultType)
-			//jsonRecs, _ := json.Marshal(value.Records)
+			var logRecords interface{}
 			jsonVal, _ := json.Marshal(value.Records[0]["logRecords"])
-			fmt.Printf("json-records: %#v\n\n %#v \n\n", value.Records[0], string(jsonVal))
+			_ = json.Unmarshal(jsonVal, &logRecords)
+			fmt.Printf("json-records: %#v\n\n %#v \n\n", value.Records[0]["logRecords"], logRecords)
 			fmt.Printf("get-by-id-response, code:recsCount %v:%v :\n", res.Code, value.Stats.RecordsCount)
 			mctest.AssertEquals(t, res.Code, "success", "get-task should return code: success")
 			mctest.AssertEquals(t, value.Stats.RecordsCount, 1, "get-task-count should be: 1")

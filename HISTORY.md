@@ -2,7 +2,7 @@
 
 ## Version 0.7.1
 
-- Release date: TBD
+- Release date: Oct 03, 2021
 - resolve get-json-value-format-defect && json-value-parsing/reading
 
 
