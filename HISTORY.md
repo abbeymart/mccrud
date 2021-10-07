@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.7.3
+
+- Release date: Oct 07, 2021
+- refactor shared-types
+
 ## Version 0.7.2
 
 - Release date: Oct 07, 2021

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/abbeymart/mcresponse"
-	"github.com/abbeymart/mctypes"
 	"github.com/asaskevich/govalidator"
 	"reflect"
 	"strings"
@@ -365,7 +364,7 @@ func MapToStruct(mapRecord map[string]interface{}, rec interface{}) (interface{}
 	return rec, nil
 }
 
-func GetParamsMessage(msgObject mctypes.MessageObject) mcresponse.ResponseMessage {
+func GetParamsMessage(msgObject MessageObject) mcresponse.ResponseMessage {
 	var messages = ""
 
 	for key, val := range msgObject {

@@ -7,7 +7,6 @@ package mccrud
 import (
 	"fmt"
 	"github.com/abbeymart/mcresponse"
-	//"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
