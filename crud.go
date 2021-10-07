@@ -40,6 +40,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.TaskName = params.TaskName
 	crudInstance.Skip = params.Skip
 	crudInstance.Limit = params.Limit
+	crudInstance.AppParams = params.AppParams
 
 	// crud options
 	crudInstance.MaxQueryLimit = options.MaxQueryLimit

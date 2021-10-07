@@ -117,6 +117,30 @@ type BaseModelType struct {
 	DeletedAt   time.Time `json:"deletedAt" mcorm:"deleted_at"`
 }
 
+// AppParamsType is the type for validating app-access
+type AppParamsType struct {
+	AppId     string `json:"appId"`
+	AccessKey string `json:"accessKey"`
+	AppName   string `json:"appName"` // optional app-name
+	Category  string `json:"category"`
+}
+
+type AuditStampType struct {
+	IsActive  bool      `json:"isActive"` // => activate by modelOptionsType settings...
+	CreatedBy string    `json:"createdBy"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedBy string    `json:"updatedBy"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type AppType struct {
+	BaseModelType
+	AppName   string `json:"appName"`
+	AccessKey string `json:"accessKey"`
+	Category  string `json:"category"`
+	OwnerId   string `json:"ownerId"`
+}
+
 type EmailAddressType = map[string]string
 
 type Profile struct {
@@ -213,6 +237,7 @@ type CrudParamsType struct {
 	Limit         int              `json:"limit"`
 	TaskName      string           `json:"-"`
 	TaskType      string           `json:"-"`
+	AppParams     AppParamsType    `json:"appParams"`
 }
 
 type CrudOptionsType struct {
