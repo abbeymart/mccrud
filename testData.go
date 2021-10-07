@@ -12,13 +12,13 @@ import (
 // Models
 
 type Audit struct {
-	Id            string    `json:"id" db:"id"`
-	TableName     string    `json:"tableName" db:"table_name"`
-	LogRecords    string    `json:"logRecords" db:"log_records"`
-	NewLogRecords string    `json:"newLogRecords" db:"new_log_records"`
-	LogType       string    `json:"logType" db:"log_type"`
-	LogBy         string    `json:"logBy" db:"log_by"`
-	LogAt         time.Time `json:"logAt" db:"log_at"`
+	Id            string      `json:"id" db:"id"`
+	TableName     string      `json:"tableName" db:"table_name"`
+	LogRecords    interface{} `json:"logRecords" db:"log_records"`
+	NewLogRecords interface{} `json:"newLogRecords" db:"new_log_records"`
+	LogType       string      `json:"logType" db:"log_type"`
+	LogBy         string      `json:"logBy" db:"log_by"`
+	LogAt         time.Time   `json:"logAt" db:"log_at"`
 }
 
 type Group struct {

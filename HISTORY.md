@@ -1,5 +1,11 @@
 # Historical logs
 
+## Version 0.7.2
+
+- Release date: Oct 07, 2021
+- refactor json-value-types
+
+
 ## Version 0.7.1
 
 - Release date: Oct 03, 2021

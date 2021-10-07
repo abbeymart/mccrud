@@ -87,23 +87,21 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 	logBy := userId
 
 	var (
-		tableName     = ""
+		tableName     = options.TableName
 		sqlScript     = ""
 		logRecords    interface{}
 		newLogRecords interface{}
-		logAt         time.Time
+		logAt         = time.Now()
 		dbResult      sql.Result
 		err           error
 	)
 	// log-cases
 	logRecs, _ := json.Marshal(options.LogRecords)
 	newLogRecs, _ := json.Marshal(options.NewLogRecords)
+	logRecords = string(logRecs)
+	newLogRecords = string(newLogRecs)
 	switch logType {
 	case CreateLog:
-		// set params
-		tableName = options.TableName
-		logRecords = string(logRecs)
-		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
 		if tableName == "" {
@@ -135,11 +133,6 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case UpdateLog:
-		// set params
-		tableName = options.TableName
-		logRecords = string(logRecs)
-		newLogRecords = string(newLogRecs)
-		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
 		if tableName == "" {
@@ -178,10 +171,6 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, newLogRecords, logType, logBy, logAt)
 	case GetLog, ReadLog:
-		// set params
-		tableName = options.TableName
-		logRecords = string(logRecs)
-		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
 		if tableName == "" {
@@ -213,10 +202,6 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case DeleteLog, RemoveLog:
-		// set params
-		tableName = options.TableName
-		logRecords = string(logRecs)
-		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
 		if tableName == "" {
@@ -248,10 +233,6 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case LoginLog:
-		// set params
-		tableName = options.TableName
-		logRecords = string(logRecs)
-		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
 		if tableName == "" {
@@ -283,10 +264,6 @@ func (log LogParamX) AuditLog(logType, userId string, options AuditLogOptionsTyp
 		// perform db-log-insert action
 		dbResult, err = log.AuditDb.Exec(sqlScript, tableName, logRecords, logType, logBy, logAt)
 	case LogoutLog:
-		// set params
-		tableName = options.TableName
-		logRecords = string(logRecs)
-		logAt = time.Now()
 		// validate params
 		var errorMessage = ""
 		if tableName == "" {

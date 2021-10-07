@@ -47,14 +47,14 @@ func TestAuditLogx(t *testing.T) {
 	mcLog := NewAuditLog(dbc, "audits")
 
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should connect to the DB and return an instance object:",
+		Name: "[Sqlx]should connect to the DB and return an instance object:",
 		TestFunc: func() {
 			mctest.AssertEquals(t, err, nil, "error-response should be: nil")
 			mctest.AssertEquals(t, mcLog, mcLogResult, "db-connection instance should be: "+mcLogResult.String())
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store create-transaction log and return success:",
+		Name: "[Sqlx]should store create-transaction log and return success:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(CreateLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
@@ -66,7 +66,7 @@ func TestAuditLogx(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store update-transaction log and return success:",
+		Name: "[Sqlx]should store update-transaction log and return success:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(UpdateLog, userId, AuditLogOptionsType{
 				TableName:     tableName,
@@ -78,7 +78,7 @@ func TestAuditLogx(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store read-transaction log and return success:",
+		Name: "[Sqlx]should store read-transaction log and return success:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(ReadLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
@@ -89,7 +89,7 @@ func TestAuditLogx(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store delete-transaction log and return success:",
+		Name: "[Sqlx]should store delete-transaction log and return success:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(DeleteLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
@@ -100,7 +100,7 @@ func TestAuditLogx(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store login-transaction log and return success:",
+		Name: "[Sqlx]should store login-transaction log and return success:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(LoginLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
@@ -111,7 +111,7 @@ func TestAuditLogx(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should store logout-transaction log and return success:",
+		Name: "[Sqlx]should store logout-transaction log and return success:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(LogoutLog, userId, AuditLogOptionsType{
 				TableName:  tableName,
@@ -122,7 +122,7 @@ func TestAuditLogx(t *testing.T) {
 		},
 	})
 	mctest.McTest(mctest.OptionValue{
-		Name: "[Pg]should return paramsError for incomplete/undefined inputs:",
+		Name: "[Sqlx]should return paramsError for incomplete/undefined inputs:",
 		TestFunc: func() {
 			res, err := mcLog.AuditLog(CreateLog, "", AuditLogOptionsType{
 				TableName:  tableName,
