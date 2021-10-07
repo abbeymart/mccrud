@@ -105,16 +105,16 @@ type UserInfoType struct {
 }
 
 type BaseModelType struct {
-	Id        string    `json:"id" mcorm:"id"`
-	Language  string    `json:"language" mcorm:"language"`
-	Desc      string    `json:"desc" mcorm:"desc"`
-	AppId     string    `json:"appId" mcorm:"app_id"`       // application-id in a multi-hosted apps environment (e.g. cloud-env)
-	IsActive  bool      `json:"isActive" mcorm:"is_active"` // => activate by modelOptionsType settings...
-	CreatedBy string    `json:"createdBy" mcorm:"created_by"`
-	CreatedAt time.Time `json:"createdAt" mcorm:"created_at"`
-	UpdatedBy string    `json:"updatedBy" mcorm:"updated_by"`
-	UpdatedAt time.Time `json:"updatedAt" mcorm:"updated_at"`
-	DeletedAt time.Time `json:"deletedAt" mcorm:"deleted_at"`
+	Id          string    `json:"id" mcorm:"id"`
+	Language    string    `json:"language" mcorm:"language"`
+	Description string    `json:"description" mcorm:"description"`
+	AppId       string    `json:"appId" mcorm:"app_id"`       // application-id in a multi-hosted apps environment (e.g. cloud-env)
+	IsActive    bool      `json:"isActive" mcorm:"is_active"` // => activate by modelOptionsType settings...
+	CreatedBy   string    `json:"createdBy" mcorm:"created_by"`
+	CreatedAt   time.Time `json:"createdAt" mcorm:"created_at"`
+	UpdatedBy   string    `json:"updatedBy" mcorm:"updated_by"`
+	UpdatedAt   time.Time `json:"updatedAt" mcorm:"updated_at"`
+	DeletedAt   time.Time `json:"deletedAt" mcorm:"deleted_at"`
 }
 
 type EmailAddressType = map[string]string
