@@ -413,7 +413,7 @@ func (crud *Crud) UpdateByParam(rec ActionParamType) mcresponse.ResponseMessage 
 		}
 	}
 	// response | TODO: review res.RowsAffected impact
-	fmt.Printf("update-result: %v", res)
+	//fmt.Printf("update-result: %v", res)
 	rowsCount, rcErr := res.RowsAffected()
 	if rcErr != nil {
 		rowsCount = 0

@@ -37,7 +37,7 @@ func (crud *Crud) GetById1(id string) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-id: %v \n", getQueryRes.SelectQueryObject.SelectQuery )
+	//fmt.Printf("Get-query-by-id: %v \n", getQueryRes.SelectQueryObject.SelectQuery )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -72,7 +72,7 @@ func (crud *Crud) GetById1(id string) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("map-scanned-result: %v \n", mapRes)
+	//fmt.Printf("map-scanned-result: %v \n", mapRes)
 	mapValue := map[string]interface{}{}
 	jErr = json.Unmarshal(jByte, &mapValue)
 	if jErr != nil {
@@ -91,7 +91,7 @@ func (crud *Crud) GetById1(id string) mcresponse.ResponseMessage {
 		})
 	}
 
-	fmt.Printf("map-transformed-result: %v \n", mapVal)
+	//fmt.Printf("map-transformed-result: %v \n", mapVal)
 	getRecords = append(getRecords, mapVal)
 
 	//rowCount += len(getRecords)
@@ -156,7 +156,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-id: %v \n", getQueryRes.SelectQueryObject.SelectQuery )
+	//fmt.Printf("Get-query-by-id: %v \n", getQueryRes.SelectQueryObject.SelectQuery )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -171,7 +171,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 	//getType := reflect.TypeOf(crud.ModelRef)
 	//recordModel := Audit{}
 	row := crud.AppDb.QueryRowx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
-	fmt.Printf("get-by-id-row: %v \n", row)
+	//fmt.Printf("get-by-id-row: %v \n", row)
 	// check rows count
 	//var rowCount = 0
 	var getRecords []map[string]interface{}
@@ -201,7 +201,7 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 
-	fmt.Printf("scanned-map-result: %v \n", mapValue)
+	//fmt.Printf("scanned-map-result: %v \n", mapValue)
 	getRecords = append(getRecords, mapValue)
 
 	//rowCount += len(getRecords)
@@ -275,7 +275,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-ids: %#v \n", getQueryRes )
+	//fmt.Printf("Get-query-by-ids: %#v \n", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -288,7 +288,7 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 	}
 	// perform crud-task action
 	rows, qRowErr := crud.AppDb.Queryx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
-	fmt.Printf("rows-result: %v \n", rows)
+	//fmt.Printf("rows-result: %v \n", rows)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
@@ -410,7 +410,7 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-params: %#v \n\n", getQueryRes )
+	//fmt.Printf("Get-query-by-params: %#v \n\n", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -534,7 +534,7 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-all: %#v", getQueryRes )
+	//fmt.Printf("Get-query-by-all: %#v", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -675,7 +675,7 @@ func (crud Crud) GetByIds1() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-ids: %#v \n", getQueryRes )
+	//fmt.Printf("Get-query-by-ids: %#v \n", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -688,7 +688,7 @@ func (crud Crud) GetByIds1() mcresponse.ResponseMessage {
 	}
 	// perform crud-task action
 	rows, qRowErr := crud.AppDb.Queryx(getQueryRes.SelectQueryObject.SelectQuery, getQueryRes.SelectQueryObject.FieldValues...)
-	fmt.Printf("rows-result: %v \n", rows)
+	//fmt.Printf("rows-result: %v \n", rows)
 	if qRowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Db query Error: %v", qRowErr.Error()),
@@ -738,7 +738,7 @@ func (crud Crud) GetByIds1() mcresponse.ResponseMessage {
 				})
 			}
 
-			fmt.Printf("map-transformed-result: %v \n", mapVal)
+			//fmt.Printf("map-transformed-result: %v \n", mapVal)
 			getRecords = append(getRecords, mapVal)
 			//rowCount += 1
 			//fmt.Printf("Get-query-result: %v", mapValue)
@@ -819,7 +819,7 @@ func (crud *Crud) GetByParam1() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-params: %#v \n\n", getQueryRes )
+	//fmt.Printf("Get-query-by-params: %#v \n\n", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)
@@ -952,7 +952,7 @@ func (crud *Crud) GetAll1() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
-	fmt.Printf("Get-query-by-all: %#v", getQueryRes )
+	//fmt.Printf("Get-query-by-all: %#v", getQueryRes )
 	// totalRecordsCount from the table
 	var totalRows int
 	countQuery := fmt.Sprintf("SELECT COUNT(*) AS total_rows FROM %v", crud.TableName)

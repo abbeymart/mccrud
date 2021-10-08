@@ -1,16 +1,19 @@
 # Historical logs
 
+## Version 0.7.6
+
+- Release date: Oct 07, 2021
+- cleanup and versioning re-tag
+
 ## Version 0.7.5
 
 - Release date: Oct 07, 2021
 - refactor shared-types-app-params
 
-
 ## Version 0.7.4
 
 - Release date: Oct 07, 2021
 - refactor shared-types
-
 
 ## Version 0.7.3
 
