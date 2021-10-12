@@ -92,6 +92,8 @@ const (
 	UnknownTask = "unknown"
 )
 
+type IDs []string
+
 type UserInfoType struct {
 	UserId    string `json:"userId" form:"userId" mcorm:"user_id"`
 	Firstname string `json:"firstname" mcorm:"firstname"`
@@ -146,21 +148,19 @@ type EmailAddressType = map[string]string
 type Profile struct {
 	BaseModelType
 	UserID        string
-	Firstname     string             `json:"firstname"`
-	Lastname      string             `json:"lastname"`
-	Middlename    string             `json:"middlename"`
-	Fullname      string             `json:"fullname"`
-	Phone         string             `json:"phone"`
-	RecEmail      string             `json:"recEmail"`
-	RoleId        string             `json:"roleId"`
-	Emails        []EmailAddressType `json:"emails"`
-	DateOfBirth   time.Time          `json:"dateOfBirth"`
-	TwoFactorAuth bool               `json:"twoFactorAuth"`
-	AuthAgent     string             `json:"authAgent"`
-	AuthPhone     string             `json:"authPhone"`
-	PostalCode    string             `json:"postalCode"`
-	UserInfo      UserInfoType       `json:"userInfo"`
-	ReqUrl        string             `json:"reqUrl"`
+	Firstname     string       `json:"firstname"`
+	Lastname      string       `json:"lastname"`
+	Middlename    string       `json:"middlename"`
+	Fullname      string       `json:"fullname"`
+	Phone         string       `json:"phone"`
+	RecEmail      string       `json:"recEmail"`
+	RoleId        string       `json:"roleId"`
+	Emails        interface{}  `json:"emails"` // []EmailAddressType
+	DateOfBirth   time.Time    `json:"dateOfBirth"`
+	TwoFactorAuth bool         `json:"twoFactorAuth"`
+	AuthAgent     string       `json:"authAgent"`
+	AuthPhone     string       `json:"authPhone"`
+	PostalCode    string       `json:"postalCode"`
 }
 
 type RoleServiceType struct {

@@ -5,6 +5,7 @@
 package mccrud
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -382,4 +383,61 @@ func GetParamsMessage(msgObject MessageObject) mcresponse.ResponseMessage {
 
 func RowRecordToMap() {
 
+}
+
+// ConvertJsonStringToMapValue converts the db-json-string-value to the map-type
+func ConvertJsonStringToMapValue(jsonStr string) (map[string]interface{}, error) {
+	mapVal := map[string]interface{}{}
+	jErr := json.Unmarshal([]byte(jsonStr), &mapVal)
+	if jErr != nil {
+		return nil, jErr
+	}
+	return mapVal, nil
+}
+
+// ConvertJsonStringToTypeValue converts the db-json-string-value to the base-type
+func ConvertJsonStringToTypeValue(jsonStr string, typePointer interface{}) (interface{}, error) {
+	jErr := json.Unmarshal([]byte(jsonStr), typePointer)
+	if jErr != nil {
+		return nil, jErr
+	}
+	return typePointer, nil
+}
+
+// ConvertJsonBase64StringToTypeValue converts the db-json-string-value to the base-type
+func ConvertJsonBase64StringToTypeValue(base64Str interface{}, typePointer interface{}) (interface{}, error) {
+	// assert the base64String value as of string-type
+	strVal, ok := base64Str.(string)
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("unable to convert base64-string [%v] to string", base64Str))
+	}
+	// decode the base64StringValue
+	decoded, err := base64.StdEncoding.DecodeString(strVal)
+	if err != nil {
+		return nil, err
+	}
+	// transform/un-marshal the decoded value to the base-type
+	jErr := json.Unmarshal(decoded, typePointer)
+	if jErr != nil {
+		return nil, jErr
+	}
+	return typePointer, nil
+}
+
+// ConvertJsonBase64StringToMap converts the db-json-string-value to the map-type
+func ConvertJsonBase64StringToMap(base64Str interface{}) (map[string]interface{}, error) {
+	mapVal := map[string]interface{}{}
+	strVal, ok := base64Str.(string)
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("unable to convert base64-string [%v] to string", base64Str))
+	}
+	decoded, err := base64.StdEncoding.DecodeString(strVal)
+	if err != nil {
+		return nil, err
+	}
+	jErr := json.Unmarshal(decoded, &mapVal)
+	if jErr != nil {
+		return nil, jErr
+	}
+	return mapVal, nil
 }

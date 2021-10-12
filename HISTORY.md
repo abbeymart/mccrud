@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.7.7
+
+- Release date: Oct 12, 2021
+- refactor json-value-transform-from-base64String-value
+
 ## Version 0.7.6
 
 - Release date: Oct 07, 2021

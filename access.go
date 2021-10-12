@@ -498,10 +498,10 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 	// check the current-user status/info
 	var (
 		uId      string
-		roleIds  []string
+		roleIds  interface{} // IDs type
 		isAdmin  bool
 		isActive bool
-		profile  Profile
+		profile  interface{} // Profile type
 	)
 	userScript := fmt.Sprintf("SELECT id, role_ids, is_admin, profile, is_active from %v WHERE id=$1 AND is_active=$2", crud.UserTable)
 	rowUser := crud.AccessDb.QueryRow(userScript, crud.UserInfo.UserId, true)
@@ -511,13 +511,47 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 			Value:   nil,
 		})
 	}
+	// transform, roleIds and profile (base64String-values) to roleIdsVal and profileVal
+	roleIdsModel := IDs{}
+	profileModel := Profile{}
+
+	rIdsVal, rErr := ConvertJsonBase64StringToTypeValue(roleIds, &roleIdsModel)
+	if rErr != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error parsing roleIds-json-value: %v", rErr.Error()),
+			Value:   nil,
+		})
+	}
+	pVal, pErr := ConvertJsonBase64StringToTypeValue(profile, &profileModel)
+	if pErr != nil {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error parsing user-profile-json-value: %v", pErr.Error()),
+			Value:   nil,
+		})
+	}
+
+	roleIdsVal, rOk := rIdsVal.(IDs)
+	if !rOk {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error asserting-type of the parsed roleIds-json-value"),
+			Value:   nil,
+		})
+	}
+	profileVal, pOk := pVal.(Profile)
+	if !pOk {
+		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Error asserting-type of the parsed user-profile-json-value"),
+			Value:   nil,
+		})
+	}
+
 	// if all went well
 	return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
 		Message: "Action authorised / permitted.",
 		Value: AccessInfoType{
 			UserId:   uId,
-			RoleId:   profile.RoleId,
-			RoleIds:  roleIds,
+			RoleId:   profileVal.RoleId,
+			RoleIds:  roleIdsVal,
 			IsAdmin:  isAdmin,
 			IsActive: isActive,
 		},
@@ -525,7 +559,8 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 }
 
 // CheckLoginStatus method checks if the user exists and has active login status/token
-func (crud *Crud) CheckLoginStatus(params UserInfoType) mcresponse.ResponseMessage {
+func (crud *Crud) CheckLoginStatus() mcresponse.ResponseMessage {
+	params := crud.UserInfo
 	// check if user exists, from users table
 	emailUsername := EmailUsername(params.LoginName)
 	email := emailUsername.Email
