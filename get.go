@@ -91,8 +91,15 @@ func (crud *Crud) GetById1(id string) mcresponse.ResponseMessage {
 		})
 	}
 
-	//fmt.Printf("map-transformed-result: %v \n", mapVal)
 	getRecords = append(getRecords, mapVal)
+
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
+	}
 
 	//rowCount += len(getRecords)
 	// perform audit-log
@@ -201,8 +208,15 @@ func (crud *Crud) GetById(id string) mcresponse.ResponseMessage {
 		})
 	}
 
-	//fmt.Printf("scanned-map-result: %v \n", mapValue)
 	getRecords = append(getRecords, mapValue)
+
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
+	}
 
 	//rowCount += len(getRecords)
 	// perform audit-log
@@ -333,7 +347,14 @@ func (crud Crud) GetByIds() mcresponse.ResponseMessage {
 		}
 
 		getRecords = append(getRecords, mapValue)
+	}
 
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
 	}
 	// check record-rows error
 	if rowErr := rows.Err(); rowErr != nil {
@@ -467,7 +488,13 @@ func (crud *Crud) GetByParam() mcresponse.ResponseMessage {
 		}
 
 		getRecords = append(getRecords, mapValue)
-
+	}
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
 	}
 	// check record-rows error
 	if rowErr := rows.Err(); rowErr != nil {
@@ -591,9 +618,14 @@ func (crud *Crud) GetAll() mcresponse.ResponseMessage {
 		}
 
 		getRecords = append(getRecords, mapValue)
-
 	}
-
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
+	}
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),
@@ -744,6 +776,13 @@ func (crud Crud) GetByIds1() mcresponse.ResponseMessage {
 			//fmt.Printf("Get-query-result: %v", mapValue)
 		}
 	}
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
+	}
 	// check record-rows error
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -887,6 +926,13 @@ func (crud *Crud) GetByParam1() mcresponse.ResponseMessage {
 			//rowCount += 1
 		}
 	}
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
+	}
 	// check record-rows error
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
@@ -1020,7 +1066,13 @@ func (crud *Crud) GetAll1() mcresponse.ResponseMessage {
 		getRecords = append(getRecords, mapVal)
 		//rowCount += 1
 	}
-
+	// handles not-found-error
+	if len(getRecords) < 1 {
+		return mcresponse.GetResMessage("notFound", mcresponse.ResponseMessageOptions{
+			Message: "RECORDS NOT FOUND.",
+			Value: nil,
+		})
+	}
 	if rowErr := rows.Err(); rowErr != nil {
 		return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
 			Message: fmt.Sprintf("Error reading/getting records: %v", rowErr.Error()),

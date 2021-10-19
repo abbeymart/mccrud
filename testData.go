@@ -247,26 +247,26 @@ var UpdateGroupByParams = QueryParamType{
 	"name": "Location",
 }
 
-var GetAuditById = "f517ef7b-5457-4f51-a905-e427465defd0"
-var GetAuditByIds = []string{"f517ef7b-5457-4f51-a905-e427465defd0", "a66a3057-028d-4f64-aa18-05ea26b1d2dc"}
+var GetAuditById = "bd8f5d8a-7455-47cf-9bbd-f48f3ef2119c"
+var GetAuditByIds = []string{"bd8f5d8a-7455-47cf-9bbd-f48f3ef2119c", "db26f25e-6a7a-4c96-9455-283ab34c8791"}
 var GetAuditByParams = QueryParamType{
 	"logType": "create",
 }
-var DeleteAuditById = "a6dbc263-86ee-436a-bb41-0d3b77274f79"
+var DeleteAuditById = "fe8fae8b-1d2f-4f86-9485-41eacf6e631f"
 var DeleteAuditByIds = []string{
-	"f517ef7b-5457-4f51-a905-e427465defd0",
-	"a66a3057-028d-4f64-aa18-05ea26b1d2dc",
-	"03012156-19a4-43f9-b8ee-c1e9dd5d19b8",
-	"be6b3f55-1724-4811-a23c-8ea481558f25",
+	"74668767-caff-4eae-bdbd-e94b2cdf9abb",
+	"f6fe8fef-19e8-4c1d-a961-8320e9c87019",
+	"b0cd4f29-f6df-413a-8176-94ac70d94ab6",
+	"30fb20c6-9d60-4529-925e-1e61c82c1bba",
 }
 var DeleteAuditByParams = QueryParamType{
 	"logType": "read",
 }
-var UpdateAuditById = "8883ef51-d730-4645-9bc8-f986cebb7881"
+var UpdateAuditById = "493ab000-9797-4c43-8624-6ccf0ebb040a"
 var UpdateAuditByIds = []string{
-	"b8ca59b8-46f4-4a0c-82aa-f689d8ce295c",
-	"a6dbc263-86ee-436a-bb41-0d3b77274f79",
-	"19604025-cb69-46cd-883a-8f51e754817b",
+	"b2a1dd5e-2c11-4e42-9213-5c407a0f0eb9",
+	"6eed2238-be9b-49da-9039-ad85a1f21b2f",
+	"8f7c2236-f9d8-4666-b147-a79ede723a4c",
 }
 var UpdateAuditByParams = QueryParamType{
 	"logType": "read",

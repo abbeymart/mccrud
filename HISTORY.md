@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.7.9
+
+- Release date: Oct 18, 2021
+- handle get-not-found-records
+
 ## Version 0.7.8
 
 - Release date: Oct 18, 2021
