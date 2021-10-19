@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.7.8
+
+- Release date: Oct 18, 2021
+- updated mcresponse-jsonParamsCamelCase
+
 ## Version 0.7.7
 
 - Release date: Oct 12, 2021

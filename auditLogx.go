@@ -75,7 +75,7 @@ func NewAuditLogx(auditDb *sqlx.DB, auditTable string) LogParamX {
 // String() function implementation
 func (log LogParamX) String() string {
 	return fmt.Sprintf(`
-	AuditLog DB: %v \n AudiLog Table Name: %v \n
+	AuditLog DB: %v \n AudiLog Table ItemName: %v \n
 	`,
 		log.AuditDb,
 		log.AuditTable)

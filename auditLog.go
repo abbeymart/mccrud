@@ -86,7 +86,7 @@ func NewAuditLog(auditDb *sql.DB, auditTable string) LogParam {
 // String() function implementation
 func (log LogParam) String() string {
 	return fmt.Sprintf(`
-	AuditLog DB: %v \n AudiLog Table Name: %v \n
+	AuditLog DB: %v \n AudiLog Table ItemName: %v \n
 	`,
 		log.AuditDb,
 		log.AuditTable)

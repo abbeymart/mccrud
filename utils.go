@@ -111,7 +111,7 @@ func DataToValueParam(rec interface{}) (ActionParamType, error) {
 
 		for i := 0; i < v.NumField(); i++ {
 			dataValue[govalidator.CamelCaseToUnderscore(typeOfS.Field(i).Name)] = v.Field(i).Interface()
-			//fmt.Printf("Field: %s\tValue: %v\n", typeOfS.Field(i).Name, v.Field(i).Interface())
+			//fmt.Printf("Field: %s\tValue: %v\n", typeOfS.Field(i).ItemName, v.Field(i).Interface())
 		}
 		return dataValue, nil
 	default:
