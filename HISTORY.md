@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.8.0
+
+- Release date: Oct 18, 2021
+- fixed missing crud-verifyTable-option
+
 ## Version 0.7.9
 
 - Release date: Oct 18, 2021

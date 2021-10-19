@@ -48,6 +48,7 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	crudInstance.AccessTable = options.AccessTable
 	crudInstance.RoleTable = options.RoleTable
 	crudInstance.UserTable = options.UserTable
+	crudInstance.VerifyTable = options.VerifyTable
 	crudInstance.ProfileTable = options.ProfileTable
 	crudInstance.ServiceTable = options.ServiceTable
 	crudInstance.AuditDb = options.AuditDb
@@ -78,6 +79,9 @@ func NewCrud(params CrudParamsType, options CrudOptionsType) (crudInstance *Crud
 	}
 	if crudInstance.UserTable == "" {
 		crudInstance.UserTable = "users"
+	}
+	if crudInstance.VerifyTable == "" {
+		crudInstance.VerifyTable = "verify_users"
 	}
 	if crudInstance.ProfileTable == "" {
 		crudInstance.ProfileTable = "profiles"
