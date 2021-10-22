@@ -40,7 +40,7 @@ func (crud *Crud) CheckTaskType() string {
 		actParam := crud.ActionParams[0]
 		_, ok := actParam["id"]
 		if !ok {
-			if len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0 {
+			if len(crud.ActionParams) == 1 && (len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0) {
 				taskType = UpdateTask
 			} else {
 				taskType = CreateTask
@@ -279,8 +279,8 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 			Value:   nil,
 		})
 	}
-	// validate task (roleServices) permission, for non-admin users
-	if !isAdmin && len(roleServices) < 1 {
+	// validate roleServices permission, for non-admin/non-owner users
+	if !isAdmin && !ownerPermitted && len(roleServices) < 1 {
 		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
 			Message: "You are not authorized to perform the requested action/task",
 			Value:   nil,

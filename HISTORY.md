@@ -1,10 +1,14 @@
 # Historical logs
 
+## Version 0.8.2
+
+- Release date: Oct 22, 2021
+- refactored access-ownership-method
+
 ## Version 0.8.1
 
 - Release date: Oct 22, 2021
 - refactored access-owner-types-method
-
 
 ## Version 0.8.0
 
