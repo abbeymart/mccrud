@@ -148,19 +148,19 @@ type EmailAddressType = map[string]string
 type Profile struct {
 	BaseModelType
 	UserID        string
-	Firstname     string       `json:"firstname"`
-	Lastname      string       `json:"lastname"`
-	Middlename    string       `json:"middlename"`
-	Fullname      string       `json:"fullname"`
-	Phone         string       `json:"phone"`
-	RecEmail      string       `json:"recEmail"`
-	RoleId        string       `json:"roleId"`
-	Emails        interface{}  `json:"emails"` // []EmailAddressType
-	DateOfBirth   time.Time    `json:"dateOfBirth"`
-	TwoFactorAuth bool         `json:"twoFactorAuth"`
-	AuthAgent     string       `json:"authAgent"`
-	AuthPhone     string       `json:"authPhone"`
-	PostalCode    string       `json:"postalCode"`
+	Firstname     string      `json:"firstname"`
+	Lastname      string      `json:"lastname"`
+	Middlename    string      `json:"middlename"`
+	Fullname      string      `json:"fullname"`
+	Phone         string      `json:"phone"`
+	RecEmail      string      `json:"recEmail"`
+	RoleId        string      `json:"roleId"`
+	Emails        interface{} `json:"emails"` // []EmailAddressType
+	DateOfBirth   time.Time   `json:"dateOfBirth"`
+	TwoFactorAuth bool        `json:"twoFactorAuth"`
+	AuthAgent     string      `json:"authAgent"`
+	AuthPhone     string      `json:"authPhone"`
+	PostalCode    string      `json:"postalCode"`
 }
 
 type RoleServiceType struct {
@@ -177,13 +177,14 @@ type RoleServiceType struct {
 }
 
 type CheckAccessType struct {
-	UserId       string            `json:"userId" mcorm:"userId"`
-	RoleId       string            `json:"roleId" mcorm:"roleId"`
-	RoleIds      []string          `json:"roleIds" mcorm:"roleIds"`
-	IsActive     bool              `json:"isActive" mcorm:"isActive"`
-	IsAdmin      bool              `json:"isAdmin" mcorm:"isAdmin"`
-	RoleServices []RoleServiceType `json:"roleServices" mcorm:"roleServices"`
-	TableId      string            `json:"tableId" mcorm:"tableId"`
+	UserId         string            `json:"userId" mcorm:"userId"`
+	RoleId         string            `json:"roleId" mcorm:"roleId"`
+	RoleIds        []string          `json:"roleIds" mcorm:"roleIds"`
+	IsActive       bool              `json:"isActive" mcorm:"isActive"`
+	IsAdmin        bool              `json:"isAdmin" mcorm:"isAdmin"`
+	RoleServices   []RoleServiceType `json:"roleServices" mcorm:"roleServices"`
+	TableId        string            `json:"tableId" mcorm:"tableId"`
+	OwnerPermitted bool              `json:"ownerPermitted"`
 }
 
 type CheckAccessParamsType struct {

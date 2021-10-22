@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/abbeymart/mcresponse"
 	"github.com/jmoiron/sqlx"
-	//"github.com/jackc/pgx/v4/pgxpool"
 	"strings"
 	"time"
 )
@@ -33,6 +32,203 @@ type TaskPermissionType struct {
 	UserId   string
 	Role     string
 	Roles    []string
+}
+
+func (crud *Crud) CheckTaskType() string {
+	taskType := ""
+	if len(crud.ActionParams) > 0 {
+		actParam := crud.ActionParams[0]
+		_, ok := actParam["id"]
+		if !ok {
+			if len(crud.RecordIds) > 0 || len(crud.QueryParams) > 0 {
+				taskType = UpdateTask
+			} else {
+				taskType = CreateTask
+			}
+		} else {
+			taskType = UpdateTask
+		}
+	}
+	return taskType
+}
+
+// CheckTaskAccess method determines the access by role-assignment
+func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
+	// validate current user active status: by token (API) and user/loggedIn-status
+	accessRes := crud.CheckUserAccess()
+	if accessRes.Code != "success" {
+		return accessRes
+	}
+	// set current-user info for next steps
+	var (
+		uId      string
+		roleId   string
+		roleIds  []string
+		isAdmin  bool
+		isActive bool
+	)
+	val, ok := accessRes.Value.(AccessInfoType)
+	if !ok {
+		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+			Message: "Error parsing user access information/value",
+			Value:   nil,
+		})
+	}
+	uId = val.UserId
+	roleId = val.RoleId
+	roleIds = val.RoleIds
+	isAdmin = val.IsAdmin
+	isActive = val.IsActive
+	// determine records/documents ownership, for all records (atomic)
+	ownerPermitted := false
+	idLen := len(crud.RecordIds)
+	if idLen > 0 && uId != "" && isActive {
+		// SQL script
+		inValues := ""
+		for idCount, id := range crud.RecordIds {
+			inValues += "'" + id + "'"
+			if idLen > 1 && idCount < idLen-1 {
+				inValues += ", "
+			}
+		}
+		sqlScript := fmt.Sprintf("SELECT id FROM %v WHERE id IN (%v) AND created_by = $1", crud.TableName, inValues)
+		rows, err := crud.AccessDb.Queryx(sqlScript, uId)
+		if err != nil {
+			errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
+				Message: errMsg,
+				Value:   nil,
+			})
+		}
+		defer func(rows *sqlx.Rows) {
+			err := rows.Close()
+			if err != nil {
+
+			}
+		}(rows)
+		// check rows count
+		var rowCount = 0
+		for rows.Next() {
+			var id string
+			if recErr := rows.Scan(&id); recErr == nil {
+				rowCount += 1
+			}
+		}
+		// ensure complete records count, as requested
+		if rowCount == len(crud.RecordIds) {
+			ownerPermitted = true
+		}
+	}
+	// if all the above checks passed, check for role-services access by taskType
+	// obtain table/collName id(_id) from serviceTable/Coll (repo for all resources)
+	var (
+		serviceId string
+		category  string
+	)
+	serviceScript := fmt.Sprintf("SELECT id, category from %v WHERE name=$1", crud.ServiceTable)
+	serviceRow := crud.AccessDb.QueryRow(serviceScript, crud.TableName)
+	// check error
+	if err := serviceRow.Scan(&serviceId, &category); err != nil {
+		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Unauthorized: user information not found or inactive | %v", err.Error()),
+			Value:   nil,
+		})
+	}
+	// if permitted, include table/collId and recordIds in serviceIds
+	tableId := ""
+	serviceIds := crud.RecordIds
+	catLowercase := strings.ToLower(category)
+	if catLowercase == "table" || catLowercase == "collection" {
+		tableId = serviceId
+		serviceIds = append(serviceIds, serviceId)
+	}
+	// compute service-items/records
+	var roleServices []RoleServiceType
+	var rsErr error
+	if len(serviceIds) > 0 {
+		roleServices, rsErr = crud.GetRoleServices(crud.AccessDb, crud.RoleTable, roleId, serviceIds)
+		if rsErr != nil {
+			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+				Message: fmt.Sprintf("Action un-authorised / not-permitted | %v", rsErr.Error()),
+				Value:   nil,
+			})
+		}
+	}
+
+	permittedRes := CheckAccessType{
+		UserId:         uId,
+		RoleId:         roleId,
+		RoleIds:        roleIds,
+		IsActive:       isActive,
+		IsAdmin:        isAdmin,
+		RoleServices:   roleServices,
+		TableId:        tableId,
+		OwnerPermitted: ownerPermitted,
+	}
+
+	if permittedRes.IsActive && permittedRes.IsAdmin {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: "Action authorised / permitted.",
+			Value:   permittedRes,
+		})
+	}
+	recLen := len(permittedRes.RoleServices)
+	if permittedRes.IsActive && recLen > 0 && recLen >= len(crud.RecordIds) {
+		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
+			Message: fmt.Sprintf("Access permitted for %v of %v service-items/records", recLen, len(crud.RecordIds)),
+			Value:   permittedRes,
+		})
+	}
+	return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
+		Message: "Action authorised / permitted.",
+		Value:   permittedRes,
+	})
+}
+
+// GetRoleServices method process and returns the permission to user / user-group/roleId for the specified service items
+func (crud *Crud) GetRoleServices(accessDb *sqlx.DB, roleTable string, userRoleId string, serviceIds []string) ([]RoleServiceType, error) {
+	var roleServices []RoleServiceType
+	// where-in-values
+	inValues := ""
+	idLen := len(serviceIds)
+	for idCount, id := range serviceIds {
+		inValues += "'" + id + "'"
+		if idLen > 1 && idCount < idLen-1 {
+			inValues += ", "
+		}
+	}
+	roleScript := fmt.Sprintf("SELECT role_id, service_id, service_category, can_read, can_create, can_delete, can_update, can_crud from %v WHERE service_id IN (%v) AND role_id=$1 AND is_active=$2", roleTable, inValues)
+	rows, err := accessDb.Queryx(roleScript, userRoleId, true)
+	if err != nil {
+		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
+		return roleServices, errors.New(fmt.Sprintf("%v", err.Error()))
+	}
+	defer func(rows *sqlx.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
+	var (
+		roleId, serviceId, serviceCategory                string
+		canRead, canCreate, canDelete, canUpdate, canCrud bool
+	)
+	for rows.Next() {
+		if err := rows.Scan(&roleId, &serviceId, &serviceCategory, &canRead, &canCreate, &canDelete, &canUpdate, &canCrud); err == nil {
+			roleServices = append(roleServices, RoleServiceType{
+				ServiceId:       serviceId,
+				RoleId:          roleId,
+				ServiceCategory: serviceCategory,
+				CanRead:         canRead,
+				CanCreate:       canCreate,
+				CanUpdate:       canUpdate,
+				CanDelete:       canDelete,
+				CanCrud:         canCrud,
+			})
+		}
+	}
+
+	return roleServices, nil
 }
 
 // TaskPermissionById method determines the access permission by owner, role/group (on coll/table or doc/record(s)) or admin
@@ -68,6 +264,7 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 		})
 	}
 	// set access status variables
+	ownerPermitted = accessRec.OwnerPermitted
 	isAdmin = accessRec.IsAdmin
 	isActive = accessRec.IsActive
 	roleServices = accessRec.RoleServices
@@ -89,48 +286,8 @@ func (crud *Crud) TaskPermissionById(taskType string) mcresponse.ResponseMessage
 			Value:   nil,
 		})
 	}
-
-	// determine records/documents ownership, for all records (atomic)
-	recordIds := crud.RecordIds
-	if len(recordIds) > 0 && accessRec.UserId != "" && accessRec.IsActive {
-		// SQL script
-		inValues := ""
-		idLen := len(recordIds)
-		for idCount, id := range recordIds {
-			inValues += "'" + id + "'"
-			if idLen > 1 && idCount < idLen-1 {
-				inValues += ", "
-			}
-		}
-		sqlScript := fmt.Sprintf("SELECT id FROM %v WHERE id IN (%v) AND created_by = $1", crud.TableName, inValues)
-		rows, err := crud.AppDb.Queryx(sqlScript, accessRec.UserId)
-		if err != nil {
-			errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
-			return mcresponse.GetResMessage("readError", mcresponse.ResponseMessageOptions{
-				Message: errMsg,
-				Value:   nil,
-			})
-		}
-		defer func(rows *sqlx.Rows) {
-			err := rows.Close()
-			if err != nil {
-
-			}
-		}(rows)
-		// check rows count
-		var rowCount = 0
-		for rows.Next() {
-			var id string
-			if recErr := rows.Scan(&id); recErr == nil {
-				rowCount += 1
-			}
-		}
-		// ensure complete records count, as requested
-		if rowCount == len(recordIds) {
-			ownerPermitted = true
-		}
-	}
 	// filter the roleServices by categories ("collection | table" or "record | document")
+	recordIds := crud.RecordIds
 	collTabFunc := func(item RoleServiceType) bool {
 		return item.ServiceCategory == tableId
 	}
@@ -334,144 +491,6 @@ func (crud *Crud) TaskPermissionByParam(taskType string) mcresponse.ResponseMess
 	}
 	crud.RecordIds = recordIds
 	return crud.TaskPermissionById(taskType)
-}
-
-// CheckTaskAccess method determines the access by role-assignment
-func (crud *Crud) CheckTaskAccess() mcresponse.ResponseMessage {
-	// validate current user active status: by token (API) and user/loggedIn-status
-	accessRes := crud.CheckUserAccess()
-	if accessRes.Code != "success" {
-		return accessRes
-	}
-	// set current-user info for next steps
-	var (
-		uId      string
-		roleId   string
-		roleIds  []string
-		isAdmin  bool
-		isActive bool
-	)
-	if val, ok := accessRes.Value.(AccessInfoType); ok {
-		uId = val.UserId
-		roleId = val.RoleId
-		roleIds = val.RoleIds
-		isAdmin = val.IsAdmin
-		isActive = val.IsActive
-	} else {
-		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: "Error parsing user access information/value",
-			Value:   nil,
-		})
-	}
-	// if all the above checks passed, check for role-services access by taskType
-	// obtain table/collName id(_id) from serviceTable/Coll (repo for all resources)
-	var (
-		serviceId string
-		category  string
-	)
-	serviceScript := fmt.Sprintf("SELECT id, category from %v WHERE name=$1", crud.ServiceTable)
-	serviceRow := crud.AccessDb.QueryRow(serviceScript, crud.TableName)
-	// check error
-	if err := serviceRow.Scan(&serviceId, &category); err != nil {
-		return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Unauthorized: user information not found or inactive | %v", err.Error()),
-			Value:   nil,
-		})
-	}
-	// if permitted, include table/collId and recordIds in serviceIds
-	tableId := ""
-	serviceIds := crud.RecordIds
-	catLowercase := strings.ToLower(category)
-	if catLowercase == "table" || catLowercase == "collection" {
-		tableId = serviceId
-		serviceIds = append(serviceIds, serviceId)
-	}
-	// compute service-items/records
-	var roleServices []RoleServiceType
-	var rsErr error
-	if len(serviceIds) > 0 {
-		roleServices, rsErr = crud.GetRoleServices(crud.AccessDb, crud.RoleTable, roleId, serviceIds)
-		if rsErr != nil {
-			return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-				Message: fmt.Sprintf("Action un-authorised / not-permitted | %v", rsErr.Error()),
-				Value:   nil,
-			})
-		}
-	}
-
-	permittedRes := CheckAccessType{
-		UserId:       uId,
-		RoleId:       roleId,
-		RoleIds:      roleIds,
-		IsActive:     isActive,
-		IsAdmin:      isAdmin,
-		RoleServices: roleServices,
-		TableId:      tableId,
-	}
-
-	if permittedRes.IsActive && permittedRes.IsAdmin {
-		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-			Message: "Action authorised / permitted.",
-			Value:   permittedRes,
-		})
-	}
-	recLen := len(permittedRes.RoleServices)
-	if permittedRes.IsActive && recLen > 0 && recLen >= len(crud.RecordIds) {
-		return mcresponse.GetResMessage("success", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Access permitted for %v of %v service-items/records", recLen, len(crud.RecordIds)),
-			Value:   permittedRes,
-		})
-	}
-	return mcresponse.GetResMessage("unAuthorized", mcresponse.ResponseMessageOptions{
-		Message: "Action authorised / permitted.",
-		Value:   permittedRes,
-	})
-}
-
-// GetRoleServices method process and returns the permission to user / user-group/roleId for the specified service items
-func (crud *Crud) GetRoleServices(accessDb *sqlx.DB, roleTable string, userRoleId string, serviceIds []string) ([]RoleServiceType, error) {
-	var roleServices []RoleServiceType
-	// where-in-values
-	inValues := ""
-	idLen := len(serviceIds)
-	for idCount, id := range serviceIds {
-		inValues += "'" + id + "'"
-		if idLen > 1 && idCount < idLen-1 {
-			inValues += ", "
-		}
-	}
-	roleScript := fmt.Sprintf("SELECT role_id, service_id, service_category, can_read, can_create, can_delete, can_update, can_crud from %v WHERE service_id IN (%v) AND role_id=$1 AND is_active=$2", roleTable, inValues)
-	rows, err := accessDb.Queryx(roleScript, userRoleId, true)
-	if err != nil {
-		//errMsg := fmt.Sprintf("Db query Error: %v", err.Error())
-		return roleServices, errors.New(fmt.Sprintf("%v", err.Error()))
-	}
-	defer func(rows *sqlx.Rows) {
-		err := rows.Close()
-		if err != nil {
-
-		}
-	}(rows)
-	var (
-		roleId, serviceId, serviceCategory                string
-		canRead, canCreate, canDelete, canUpdate, canCrud bool
-	)
-	for rows.Next() {
-		if err := rows.Scan(&roleId, &serviceId, &serviceCategory, &canRead, &canCreate, &canDelete, &canUpdate, &canCrud); err == nil {
-			roleServices = append(roleServices, RoleServiceType{
-				ServiceId:       serviceId,
-				RoleId:          roleId,
-				ServiceCategory: serviceCategory,
-				CanRead:         canRead,
-				CanCreate:       canCreate,
-				CanUpdate:       canUpdate,
-				CanDelete:       canDelete,
-				CanCrud:         canCrud,
-			})
-		}
-	}
-
-	return roleServices, nil
 }
 
 // CheckUserAccess method determines the user access status: active, valid login and admin
