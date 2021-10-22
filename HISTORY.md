@@ -1,5 +1,10 @@
 # Historical logs
 
+## Version 0.8.3
+
+- Release date: Oct 22, 2021
+- refactored null-row-json-value
+
 ## Version 0.8.2
 
 - Release date: Oct 22, 2021

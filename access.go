@@ -536,17 +536,19 @@ func (crud *Crud) CheckUserAccess() mcresponse.ResponseMessage {
 
 	rIdsVal, rErr := ConvertJsonBase64StringToTypeValue(roleIds, &roleIdsModel)
 	if rErr != nil {
-		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error parsing roleIds-json-value: %v", rErr.Error()),
-			Value:   nil,
-		})
+		rIdsVal = roleIdsModel
+		//return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+		//	Message: fmt.Sprintf("Error parsing roleIds-json-value: %v", rErr.Error()),
+		//	Value:   nil,
+		//})
 	}
 	pVal, pErr := ConvertJsonBase64StringToTypeValue(profile, &profileModel)
 	if pErr != nil {
-		return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
-			Message: fmt.Sprintf("Error parsing user-profile-json-value: %v", pErr.Error()),
-			Value:   nil,
-		})
+		pVal = profileModel
+		//return mcresponse.GetResMessage("paramsError", mcresponse.ResponseMessageOptions{
+		//	Message: fmt.Sprintf("Error parsing user-profile-json-value: %v", pErr.Error()),
+		//	Value:   nil,
+		//})
 	}
 
 	roleIdsVal, rOk := rIdsVal.(IDs)
